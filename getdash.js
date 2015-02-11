@@ -70,7 +70,7 @@ var setupPanelCpu = function (series, span, interval) {
   span = (span === undefined) ? 12 : span;
   interval = (interval === undefined) ? '1m' : interval;
   return {
-    title: 'CPU Graph',
+    title: 'CPU',
     type: 'graphite',
     span: span,
     renderer: "flot",
@@ -115,7 +115,7 @@ var setupPanelMemory = function (series, span, interval) {
   span = (span === undefined) ? 12 : span;
   interval = (interval === undefined) ? '1m' : interval;
   return {
-    title: 'Memory Graph',
+    title: 'Memory',
     type: 'graphite',
     span: span,
     y_formats: ['bytes'],
@@ -144,7 +144,7 @@ var setupPanelLoad = function (series, span, interval) {
   span = (span === undefined) ? 12 : span;
   interval = (interval === undefined) ? '1m' : interval;
   return {
-    title: 'Load Average Graph',
+    title: 'Load Average',
     type: 'graphite',
     span: span,
     y_formats: [ 'none' ],
@@ -163,7 +163,7 @@ var setupPanelSwap = function (series, span, interval) {
   span = (span === undefined) ? 12 : span;
   interval = (interval === undefined) ? '1m' : interval;
   return {
-    title: 'Swap Graph',
+    title: 'Swap',
     type: 'graphite',
     span: span,
     y_formats: [ 'bytes' ],
@@ -174,9 +174,9 @@ var setupPanelSwap = function (series, span, interval) {
     stack: true,
     nullPointMode: "null",
     targets: [
-      targetGen(series + '.swap.swap-free/', 'free', interval),
       targetGen(series + '.swap.swap-used/', 'used', interval),
       targetGen(series + '.swap.swap-cached/', 'cached', interval),
+      targetGen(series + '.swap.swap-free/', 'free', interval),
     ],
     aliasColors: {
       "used": "#1F78C1",
@@ -191,7 +191,7 @@ var setupPanelNetworkTraffic = function (series, span, interval, interf) {
   span = (span === undefined) ? 12 : span;
   interval = (interval === undefined) ? '1m' : interval;
   return {
-    title: 'Network Traffic Graph for ' + interf,
+    title: 'Network Traffic on ' + interf,
     type: 'graphite',
     span: span,
     y_formats: [ 'bytes' ],
@@ -212,7 +212,7 @@ var setupPanelNetworkPackets = function (series, span, interval, interf) {
   span = (span === undefined) ? 12 : span;
   interval = (interval === undefined) ? '1m' : interval;
   return {
-    title: 'Network Packet Graph for ' + interf,
+    title: 'Network Packets on ' + interf,
     type: 'graphite',
     span: span,
     y_formats: [ "bytes" ],
@@ -229,11 +229,11 @@ var setupPanelNetworkPackets = function (series, span, interval, interf) {
 };
 
 var setupPanelDiskDf = function (series, span, interval, vol) {
-  vol = (vol === undefined) ? 'df-root' : vol;
+  vol = (vol === undefined) ? 'df-vda1' : vol;
   span = (span === undefined) ? 12 : span;
   interval = (interval === undefined) ? '1m' : interval;
   return {
-    title: 'Disk space graph for ' + vol,
+    title: 'Disk space for ' + vol,
     type: 'graphite',
     span: span,
     y_formats: [ "bytes" ],
@@ -261,7 +261,7 @@ var setupPanelDiskIO = function (series, span, interval, vol) {
   span = (span === undefined) ? 12 : span;
   interval = (interval === undefined) ? '1m' : interval;
   return {
-    title: 'Disk IO Graph for ' + vol,
+    title: 'Disk IO for ' + vol,
     type: 'graphite',
     span: span,
     y_formats: [ "none" ],
