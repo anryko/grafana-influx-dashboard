@@ -351,6 +351,10 @@ var pfx = 'collectd.' + host;
 var postfix = '';
 var hostSeries = getHostSeries(host);
 
+if (hostSeries.length === 0) {
+  return dashboard;
+}
+
 for (var metric in supportedDashs) {
   var matchedSeries = [];
   var pfxMetric = pfx + '.' + metric;
