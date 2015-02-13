@@ -26,8 +26,6 @@ dashboard = {
   rows : [],
 };
 
-// Set a title
-dashboard.title = 'Scripted dash';
 
 // Set default time
 // time can be overriden in the url using from/to parameteres, but this is
@@ -37,31 +35,64 @@ dashboard.time = {
   to: "now"
 };
 
-var rows = 1;
-var prefix = '/collectd\.';
-
-if(!_.isUndefined(ARGS.rows)) {
-  rows = parseInt(ARGS.rows, 10);
-}
+// InfluxDB setup
+var influxUser = 'root';
+var influxPass = 'root';
+var influxDB = 'graphite';
 
 if(!_.isUndefined(ARGS.host)) {
   var host = ARGS.host;
 }
 
-if(!_.isUndefined(ARGS.metric)) {
-  seriesName = ARGS.name;
-}
+// Set a title
+dashboard.title = 'Scripted Dashboard for ' + host;
 
-var seriesName = prefix + host;
+// function to get series from influxdb
+var getHostSeries = function (host) {
+  var query_url = window.location.protocol + '//'+ window.location.host +
+                   ':8086/db/' + influxDB + '/series?u=' + influxUser + '&p=' + influxPass +
+                   '&q=list series /\.' + host + '\./';
+  var res = [];
+  var req = new XMLHttpRequest();
+  req.open('GET', query_url, false);
+  req.send();
+  var obj = JSON.parse(req.responseText)[0].points;
+  obj.forEach(function (a) {
+    res.push(a[1]);
+  });
+  return res;
+};
+
 
 // function to generate target object
 var targetGen = function (series, alias, interval, column, func) {
   return {
-    series: series,
-    alias: alias,
-    column: (column === undefined) ? 'value' : column,
-    interval: (interval === undefined) ? '1m' : interval,
-    function: (func === undefined) ? 'mean' : func,
+    'series': series,
+    'alias': alias,
+    'column': (column === undefined) ? 'value' : column,
+    'interval': (interval === undefined) ? '1m' : interval,
+    'function': (func === undefined) ? 'mean' : func,
+  };
+};
+
+
+var targetsGen = function (series, span, interval, grapghConf) {
+  var targets = [];
+  var aliasColors = {};
+  for (var match in grapghConf) {
+    for (var i = 0; i < series.length; i++) {
+      var s = series[i];
+      if (s.lastIndexOf(match) === s.length - match.length) {
+        var alias = s.split('.')[2] + '.' + match;
+        var column = grapghConf[match].mod;
+        targets.push(targetGen(s, alias, interval, column));
+        aliasColors[alias] = grapghConf[match].color;
+      }
+    }
+  }
+  return {
+    'targets': targets,
+    'aliasColors': aliasColors,
   };
 };
 
@@ -69,233 +100,290 @@ var targetGen = function (series, alias, interval, column, func) {
 var setupPanelCpu = function (series, span, interval) {
   span = (span === undefined) ? 12 : span;
   interval = (interval === undefined) ? '1m' : interval;
+  var grapghConf = {
+    'system': { 'color': '#EAB839' },
+    'user': { 'color': '#508642' },
+    'idle': { 'color': '#303030' },
+    'wait': { 'color': '#890F02' },
+    'steal': { 'color': '#E24D42'},
+    'nice': { 'color': '#9400D3' },
+    'softirq': {'color': '#E9967A' },
+    'interrupt': { 'color': '#1E90FF' },
+  };
+  var tgen = targetsGen(series, span, interval, grapghConf);
   return {
-    title: 'CPU',
-    type: 'graphite',
-    span: span,
-    renderer: "flot",
-    y_formats: [ "none" ],
-    grid: { max: null, min: 0 },
-    lines: false,
-    bars: true,
-    fill: 1,
-    linewidth: 1,
-    stack: true,
-    legend: {show: true},
-    percentage: true,
-    nullPointMode: "null",
-    tooltip: {
-      value_type: "individual",
-      query_as_alias: true,
-    },
-    targets: [
-      targetGen(series + '.cpu-.*.cpu-user/', 'user', interval),
-      targetGen(series + '.cpu-.*.cpu-system/', 'system', interval),
-      targetGen(series + '.cpu-.*.cpu-idle/', 'idle', interval),
-      targetGen(series + '.cpu-.*.cpu-wait/', 'wait', interval),
-      targetGen(series + '.cpu-.*.cpu-steal/', 'steal', interval),
-      targetGen(series + '.cpu-.*.cpu-nice/', 'nice', interval),
-      targetGen(series + '.cpu-.*.cpu-softirq/', 'irq', interval),
-      targetGen(series + '.cpu-.*.cpu-interrupt/', 'interrupt', interval),
-    ],
-    aliasColors: {
-      user: "#508642",
-      system: "#EAB839",
-      wait: "#890F02",
-      steal: "#E24D42",
-      idle: "#303030",
-      nice: '#9400D3',
-      irq: '#E9967A',
-      interrupt: '#1E90FF',
-    },
+    'title': 'CPU',
+    'type': 'graphite',
+    'span': span,
+    'renderer': 'flot',
+    'y_formats': [ 'percent' ],
+    'grid': { 'max': null, 'min': 0 },
+    'lines': false,
+    'bars': true,
+    'stack': true,
+    'legend': { 'show': true },
+    'percentage': true,
+    'nullPointMode': 'null',
+    'targets': tgen.targets,
+    'aliasColors': tgen.aliasColors,
   };
 };
 
 var setupPanelMemory = function (series, span, interval) {
   span = (span === undefined) ? 12 : span;
   interval = (interval === undefined) ? '1m' : interval;
+  var grapghConf = {
+    'used': { 'color': '#1F78C1' },
+    'cached': { 'color': '#EF843C' },
+    'buffered': { 'color': '#CCA300' },
+    'free': { 'color': '#629E51' },
+  };
+  var tgen = targetsGen(series, span, interval, grapghConf);
   return {
-    title: 'Memory',
-    type: 'graphite',
-    span: span,
-    y_formats: ['bytes'],
-    grid: { max: null, min: 0 },
-    lines: true,
-    fill: 1,
-    linewidth: 1,
-    stack: true,
-    nullPointMode: "null",
-    targets: [
-      targetGen(series + '.memory.memory-used/', 'used', interval),
-      targetGen(series + '.memory.memory-cached/', 'cached', interval),
-      targetGen(series + '.memory.memory-buffered/', 'buffered', interval),
-      targetGen(series + '.memory.memory-free/', 'free', interval),
-    ],
-    aliasColors: {
-      "free": "#629E51",
-      "used": "#1F78C1",
-      "cached": "#EF843C",
-      "buffered": "#CCA300"
-    }
+    'title': 'Memory',
+    'type': 'graphite',
+    'span': span,
+    'y_formats': [ 'bytes' ],
+    'grid': { max: null, min: 0 },
+    'lines': true,
+    'fill': 1,
+    'linewidth': 1,
+    'stack': true,
+    'nullPointMode': 'null',
+    'targets': tgen.targets,
+    'aliasColors': tgen.aliasColors,
   };
 };
 
 var setupPanelLoad = function (series, span, interval) {
   span = (span === undefined) ? 12 : span;
   interval = (interval === undefined) ? '1m' : interval;
+  var grapghConf = {
+    'midterm': { 'color': '#7B68EE' },
+  };
+  var tgen = targetsGen(series, span, interval, grapghConf);
   return {
-    title: 'Load Average',
-    type: 'graphite',
-    span: span,
-    y_formats: [ 'none' ],
-    grid: { max: null, min: 0 },
-    lines: true,
-    fill: 1,
-    linewidth: 1,
-    nullPointMode: "null",
-    targets: [
-      targetGen(series + '.load.load.midterm/', 'load', interval),
-    ]
+    'title': 'Load Average',
+    'type': 'graphite',
+    'span': span,
+    'y_formats': [ 'none' ],
+    'grid': { max: null, min: 0 },
+    'lines': true,
+    'fill': 1,
+    'linewidth': 1,
+    'nullPointMode': 'null',
+    'targets': tgen.targets,
+    'aliasColors': tgen.aliasColors,
   };
 };
 
 var setupPanelSwap = function (series, span, interval) {
   span = (span === undefined) ? 12 : span;
   interval = (interval === undefined) ? '1m' : interval;
+  var grapghConf = {
+    'used': { 'color': '#1F78C1' },
+    'cached': { 'color': '#EAB839' },
+    'free': { 'color': '#508642' },
+  };
+  var tgen = targetsGen(series, span, interval, grapghConf);
   return {
-    title: 'Swap',
-    type: 'graphite',
-    span: span,
-    y_formats: [ 'bytes' ],
-    grid: { max: null, min: 0, leftMin: 0 },
-    lines: true,
-    fill: 1,
-    linewidth: 1,
-    stack: true,
-    nullPointMode: "null",
-    targets: [
-      targetGen(series + '.swap.swap-used/', 'used', interval),
-      targetGen(series + '.swap.swap-cached/', 'cached', interval),
-      targetGen(series + '.swap.swap-free/', 'free', interval),
-    ],
-    aliasColors: {
-      "used": "#1F78C1",
-      "cached": "#EAB839",
-      "free": "#508642"
-    }
+    'title': 'Swap',
+    'type': 'graphite',
+    'span': span,
+    'y_formats': [ 'bytes' ],
+    'grid': { max: null, min: 0, leftMin: 0 },
+    'lines': true,
+    'fill': 1,
+    'linewidth': 1,
+    'stack': true,
+    'nullPointMode': 'null',
+    'targets': tgen.targets,
+    'aliasColors': tgen.aliasColors,
   };
 };
 
-var setupPanelNetworkTraffic = function (series, span, interval, interf) {
-  interf = (interf === undefined) ? 'interface-eth0' : interf;
+var setupPanelNetworkTraffic = function (series, span, interval) {
   span = (span === undefined) ? 12 : span;
   interval = (interval === undefined) ? '1m' : interval;
+  var grapghConf = {
+    'if_octets.rx': { 'color': '#447EBC' },
+    'if_octets.tx': { 'color': '#508642', 'mod': 'value*-1' },
+  };
+  var tgen = targetsGen(series, span, interval, grapghConf);
   return {
-    title: 'Network Traffic on ' + interf,
-    type: 'graphite',
-    span: span,
-    y_formats: [ 'bytes' ],
-    grid: { max: null, min: null },
-    lines: true,
-    fill: 1,
-    linewidth: 1,
-    nullPointMode: "null",
-    targets: [
-      targetGen(series + '.' + interf + '.if_octets.rx/', 'in_' + interf, interval, 'value'),
-      targetGen(series + '.' + interf + '.if_octets.tx/', 'out_' + interf, interval, 'value*-1'),
-    ]
+    'title': 'Network Traffic on ' + series[0].split('.')[2],
+    'type': 'graphite',
+    'span': span,
+    'y_formats': [ 'bytes' ],
+    'grid': { max: null, min: null },
+    'lines': true,
+    'fill': 1,
+    'linewidth': 1,
+    'nullPointMode': 'null',
+    'targets': tgen.targets,
+    'aliasColors': tgen.aliasColors,
   };
 };
 
-var setupPanelNetworkPackets = function (series, span, interval, interf) {
-  interf = (interf === undefined) ? 'interface-eth0' : interf;
+var setupPanelNetworkPackets = function (series, span, interval) {
   span = (span === undefined) ? 12 : span;
   interval = (interval === undefined) ? '1m' : interval;
+  var grapghConf = {
+    'if_packets.rx': { 'color': '#447EBC' },
+    'if_packets.tx': { 'color': '#508642', 'mod': 'value*-1' },
+  };
+  var tgen = targetsGen(series, span, interval, grapghConf);
   return {
-    title: 'Network Packets on ' + interf,
-    type: 'graphite',
-    span: span,
-    y_formats: [ "bytes" ],
-    grid: { max: null, min: null },
-    lines: true,
-    fill: 1,
-    linewidth: 1,
-    nullPointMode: "null",
-    targets: [
-      targetGen(series + '.' + interf + '.if_packets.rx/', 'in_' + interf, interval),
-      targetGen(series + '.' + interf + '.if_packets.tx/', 'out_' + interf, interval, 'value*-1'),
-    ]
+    'title': 'Network Packets on ' + series[0].split('.')[2],
+    'type': 'graphite',
+    'span': span,
+    'y_formats': [ 'none' ],
+    'grid': { max: null, min: null },
+    'lines': true,
+    'fill': 1,
+    'linewidth': 1,
+    'nullPointMode': 'null',
+    'targets': tgen.targets,
+    'aliasColors': tgen.aliasColors,
   };
 };
 
-var setupPanelDiskDf = function (series, span, interval, vol) {
-  vol = (vol === undefined) ? 'df-vda1' : vol;
+var setupPanelDiskDf = function (series, span, interval) {
   span = (span === undefined) ? 12 : span;
   interval = (interval === undefined) ? '1m' : interval;
+  var grapghConf = {
+    'df_complex-used': { 'color': '#447EBC' },
+    'df_complex-reserved': { 'color': '#EAB839' },
+    'df_complex-free': { 'color': '#508642' },
+  };
+  var tgen = targetsGen(series, span, interval, grapghConf);
   return {
-    title: 'Disk space for ' + vol,
-    type: 'graphite',
-    span: span,
-    y_formats: [ "bytes" ],
-    grid: { max: null, min: 0, leftMin: 0 },
-    lines: true,
-    fill: 1,
-    linewidth: 1,
-    stack: true,
-    nullPointMode: "null",
-    targets: [
-      targetGen(series + '.' + vol + '.df_complex-used/', 'used', interval),
-      targetGen(series + '.' + vol + '.df_complex-reserved/', 'reserved', interval),
-      targetGen(series + '.' + vol + '.df_complex-free/', 'free', interval),
-    ],
-    aliasColors: {
-      "used": "#447EBC",
-      "free": "#508642",
-      "reserved": "#EAB839"
-    }
+    'title': 'Disk space for ' + series[0].split('.')[2],
+    'type': 'graphite',
+    'span': span,
+    'y_formats': [ 'bytes' ],
+    'grid': { max: null, min: 0, leftMin: 0 },
+    'lines': true,
+    'fill': 1,
+    'linewidth': 1,
+    'stack': true,
+    'nullPointMode': 'null',
+    'targets': tgen.targets,
+    'aliasColors': tgen.aliasColors,
   };
 };
 
-var setupPanelDiskIO = function (series, span, interval, vol) {
-  vol = (vol === undefined) ? 'df-root' : vol;
+var setupPanelDiskIO = function (series, span, interval) {
   span = (span === undefined) ? 12 : span;
   interval = (interval === undefined) ? '1m' : interval;
+  var grapghConf = {
+    'disk_ops.write': { 'color': '#447EBC' },
+    'disk_ops.read': { 'color': '#508642', 'mod': 'value*-1' },
+  };
+  var tgen = targetsGen(series, span, interval, grapghConf);
   return {
-    title: 'Disk IO for ' + vol,
-    type: 'graphite',
-    span: span,
-    y_formats: [ "none" ],
-    grid: { max: null, min: null },
-    lines: true,
-    fill: 1,
-    linewidth: 1,
-    nullPointMode: "null",
-    targets: [
-      targetGen(series + '.' + vol + '.disk_ops.write/', 'write', interval),
-      targetGen(series + '.' + vol + '.disk_ops.read/', 'read', interval, 'value*-1'),
-    ],
+    'title': 'Disk IO for ' + series[0].split('.')[2],
+    'type': 'graphite',
+    'span': span,
+    'y_formats': [ 'none' ],
+    'grid': { max: null, min: null },
+    'lines': true,
+    'fill': 1,
+    'linewidth': 1,
+    'nullPointMode': 'null',
+    'targets': tgen.targets,
+    'aliasColors': tgen.aliasColors,
   };
 };
 
 var setupRow = function (title, panels) {
   return {
-    title: title,
-    height: '250px',
-    panels: panels,
+    'title': title,
+    'height': '250px',
+    'panels': panels,
   };
 };
 
-// Dashboard row composition
-dashboard.rows.push(setupRow('CPU and Load',
-      [setupPanelCpu(seriesName, 6, '1m'), setupPanelLoad(seriesName, 6, '5m')]));
 
-dashboard.rows.push(setupRow('Memory',
-      [setupPanelMemory(seriesName, 6, '5m'), setupPanelSwap(seriesName, 6, '5m')]));
+var supportedDashs = {
+  'cpu': {
+    'func': [ setupPanelCpu ],
+  },
+  'load': {
+    'func': [ setupPanelLoad ],
+  },
+  'memory': {
+    'func': [ setupPanelMemory ]
+  },
+  'swap': {
+    'func': [ setupPanelSwap ]
+  },
+  'interface': {
+    'func': [ setupPanelNetworkTraffic, setupPanelNetworkPackets ],
+    'multi': true,
+  },
+  'df': {
+    'func': [ setupPanelDiskDf ],
+    'multi': true,
+  },
+  'disk': {
+    'func': [ setupPanelDiskIO ],
+    'multi': true,
+  },
+};
 
-dashboard.rows.push(setupRow('Network',
-      [setupPanelNetworkTraffic(seriesName, 6, '1m'), setupPanelNetworkPackets(seriesName, 6, '1m')]));
+var getExtendedMetrics = function (series, prefix) {
+  var metricsExt = [];
+  var postfix = '';
+  for (var i = 0; i < series.length; i++) {
+    if (series[i].indexOf(prefix) === 0) {
+      postfix = series[i].slice(prefix.length);
+      postfix = postfix.slice(0, postfix.indexOf('.'));
+      if (metricsExt.indexOf(postfix) === -1) {
+        metricsExt.push(postfix);
+      }
+    }
+  }
+  return metricsExt;
+};
 
-dashboard.rows.push(setupRow('Disk',
-      [setupPanelDiskDf(seriesName, 6, '1m'), setupPanelDiskIO(seriesName, 6, '1m', 'disk-vda')]));
+var pfx = 'collectd.' + host;
+var postfix = '';
+var hostSeries = getHostSeries(host);
+
+for (var metric in supportedDashs) {
+  var matchedSeries = [];
+  var pfxMetric = pfx + '.' + metric;
+  for (var i = 0; i < hostSeries.length; i++) {
+    if (hostSeries[i].indexOf(pfxMetric) === 0) {
+      matchedSeries.push(hostSeries[i]);
+    }
+  }
+  if (supportedDashs[metric].multi) {
+    metricsExt = getExtendedMetrics(matchedSeries, pfx + '.');
+    if (metricsExt.length > 1) {
+      for (var k = 0; k < metricsExt.length; k++) {
+        var metricExt = metricsExt[k];
+        var rematchedSeries = [];
+        var repfxMetric = pfx + '.' + metricExt + '.';
+        for (var i = 0; i < matchedSeries.length; i++) {
+          if (matchedSeries[i].indexOf(repfxMetric) === 0) {
+            rematchedSeries.push(matchedSeries[i]);
+          }
+        }
+        for (var j = 0; j < supportedDashs[metric].func.length; j++) {
+          metricFunc = supportedDashs[metric].func[j];
+          dashboard.rows.push(setupRow(metricExt.toUpperCase, [metricFunc(rematchedSeries, 12, '1m')]));
+        }
+      }
+     continue; 
+    }
+  }
+  for (var j = 0; j < supportedDashs[metric].func.length; j++) {
+    metricFunc = supportedDashs[metric].func[j];
+    dashboard.rows.push(setupRow(metric.toUpperCase, [metricFunc(matchedSeries, 12, '1m')]));
+  }
+}
+
 
 return dashboard;
