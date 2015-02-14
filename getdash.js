@@ -329,6 +329,7 @@ var supportedDashs = {
   'disk': {
     'func': [ setupPanelDiskIO ],
     'multi': true,
+    'regexp': /\d$/
   },
 };
 
@@ -351,6 +352,7 @@ var pfx = 'collectd.' + host;
 var postfix = '';
 var hostSeries = getHostSeries(host);
 
+// Skip empty Dashboard setup if there are no series.
 if (hostSeries.length === 0) {
   return dashboard;
 }
@@ -359,7 +361,10 @@ for (var metric in supportedDashs) {
   var matchedSeries = [];
   var pfxMetric = pfx + '.' + metric;
   for (var i = 0; i < hostSeries.length; i++) {
-    if (hostSeries[i].indexOf(pfxMetric) === 0) {
+    if ((hostSeries[i].indexOf(pfxMetric) === 0) &&
+        ((!supportedDashs[metric].regexp) ||
+         (supportedDashs[metric].regexp &&
+          supportedDashs[metric].regexp.test(hostSeries[i].split('.')[2])))) {
       matchedSeries.push(hostSeries[i]);
     }
   }
