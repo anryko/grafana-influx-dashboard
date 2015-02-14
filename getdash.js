@@ -362,8 +362,8 @@ for (var metric in supportedDashs) {
   var pfxMetric = pfx + '.' + metric;
   for (var i = 0; i < hostSeries.length; i++) {
     if ((hostSeries[i].indexOf(pfxMetric) === 0) &&
-        ((!supportedDashs[metric].regexp) ||
-         (supportedDashs[metric].regexp &&
+        (!('regexp' in supportedDashs[metric]) ||
+         ('regexp' in supportedDashs[metric] &&
           supportedDashs[metric].regexp.test(hostSeries[i].split('.')[2])))) {
       matchedSeries.push(hostSeries[i]);
     }
