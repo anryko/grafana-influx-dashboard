@@ -47,6 +47,7 @@ if(!_.isUndefined(ARGS.host)) {
 // Set a title
 dashboard.title = 'Scripted Dashboard for ' + host;
 
+
 // function to get series from influxdb
 var getHostSeries = function (host) {
   var query_url = window.location.protocol + '//'+ window.location.host +
@@ -65,13 +66,13 @@ var getHostSeries = function (host) {
 
 
 // function to generate target object
-var targetGen = function (series, alias, interval, column, func) {
+var targetGen = function (series, alias, interval, column, apply) {
   return {
     'series': series,
     'alias': alias,
     'column': (column === undefined) ? 'value' : column,
     'interval': (interval === undefined) ? '1m' : interval,
-    'function': (func === undefined) ? 'mean' : func,
+    'function': (apply === undefined) ? 'mean' : apply,
   };
 };
 
@@ -84,8 +85,9 @@ var targetsGen = function (series, span, interval, grapghConf) {
       var s = series[i];
       if (s.lastIndexOf(match) === s.length - match.length) {
         var alias = s.split('.')[2] + '.' + match;
-        var column = grapghConf[match].mod;
-        targets.push(targetGen(s, alias, interval, column));
+        var column = grapghConf[match].column;
+        var apply = grapghConf[match].apply;
+        targets.push(targetGen(s, alias, interval, column, apply));
         aliasColors[alias] = grapghConf[match].color;
       }
     }
@@ -129,6 +131,7 @@ var setupPanelCpu = function (series, span, interval) {
   };
 };
 
+
 var setupPanelMemory = function (series, span, interval) {
   span = (span === undefined) ? 12 : span;
   interval = (interval === undefined) ? '1m' : interval;
@@ -155,6 +158,7 @@ var setupPanelMemory = function (series, span, interval) {
   };
 };
 
+
 var setupPanelLoad = function (series, span, interval) {
   span = (span === undefined) ? 12 : span;
   interval = (interval === undefined) ? '1m' : interval;
@@ -176,6 +180,7 @@ var setupPanelLoad = function (series, span, interval) {
     'aliasColors': tgen.aliasColors,
   };
 };
+
 
 var setupPanelSwap = function (series, span, interval) {
   span = (span === undefined) ? 12 : span;
@@ -202,12 +207,13 @@ var setupPanelSwap = function (series, span, interval) {
   };
 };
 
+
 var setupPanelNetworkTraffic = function (series, span, interval) {
   span = (span === undefined) ? 12 : span;
   interval = (interval === undefined) ? '1m' : interval;
   var grapghConf = {
     'if_octets.rx': { 'color': '#447EBC' },
-    'if_octets.tx': { 'color': '#508642', 'mod': 'value*-1' },
+    'if_octets.tx': { 'color': '#508642', 'column': 'value*-1' },
   };
   var tgen = targetsGen(series, span, interval, grapghConf);
   return {
@@ -225,12 +231,13 @@ var setupPanelNetworkTraffic = function (series, span, interval) {
   };
 };
 
+
 var setupPanelNetworkPackets = function (series, span, interval) {
   span = (span === undefined) ? 12 : span;
   interval = (interval === undefined) ? '1m' : interval;
   var grapghConf = {
     'if_packets.rx': { 'color': '#447EBC' },
-    'if_packets.tx': { 'color': '#508642', 'mod': 'value*-1' },
+    'if_packets.tx': { 'color': '#508642', 'column': 'value*-1' },
   };
   var tgen = targetsGen(series, span, interval, grapghConf);
   return {
@@ -247,6 +254,7 @@ var setupPanelNetworkPackets = function (series, span, interval) {
     'aliasColors': tgen.aliasColors,
   };
 };
+
 
 var setupPanelDiskDf = function (series, span, interval) {
   span = (span === undefined) ? 12 : span;
@@ -273,12 +281,13 @@ var setupPanelDiskDf = function (series, span, interval) {
   };
 };
 
+
 var setupPanelDiskIO = function (series, span, interval) {
   span = (span === undefined) ? 12 : span;
   interval = (interval === undefined) ? '1m' : interval;
   var grapghConf = {
     'disk_ops.write': { 'color': '#447EBC' },
-    'disk_ops.read': { 'color': '#508642', 'mod': 'value*-1' },
+    'disk_ops.read': { 'color': '#508642', 'column': 'value*-1' },
   };
   var tgen = targetsGen(series, span, interval, grapghConf);
   return {
@@ -295,6 +304,60 @@ var setupPanelDiskIO = function (series, span, interval) {
     'aliasColors': tgen.aliasColors,
   };
 };
+
+
+var setupPanelPsState = function (series, span, interval) {
+  span = (span === undefined) ? 12 : span;
+  interval = (interval === undefined) ? '1m' : interval;
+  var grapghConf = {
+    'sleeping': { 'color': '#EAB839', 'apply': 'max' },
+    'running': { 'color': '#508642', 'apply': 'max' },
+    'stopped': { 'color': '#E9967A', 'apply': 'max' },
+    'blocked': { 'color': '#890F02', 'apply': 'max' },
+    'zombies': { 'color': '#E24D42', 'apply': 'max' },
+    'paging': { 'color': '#9400D3', 'apply': 'max' },
+  };
+  var tgen = targetsGen(series, span, interval, grapghConf);
+  return {
+    'title': 'Processes State',
+    'type': 'graphite',
+    'span': span,
+    'renderer': 'flot',
+    'y_formats': [ 'short' ],
+    'grid': { 'max': null, 'min': 0 },
+    'lines': true,
+    'fill': 1,
+    'linewidth': 1,
+    'nullPointMode': 'null',
+    'targets': tgen.targets,
+    'aliasColors': tgen.aliasColors,
+  };
+};
+
+var setupPanelPsForks = function (series, span, interval) {
+  span = (span === undefined) ? 12 : span;
+  interval = (interval === undefined) ? '1m' : interval;
+  var grapghConf = {
+    'fork_rate': { 'color': '#2EFEF7', 'apply': 'max' },
+  };
+  var tgen = targetsGen(series, span, interval, grapghConf);
+  return {
+    'title': 'Processes Fork Rate',
+    'type': 'graphite',
+    'span': span,
+    'renderer': 'flot',
+    'y_formats': [ 'short' ],
+    'grid': { 'max': null, 'min': 0 },
+    'lines': true,
+    'fill': 1,
+    'linewidth': 1,
+    'nullPointMode': 'null',
+    'targets': tgen.targets,
+    'aliasColors': tgen.aliasColors,
+  };
+};
+
+
 
 var setupRow = function (title, panels) {
   return {
@@ -313,10 +376,10 @@ var supportedDashs = {
     'func': [ setupPanelLoad ],
   },
   'memory': {
-    'func': [ setupPanelMemory ]
+    'func': [ setupPanelMemory ],
   },
   'swap': {
-    'func': [ setupPanelSwap ]
+    'func': [ setupPanelSwap ],
   },
   'interface': {
     'func': [ setupPanelNetworkTraffic, setupPanelNetworkPackets ],
@@ -331,7 +394,11 @@ var supportedDashs = {
     'multi': true,
     'regexp': /\d$/
   },
+  'processes': {
+    'func': [ setupPanelPsState, setupPanelPsForks ],
+  },
 };
+
 
 var getExtendedMetrics = function (series, prefix) {
   var metricsExt = [];
@@ -367,6 +434,9 @@ for (var metric in supportedDashs) {
           supportedDashs[metric].regexp.test(hostSeries[i].split('.')[2])))) {
       matchedSeries.push(hostSeries[i]);
     }
+  }
+  if (matchedSeries.length === 0) {
+    continue;
   }
   if (supportedDashs[metric].multi) {
     metricsExt = getExtendedMetrics(matchedSeries, pfx + '.');
