@@ -99,10 +99,41 @@ var targetsGen = function (series, span, interval, grapghConf) {
 };
 
 
-var setupPanelCpu = function (series, span, interval) {
-  span = (span === undefined) ? 12 : span;
-  interval = (interval === undefined) ? '1m' : interval;
-  var grapghConf = {
+var panelFactory = function (gConf) {
+  return function (series, span, interval) {
+    span = (span === undefined) ? 12 : span;
+    interval = (interval === undefined) ? '1m' : interval;
+    var result = {};
+    var graph = gConf.graph;
+    var targets = targetsGen(series, span, interval, graph);
+    var panel = {
+      'title': 'Default Title',
+      'type': 'graphite',
+      'span': span,
+      'y_formats': [ 'none' ],
+      'grid': { 'max': null, 'min': null },
+      'lines': true,
+      'fill': 1,
+      'linewidth': 1,
+      'nullPointMode': 'null',
+      'targets': targets.targets,
+      'aliasColors': targets.aliasColors,
+    };
+
+    if (('title' in gConf.panel) && (gConf.panel.title.match('@metric'))) {
+      result = $.extend(result, panel, gConf.panel,
+          { 'title': gConf.panel.title.replace('@metric', series[0].split('.')[2]) });
+    } else {
+      result = $.extend(result, panel, gConf.panel);
+    }
+
+    return result;
+ };
+};
+
+
+var gCpu = {
+  'graph': {
     'system': { 'color': '#EAB839' },
     'user': { 'color': '#508642' },
     'idle': { 'color': '#303030' },
@@ -111,13 +142,9 @@ var setupPanelCpu = function (series, span, interval) {
     'nice': { 'color': '#9400D3' },
     'softirq': {'color': '#E9967A' },
     'interrupt': { 'color': '#1E90FF' },
-  };
-  var tgen = targetsGen(series, span, interval, grapghConf);
-  return {
+  },
+  'panel': {
     'title': 'CPU',
-    'type': 'graphite',
-    'span': span,
-    'renderer': 'flot',
     'y_formats': [ 'percent' ],
     'grid': { 'max': null, 'min': 0 },
     'lines': false,
@@ -125,238 +152,128 @@ var setupPanelCpu = function (series, span, interval) {
     'stack': true,
     'legend': { 'show': true },
     'percentage': true,
-    'nullPointMode': 'null',
-    'targets': tgen.targets,
-    'aliasColors': tgen.aliasColors,
-  };
+  },
 };
 
 
-var setupPanelMemory = function (series, span, interval) {
-  span = (span === undefined) ? 12 : span;
-  interval = (interval === undefined) ? '1m' : interval;
-  var grapghConf = {
+var gMemory = {
+  'graph': {
     'used': { 'color': '#1F78C1' },
     'cached': { 'color': '#EF843C' },
     'buffered': { 'color': '#CCA300' },
     'free': { 'color': '#629E51' },
-  };
-  var tgen = targetsGen(series, span, interval, grapghConf);
-  return {
+  },
+  'panel': {
     'title': 'Memory',
-    'type': 'graphite',
-    'span': span,
     'y_formats': [ 'bytes' ],
-    'grid': { max: null, min: 0 },
-    'lines': true,
-    'fill': 1,
-    'linewidth': 1,
+    'grid': { 'max': null, 'min': 0 },
     'stack': true,
-    'nullPointMode': 'null',
-    'targets': tgen.targets,
-    'aliasColors': tgen.aliasColors,
-  };
+  },
 };
 
 
-var setupPanelLoad = function (series, span, interval) {
-  span = (span === undefined) ? 12 : span;
-  interval = (interval === undefined) ? '1m' : interval;
-  var grapghConf = {
+var gLoad = {
+  'graph': {
     'midterm': { 'color': '#7B68EE' },
-  };
-  var tgen = targetsGen(series, span, interval, grapghConf);
-  return {
+  },
+  'panel': {
     'title': 'Load Average',
-    'type': 'graphite',
-    'span': span,
-    'y_formats': [ 'none' ],
-    'grid': { max: null, min: 0 },
-    'lines': true,
-    'fill': 1,
-    'linewidth': 1,
-    'nullPointMode': 'null',
-    'targets': tgen.targets,
-    'aliasColors': tgen.aliasColors,
-  };
+    'grid': { 'max': null, 'min': 0 },
+  },
 };
 
 
-var setupPanelSwap = function (series, span, interval) {
-  span = (span === undefined) ? 12 : span;
-  interval = (interval === undefined) ? '1m' : interval;
-  var grapghConf = {
+var gSwap = {
+  'graph': {
     'used': { 'color': '#1F78C1' },
     'cached': { 'color': '#EAB839' },
     'free': { 'color': '#508642' },
-  };
-  var tgen = targetsGen(series, span, interval, grapghConf);
-  return {
+  },
+  'panel': {
     'title': 'Swap',
-    'type': 'graphite',
-    'span': span,
     'y_formats': [ 'bytes' ],
-    'grid': { max: null, min: 0, leftMin: 0 },
-    'lines': true,
-    'fill': 1,
-    'linewidth': 1,
+    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
     'stack': true,
-    'nullPointMode': 'null',
-    'targets': tgen.targets,
-    'aliasColors': tgen.aliasColors,
-  };
+  },
 };
 
 
-var setupPanelNetworkTraffic = function (series, span, interval) {
-  span = (span === undefined) ? 12 : span;
-  interval = (interval === undefined) ? '1m' : interval;
-  var grapghConf = {
+var gNetworkTraffic = {
+  'graph': {
     'if_octets.rx': { 'color': '#447EBC' },
     'if_octets.tx': { 'color': '#508642', 'column': 'value*-1' },
-  };
-  var tgen = targetsGen(series, span, interval, grapghConf);
-  return {
-    'title': 'Network Traffic on ' + series[0].split('.')[2],
-    'type': 'graphite',
-    'span': span,
+  },
+  'panel': {
+    'title': 'Network Traffic on @metric',
     'y_formats': [ 'bytes' ],
-    'grid': { max: null, min: null },
-    'lines': true,
-    'fill': 1,
-    'linewidth': 1,
-    'nullPointMode': 'null',
-    'targets': tgen.targets,
-    'aliasColors': tgen.aliasColors,
-  };
+  },
 };
 
 
-var setupPanelNetworkPackets = function (series, span, interval) {
-  span = (span === undefined) ? 12 : span;
-  interval = (interval === undefined) ? '1m' : interval;
-  var grapghConf = {
+var gNetworkPackets = {
+  'graph': {
     'if_packets.rx': { 'color': '#447EBC' },
     'if_packets.tx': { 'color': '#508642', 'column': 'value*-1' },
-  };
-  var tgen = targetsGen(series, span, interval, grapghConf);
-  return {
-    'title': 'Network Packets on ' + series[0].split('.')[2],
-    'type': 'graphite',
-    'span': span,
-    'y_formats': [ 'none' ],
-    'grid': { max: null, min: null },
-    'lines': true,
-    'fill': 1,
-    'linewidth': 1,
-    'nullPointMode': 'null',
-    'targets': tgen.targets,
-    'aliasColors': tgen.aliasColors,
-  };
+  },
+  'panel': {
+    'title': 'Network Packets on @metric',
+  },
 };
 
 
-var setupPanelDiskDf = function (series, span, interval) {
-  span = (span === undefined) ? 12 : span;
-  interval = (interval === undefined) ? '1m' : interval;
-  var grapghConf = {
+var gDiskDf = {
+  'graph': {
     'df_complex-used': { 'color': '#447EBC' },
     'df_complex-reserved': { 'color': '#EAB839' },
     'df_complex-free': { 'color': '#508642' },
-  };
-  var tgen = targetsGen(series, span, interval, grapghConf);
-  return {
-    'title': 'Disk space for ' + series[0].split('.')[2],
-    'type': 'graphite',
-    'span': span,
+  },
+  'panel': {
+    'title': 'Disk space for @metric',
     'y_formats': [ 'bytes' ],
-    'grid': { max: null, min: 0, leftMin: 0 },
-    'lines': true,
-    'fill': 1,
-    'linewidth': 1,
+    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
     'stack': true,
-    'nullPointMode': 'null',
-    'targets': tgen.targets,
-    'aliasColors': tgen.aliasColors,
-  };
+  },
 };
 
 
-var setupPanelDiskIO = function (series, span, interval) {
-  span = (span === undefined) ? 12 : span;
-  interval = (interval === undefined) ? '1m' : interval;
-  var grapghConf = {
+var gDiskIO = {
+  'graph': {
     'disk_ops.write': { 'color': '#447EBC' },
     'disk_ops.read': { 'color': '#508642', 'column': 'value*-1' },
-  };
-  var tgen = targetsGen(series, span, interval, grapghConf);
-  return {
-    'title': 'Disk IO for ' + series[0].split('.')[2],
-    'type': 'graphite',
-    'span': span,
-    'y_formats': [ 'none' ],
-    'grid': { max: null, min: null },
-    'lines': true,
-    'fill': 1,
-    'linewidth': 1,
-    'nullPointMode': 'null',
-    'targets': tgen.targets,
-    'aliasColors': tgen.aliasColors,
-  };
+  },
+  'panel': {
+    'title': 'Disk IO for @metric',
+  },
 };
 
 
-var setupPanelPsState = function (series, span, interval) {
-  span = (span === undefined) ? 12 : span;
-  interval = (interval === undefined) ? '1m' : interval;
-  var grapghConf = {
+var gPsState = {
+  'graph': {
     'sleeping': { 'color': '#EAB839', 'apply': 'max' },
     'running': { 'color': '#508642', 'apply': 'max' },
     'stopped': { 'color': '#E9967A', 'apply': 'max' },
     'blocked': { 'color': '#890F02', 'apply': 'max' },
     'zombies': { 'color': '#E24D42', 'apply': 'max' },
     'paging': { 'color': '#9400D3', 'apply': 'max' },
-  };
-  var tgen = targetsGen(series, span, interval, grapghConf);
-  return {
+  },
+  'panel': {
     'title': 'Processes State',
-    'type': 'graphite',
-    'span': span,
-    'renderer': 'flot',
     'y_formats': [ 'short' ],
     'grid': { 'max': null, 'min': 0 },
-    'lines': true,
-    'fill': 1,
-    'linewidth': 1,
-    'nullPointMode': 'null',
-    'targets': tgen.targets,
-    'aliasColors': tgen.aliasColors,
-  };
+  },
 };
 
-var setupPanelPsForks = function (series, span, interval) {
-  span = (span === undefined) ? 12 : span;
-  interval = (interval === undefined) ? '1m' : interval;
-  var grapghConf = {
-    'fork_rate': { 'color': '#2EFEF7', 'apply': 'max' },
-  };
-  var tgen = targetsGen(series, span, interval, grapghConf);
-  return {
+
+var gPsForks = {
+  'graph': {
+    'fork_rate': { 'color': '#81BEF7', 'apply': 'max' },
+  },
+  'panel': {
     'title': 'Processes Fork Rate',
-    'type': 'graphite',
-    'span': span,
-    'renderer': 'flot',
     'y_formats': [ 'short' ],
     'grid': { 'max': null, 'min': 0 },
-    'lines': true,
-    'fill': 1,
-    'linewidth': 1,
-    'nullPointMode': 'null',
-    'targets': tgen.targets,
-    'aliasColors': tgen.aliasColors,
-  };
+  },
 };
-
 
 
 var setupRow = function (title, panels) {
@@ -370,32 +287,32 @@ var setupRow = function (title, panels) {
 
 var supportedDashs = {
   'cpu': {
-    'func': [ setupPanelCpu ],
+    'func': [ panelFactory(gCpu) ],
   },
   'load': {
-    'func': [ setupPanelLoad ],
+    'func': [ panelFactory(gLoad) ],
   },
   'memory': {
-    'func': [ setupPanelMemory ],
+    'func': [ panelFactory(gMemory) ],
   },
   'swap': {
-    'func': [ setupPanelSwap ],
+    'func': [ panelFactory(gSwap) ],
   },
   'interface': {
-    'func': [ setupPanelNetworkTraffic, setupPanelNetworkPackets ],
+    'func': [ panelFactory(gNetworkTraffic), panelFactory(gNetworkPackets) ],
     'multi': true,
   },
   'df': {
-    'func': [ setupPanelDiskDf ],
+    'func': [ panelFactory(gDiskDf) ],
     'multi': true,
   },
   'disk': {
-    'func': [ setupPanelDiskIO ],
+    'func': [ panelFactory(gDiskIO) ],
     'multi': true,
     'regexp': /\d$/
   },
   'processes': {
-    'func': [ setupPanelPsState, setupPanelPsForks ],
+    'func': [ panelFactory(gPsState), panelFactory(gPsForks) ],
   },
 };
 
