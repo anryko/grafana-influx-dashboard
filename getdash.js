@@ -200,8 +200,8 @@ var gSwap = {
 
 var gNetworkTraffic = {
   'graph': {
-    'if_octets.rx': { 'color': '#447EBC' },
-    'if_octets.tx': { 'color': '#508642', 'column': 'value*-1' },
+    'octets.rx': { 'color': '#447EBC' },
+    'octets.tx': { 'color': '#508642', 'column': 'value*-1' },
   },
   'panel': {
     'title': 'Network Traffic on @metric',
@@ -212,8 +212,8 @@ var gNetworkTraffic = {
 
 var gNetworkPackets = {
   'graph': {
-    'if_packets.rx': { 'color': '#447EBC' },
-    'if_packets.tx': { 'color': '#508642', 'column': 'value*-1' },
+    'packets.rx': { 'color': '#447EBC' },
+    'packets.tx': { 'color': '#508642', 'column': 'value*-1' },
   },
   'panel': {
     'title': 'Network Packets on @metric',
@@ -223,9 +223,9 @@ var gNetworkPackets = {
 
 var gDiskDf = {
   'graph': {
-    'df_complex-used': { 'color': '#447EBC' },
-    'df_complex-reserved': { 'color': '#EAB839' },
-    'df_complex-free': { 'color': '#508642' },
+    'complex-used': { 'color': '#447EBC' },
+    'complex-reserved': { 'color': '#EAB839' },
+    'complex-free': { 'color': '#508642' },
   },
   'panel': {
     'title': 'Disk space for @metric',
@@ -238,8 +238,8 @@ var gDiskDf = {
 
 var gDiskIO = {
   'graph': {
-    'disk_ops.write': { 'color': '#447EBC' },
-    'disk_ops.read': { 'color': '#508642', 'column': 'value*-1' },
+    'ops.write': { 'color': '#447EBC' },
+    'ops.read': { 'color': '#508642', 'column': 'value*-1' },
   },
   'panel': {
     'title': 'Disk IO for @metric',
@@ -275,12 +275,24 @@ var gPsForks = {
   },
 };
 
+var gRedisMemory = {
+  'graph': {
+    'used': { 'color': '#447EBC' },
+    'free': { 'color': '#508642' },
+  },
+  'panel': {
+    'title': 'Redis Memomy',
+    'y_formats': [ 'bytes' ],
+    'stack': true,
+  },
+};
 
 var setupRow = function (title, panels) {
   return {
     'title': title,
     'height': '250px',
     'panels': panels,
+    'grid': { 'max': null, 'min': 0 },
   };
 };
 
@@ -313,6 +325,9 @@ var supportedDashs = {
   },
   'processes': {
     'func': [ panelFactory(gPsState), panelFactory(gPsForks) ],
+  },
+  'redis' : {
+    'func': [ panelFactory(gRedisMemory) ],
   },
 };
 
