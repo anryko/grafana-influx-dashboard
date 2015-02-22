@@ -44,6 +44,10 @@ if(!_.isUndefined(ARGS.host)) {
   var host = ARGS.host;
 }
 
+if(!_.isUndefined(ARGS.metric)) {
+  var displayMetric = ARGS.metric;
+}
+
 // Set a title
 dashboard.title = 'Scripted Dashboard for ' + host;
 
@@ -275,15 +279,61 @@ var gPsForks = {
   },
 };
 
+
+// Redis plugin used: https://github.com/powdahound/redis-collectd-plugin
 var gRedisMemory = {
   'graph': {
-    'used': { 'color': '#447EBC' },
-    'free': { 'color': '#508642' },
+    'used_memory': { 'color': '#447EBC' },
   },
   'panel': {
     'title': 'Redis Memomy',
     'y_formats': [ 'bytes' ],
+  },
+};
+
+
+var gMemcachedMemory = {
+  'graph': {
+    'cache.used': { 'color': '#447EBC' },
+    'cache.free': { 'color': '#508642' },
+  },
+  'panel': {
+    'title': 'Memcached Memomy',
+    'y_formats': [ 'bytes' ],
     'stack': true,
+  },
+};
+
+var gMemcachedConns = {
+  'graph': {
+    'connections-current': { 'color': '#447EBC' },
+  },
+  'panel': {
+    'title': 'Memcached Connections',
+    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
+  },
+};
+
+var gMemcachedItems = {
+  'graph': {
+    'items-current': { 'color': '#447EBC' },
+  },
+  'panel': {
+    'title': 'Memcached Items',
+    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
+  },
+};
+
+var gMemcachedCommands = {
+  'graph': {
+    'command-flush': { 'color': '#447EBC' },
+    'command-get': { 'color': '#508642' },
+    'command-set': { 'color': '#E9967A' },
+    'command-touch': { 'color': '#890F02' },
+  },
+  'panel': {
+    'title': 'Memcached Commands',
+    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
   },
 };
 
@@ -311,7 +361,9 @@ var supportedDashs = {
     'func': [ panelFactory(gSwap) ],
   },
   'interface': {
-    'func': [ panelFactory(gNetworkTraffic), panelFactory(gNetworkPackets) ],
+    'func': [ panelFactory(gNetworkTraffic),
+              panelFactory(gNetworkPackets),
+            ],
     'multi': true,
   },
   'df': {
@@ -324,13 +376,34 @@ var supportedDashs = {
     'regexp': /\d$/
   },
   'processes': {
-    'func': [ panelFactory(gPsState), panelFactory(gPsForks) ],
+    'func': [ panelFactory(gPsState),
+              panelFactory(gPsForks),
+            ],
   },
   'redis' : {
-    'func': [ panelFactory(gRedisMemory) ],
+    'func': [ panelFactory(gRedisMemory),
+            ],
+  },
+  'memcache' : {
+    'func': [ panelFactory(gMemcachedMemory),
+              panelFactory(gMemcachedConns),
+              panelFactory(gMemcachedItems),
+              panelFactory(gMemcachedCommands),
+            ],
   },
 };
 
+var showDashs = {};
+
+if (displayMetric) {
+  displayMetric.split(',').forEach(function (metric) {
+    if (metric in supportedDashs) {
+      showDashs[metric] = supportedDashs[metric];
+    }
+  });
+} else {
+  showDashs = supportedDashs;
+}
 
 var getExtendedMetrics = function (series, prefix) {
   var metricsExt = [];
@@ -356,21 +429,21 @@ if (hostSeries.length === 0) {
   return dashboard;
 }
 
-for (var metric in supportedDashs) {
+for (var metric in showDashs) {
   var matchedSeries = [];
   var pfxMetric = pfx + '.' + metric;
   for (var i = 0; i < hostSeries.length; i++) {
     if ((hostSeries[i].indexOf(pfxMetric) === 0) &&
-        (!('regexp' in supportedDashs[metric]) ||
-         ('regexp' in supportedDashs[metric] &&
-          supportedDashs[metric].regexp.test(hostSeries[i].split('.')[2])))) {
+        (!('regexp' in showDashs[metric]) ||
+         ('regexp' in showDashs[metric] &&
+          showDashs[metric].regexp.test(hostSeries[i].split('.')[2])))) {
       matchedSeries.push(hostSeries[i]);
     }
   }
   if (matchedSeries.length === 0) {
     continue;
   }
-  if (supportedDashs[metric].multi) {
+  if (showDashs[metric].multi) {
     metricsExt = getExtendedMetrics(matchedSeries, pfx + '.');
     if (metricsExt.length > 1) {
       for (var k = 0; k < metricsExt.length; k++) {
@@ -382,16 +455,16 @@ for (var metric in supportedDashs) {
             rematchedSeries.push(matchedSeries[i]);
           }
         }
-        for (var j = 0; j < supportedDashs[metric].func.length; j++) {
-          metricFunc = supportedDashs[metric].func[j];
+        for (var j = 0; j < showDashs[metric].func.length; j++) {
+          metricFunc = showDashs[metric].func[j];
           dashboard.rows.push(setupRow(metricExt.toUpperCase, [metricFunc(rematchedSeries, 12, '1m')]));
         }
       }
      continue; 
     }
   }
-  for (var j = 0; j < supportedDashs[metric].func.length; j++) {
-    metricFunc = supportedDashs[metric].func[j];
+  for (var j = 0; j < showDashs[metric].func.length; j++) {
+    metricFunc = showDashs[metric].func[j];
     dashboard.rows.push(setupRow(metric.toUpperCase, [metricFunc(matchedSeries, 12, '1m')]));
   }
 }
