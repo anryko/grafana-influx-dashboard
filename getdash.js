@@ -288,9 +288,20 @@ var gRedisMemory = {
   'panel': {
     'title': 'Redis Memomy',
     'y_formats': [ 'bytes' ],
+    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
   },
 };
 
+var gRedisCommands = {
+  'graph': {
+    'commands_processed': { 'color': '#447EBC', 'apply': 'max' },
+  },
+  'panel': {
+    'title': 'Redis Commands',
+    'y_formats': [ 'none' ],
+    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
+  },
+};
 
 var gMemcachedMemory = {
   'graph': {
@@ -382,6 +393,7 @@ var supportedDashs = {
   },
   'redis' : {
     'func': [ panelFactory(gRedisMemory),
+              panelFactory(gRedisCommands),
             ],
   },
   'memcache' : {
