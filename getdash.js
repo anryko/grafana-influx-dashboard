@@ -611,6 +611,19 @@ var gRabbitmqSockets = {
   },
 };
 
+
+// ElasticSearch plugin configuration: https://github.com/phobos182/collectd-elasticsearch
+var gElasticsearchJVM = {
+  'graph': {
+    'jvm_mem_heap-used-percent': { 'alias': 'jvm-heap-used' },
+  },
+  'panel': {
+    'title': 'ElasticSearch JVM Heap Usage',
+    'grid': { 'max': null, 'min': 0 },
+    'y_formats': [ 'percent' ],
+  },
+}; 
+
 var setupRow = function (title, panels) {
   return {
     'title': title,
@@ -692,6 +705,12 @@ var supportedDashs = {
               panelFactory(gRabbitmqSockets),
             ],
     'alias': 'rabbitmq',
+  },
+  'elasticsearch': {
+    'func': [
+              panelFactory(gElasticsearchJVM),
+            ],
+    'alias': 'elasticsearch',
   },
 };
 
