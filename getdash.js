@@ -81,7 +81,7 @@ var targetGen = function (series, alias, interval, column, apply) {
 };
 
 
-var targetsGen = function (series, span, interval, graphConf, aliasConf) {
+var targetsGen = function (series, seriesAlias, span, interval, graphConf, aliasConf) {
   var targets = [];
   var aliasColors = {};
   var aliasColor = '';
@@ -92,13 +92,14 @@ var targetsGen = function (series, span, interval, graphConf, aliasConf) {
     var graph = graphConf[match];
     for (var i = 0; i < series.length; i++) {
       var s = series[i];
+      seriesAlias = (seriesAlias) ? seriesAlias : s.split('.')[2];
       if (s.lastIndexOf(match) === s.length - match.length) {
         if ((aliasConf) && ('position' in aliasConf)) {
-          alias = s.split('.')[2] + '.' + s.split('.')[aliasConf.position];
+          alias = seriesAlias + '.' + s.split('.')[aliasConf.position];
         } else if (graph.alias) {
-          alias = s.split('.')[2] + '.' + graph.alias;
+          alias = seriesAlias + '.' + graph.alias;
         } else {
-          alias = s.split('.')[2] + '.' + match;
+          alias = seriesAlias + '.' + match;
         }
         column = graph.column;
         apply = graph.apply;
@@ -120,13 +121,13 @@ var targetsGen = function (series, span, interval, graphConf, aliasConf) {
 
 
 var panelFactory = function (gConf) {
-  return function (series, span, interval) {
+  return function (series, seriesAlias, span, interval) {
     span = (span === undefined) ? 12 : span;
     interval = (interval === undefined) ? '1m' : interval;
     var result = {};
     var graph = gConf.graph;
     var alias = gConf.alias;
-    var targets = targetsGen(series, span, interval, graph, alias);
+    var targets = targetsGen(series, seriesAlias, span, interval, graph, alias);
     var panel = {
       'title': 'Default Title',
       'type': 'graphite',
@@ -297,7 +298,7 @@ var gPsForks = {
 };
 
 
-// Redis plugin used: https://github.com/powdahound/redis-collectd-plugin
+// Redis plugin configuration: https://github.com/powdahound/redis-collectd-plugin
 var gRedisMemory = {
   'graph': {
     'used_memory': { 'color': '#447EBC' },
@@ -407,7 +408,7 @@ var gRedisUptime = {
   },
 };
 
-// Memcached plugin configuration
+// Memcached default collectd plugin configuration
 var gMemcachedMemory = {
   'graph': {
     'cache.used': { 'color': '#447EBC', 'alias': 'memory-used' },
@@ -514,6 +515,19 @@ var gMemcachedCPU = {
 };
 
 
+// RabbitMQ plugin configuration: https://github.com/kozdincer/rabbitmq_collectd_plugin
+var gRabbitmqRates = {
+  'graph': {
+    'ack_rate': {},
+    'deliver_rate': {},
+    'publish_rate': {},
+  },
+  'panel': {
+    'title': 'RabbitMQ Rates',
+    'grid': { 'max': null, 'min': 0 },
+  },
+};
+
 
 
 var setupRow = function (title, panels) {
@@ -559,7 +573,7 @@ var supportedDashs = {
               panelFactory(gPsForks),
             ],
   },
-  'redis' : {
+  'redis': {
     'func': [ panelFactory(gRedisMemory),
               panelFactory(gRedisUptime),
               panelFactory(gRedisCommands),
@@ -571,8 +585,9 @@ var supportedDashs = {
               panelFactory(gRedisReplBacklogCounters),
               panelFactory(gRedisReplBacklogSize),
             ],
+    'alias': 'redis',
   },
-  'memcache' : {
+  'memcache': {
     'func': [ panelFactory(gMemcachedMemory),
               panelFactory(gMemcachedConns),
               panelFactory(gMemcachedItems),
@@ -583,6 +598,12 @@ var supportedDashs = {
               panelFactory(gMemcachedPs),
               panelFactory(gMemcachedCPU),
             ],
+  },
+  'rabbitmq': {
+    'func': [
+              panelFactory(gRabbitmqRates),
+            ],
+    'alias': 'rabbitmq',
   },
 };
 
@@ -625,6 +646,7 @@ if (hostSeries.length === 0) {
 for (var metric in showDashs) {
   var matchedSeries = [];
   var pfxMetric = pfx + '.' + metric;
+  var seriesAlias = ('alias' in showDashs[metric]) ? showDashs[metric].alias : null;
   for (var i = 0; i < hostSeries.length; i++) {
     if ((hostSeries[i].indexOf(pfxMetric) === 0) &&
         (!('regexp' in showDashs[metric]) ||
@@ -650,7 +672,7 @@ for (var metric in showDashs) {
         }
         for (var j = 0; j < showDashs[metric].func.length; j++) {
           metricFunc = showDashs[metric].func[j];
-          dashboard.rows.push(setupRow(metricExt.toUpperCase, [metricFunc(rematchedSeries, 12, '1m')]));
+          dashboard.rows.push(setupRow(metricExt.toUpperCase, [metricFunc(rematchedSeries, seriesAlias, 12, '1m')]));
         }
       }
      continue; 
@@ -658,7 +680,7 @@ for (var metric in showDashs) {
   }
   for (var j = 0; j < showDashs[metric].func.length; j++) {
     metricFunc = showDashs[metric].func[j];
-    dashboard.rows.push(setupRow(metric.toUpperCase, [metricFunc(matchedSeries, 12, '1m')]));
+    dashboard.rows.push(setupRow(metric.toUpperCase, [metricFunc(matchedSeries, seriesAlias, 12, '1m')]));
   }
 }
 
