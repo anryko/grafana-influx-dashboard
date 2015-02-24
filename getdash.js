@@ -100,10 +100,10 @@ var targetsGen = function (series, span, interval, grapghConf, aliasConf) {
         column = grapghConf[match].column;
         apply = grapghConf[match].apply;
         targets.push(targetGen(s, alias, interval, column, apply));
-        if (grapghConf[match].color === '@random') {
-          aliasColor = '#' + ((1 << 24) * Math.random() | 0).toString(16);
-        } else {
+        if (grapghConf[match].color) {
           aliasColor = grapghConf[match].color;
+        } else {
+          aliasColor = '#' + ((1 << 24) * Math.random() | 0).toString(16);
         }
         aliasColors[alias] = aliasColor;
       }
@@ -284,7 +284,7 @@ var gPsState = {
 
 var gPsForks = {
   'graph': {
-    'fork_rate': { 'color': '@random', 'apply': 'max' },
+    'fork_rate': { 'apply': 'max' },
   },
   'panel': {
     'title': 'Processes Fork Rate',
@@ -350,7 +350,7 @@ var gRedisSlaves = {
 
 var gRedisDBKeys = {
   'graph': {
-    '-keys': { 'color': '@random' },
+    'keys': { },
   },
   'panel': {
     'title': 'Redis DB Keys',
@@ -360,6 +360,40 @@ var gRedisDBKeys = {
     'position': 3,
   },
 };
+
+var gRedisReplMaster = {
+  'graph': {
+    'master_repl_offset': { },
+  },
+  'panel': {
+    'title': 'Redis Replication Master',
+    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
+  },
+};
+
+var gRedisReplBacklogCounters = {
+  'graph': {
+    'repl_backlog_active': { },
+    'repl_backlog_histlen': { },
+  },
+  'panel': {
+    'title': 'Redis Replication Backlog Counters',
+    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
+  },
+};
+
+var gRedisReplBacklogSize = {
+  'graph': {
+    'backlog_first_byte_offset': { },
+    'repl_backlog_size': { },
+  },
+  'panel': {
+    'title': 'Redis Replication Backlog Size',
+    'y_formats': [ 'bytes' ],
+    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
+  },
+};
+
 
 // Memcached plugin configuration
 var gMemcachedMemory = {
@@ -457,6 +491,9 @@ var supportedDashs = {
               panelFactory(gRedisDBKeys),
               panelFactory(gRedisUnsavedChanges),
               panelFactory(gRedisSlaves),
+              panelFactory(gRedisReplMaster),
+              panelFactory(gRedisReplBacklogCounters),
+              panelFactory(gRedisReplBacklogSize),
             ],
   },
   'memcache' : {
