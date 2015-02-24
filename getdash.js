@@ -518,9 +518,9 @@ var gMemcachedCPU = {
 // RabbitMQ plugin configuration: https://github.com/kozdincer/rabbitmq_collectd_plugin
 var gRabbitmqRates = {
   'graph': {
-    'ack_rate': {},
-    'deliver_rate': {},
-    'publish_rate': {},
+    'ack_rate': { },
+    'deliver_rate': { },
+    'publish_rate': { },
   },
   'panel': {
     'title': 'RabbitMQ Rates',
@@ -528,7 +528,88 @@ var gRabbitmqRates = {
   },
 };
 
+var gRabbitmqChannels = {
+  'graph': {
+    'channels': { },
+    'queues': { },
+  },
+  'panel': {
+    'title': 'RabbitMQ Channels and Queues',
+    'grid': { 'max': null, 'min': 0 },
+  },
+};
 
+var gRabbitmqConns = {
+  'graph': {
+    'connections': { },
+    'consumers': { },
+    'exchanges': { },
+  },
+  'panel': {
+    'title': 'RabbitMQ Connections',
+    'grid': { 'max': null, 'min': 0 },
+  },
+};
+
+var gRabbitmqMessages = {
+  'graph': {
+    'messages_total': { },
+    'messages_unack': { },
+    'messages_ready': { },
+  },
+  'panel': {
+    'title': 'RabbitMQ Messages',
+    'grid': { 'max': null, 'min': 0 },
+    'y_formats': [ 'short' ],
+  },
+};
+
+var gRabbitmqFD = {
+  'graph': {
+    'fd_total': { 'color': '#508642' },
+    'fd_used': { 'color': '#447EBC' },
+  },
+  'panel': {
+    'title': 'RabbitMQ File Descriptors',
+    'grid': { 'max': null, 'min': 0 },
+  },
+};
+
+var gRabbitmqMemory = {
+  'graph': {
+    'mem_limit': { 'color': '#508642' },
+    'mem_used': { 'color': '#447EBC' },
+  },
+  'panel': {
+    'title': 'RabbitMQ Memory',
+    'grid': { 'max': null, 'min': 0 },
+    'y_formats': [ 'bytes' ],
+  },
+};
+
+var gRabbitmqProc = {
+  'graph': {
+    'proc_total': { 'color': '#508642' },
+    'proc_used': { 'color': '#447EBC' },
+  },
+  'panel': {
+    'title': 'RabbitMQ Proc',
+    'grid': { 'max': null, 'min': 0 },
+    'y_formats': [ 'short' ],
+  },
+};
+
+var gRabbitmqSockets = {
+  'graph': {
+    'sockets_total': { 'color': '#508642' },
+    'sockets_used': { 'color': '#447EBC' },
+  },
+  'panel': {
+    'title': 'RabbitMQ Sockets',
+    'grid': { 'max': null, 'min': 0 },
+    'y_formats': [ 'short' ],
+  },
+};
 
 var setupRow = function (title, panels) {
   return {
@@ -602,6 +683,13 @@ var supportedDashs = {
   'rabbitmq': {
     'func': [
               panelFactory(gRabbitmqRates),
+              panelFactory(gRabbitmqChannels),
+              panelFactory(gRabbitmqConns),
+              panelFactory(gRabbitmqMessages),
+              panelFactory(gRabbitmqFD),
+              panelFactory(gRabbitmqMemory),
+              panelFactory(gRabbitmqProc),
+              panelFactory(gRabbitmqSockets),
             ],
     'alias': 'rabbitmq',
   },
