@@ -81,18 +81,31 @@ var targetGen = function (series, alias, interval, column, apply) {
 };
 
 
-var targetsGen = function (series, span, interval, grapghConf) {
+var targetsGen = function (series, span, interval, grapghConf, aliasConf) {
   var targets = [];
   var aliasColors = {};
+  var aliasColor = '';
+  var alias = '';
+  var column = '';
+  var apply = '';
   for (var match in grapghConf) {
     for (var i = 0; i < series.length; i++) {
       var s = series[i];
       if (s.lastIndexOf(match) === s.length - match.length) {
-        var alias = s.split('.')[2] + '.' + match;
-        var column = grapghConf[match].column;
-        var apply = grapghConf[match].apply;
+        if ((aliasConf) && ('position' in aliasConf)) {
+          alias = s.split('.')[2] + '.' + s.split('.')[aliasConf.position];
+        } else {
+          alias = s.split('.')[2] + '.' + match;
+        }
+        column = grapghConf[match].column;
+        apply = grapghConf[match].apply;
         targets.push(targetGen(s, alias, interval, column, apply));
-        aliasColors[alias] = grapghConf[match].color;
+        if (grapghConf[match].color === '@random') {
+          aliasColor = '#' + ((1 << 24) * Math.random() | 0).toString(16);
+        } else {
+          aliasColor = grapghConf[match].color;
+        }
+        aliasColors[alias] = aliasColor;
       }
     }
   }
@@ -109,7 +122,8 @@ var panelFactory = function (gConf) {
     interval = (interval === undefined) ? '1m' : interval;
     var result = {};
     var graph = gConf.graph;
-    var targets = targetsGen(series, span, interval, graph);
+    var alias = gConf.alias;
+    var targets = targetsGen(series, span, interval, graph, alias);
     var panel = {
       'title': 'Default Title',
       'type': 'graphite',
@@ -270,7 +284,7 @@ var gPsState = {
 
 var gPsForks = {
   'graph': {
-    'fork_rate': { 'color': '#81BEF7', 'apply': 'max' },
+    'fork_rate': { 'color': '@random', 'apply': 'max' },
   },
   'panel': {
     'title': 'Processes Fork Rate',
@@ -294,15 +308,60 @@ var gRedisMemory = {
 
 var gRedisCommands = {
   'graph': {
-    'commands_processed': { 'color': '#447EBC', 'apply': 'max' },
+    'commands_processed': { 'color': '#447EBC' },
   },
   'panel': {
     'title': 'Redis Commands',
-    'y_formats': [ 'none' ],
     'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
   },
 };
 
+var gRedisConns = {
+  'graph': {
+    'connections_received': { 'color': '#447EBC', 'apply': 'max' },
+    'blocked_clients': { 'color': '#E24D42', 'apply': 'max'},
+    'connected_clients': { 'color': '#508642' },
+  },
+  'panel': {
+    'title': 'Redis Connections',
+    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
+  },
+};
+
+var gRedisUnsavedChanges = {
+  'graph': {
+    'changes_since_last_save': { 'color': '#E24D42' },
+  },
+  'panel': {
+    'title': 'Redis Unsaved Changes',
+    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
+  },
+};
+
+var gRedisSlaves = {
+  'graph': {
+    'connected_slaves': { 'color': '#508642' },
+  },
+  'panel': {
+    'title': 'Redis Connected Slaves',
+    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
+  },
+};
+
+var gRedisDBKeys = {
+  'graph': {
+    '-keys': { 'color': '@random' },
+  },
+  'panel': {
+    'title': 'Redis DB Keys',
+    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
+  },
+  'alias': {
+    'position': 3,
+  },
+};
+
+// Memcached plugin configuration
 var gMemcachedMemory = {
   'graph': {
     'cache.used': { 'color': '#447EBC' },
@@ -384,7 +443,7 @@ var supportedDashs = {
   'disk': {
     'func': [ panelFactory(gDiskIO) ],
     'multi': true,
-    'regexp': /\d$/
+    'regexp': /\d$/,
   },
   'processes': {
     'func': [ panelFactory(gPsState),
@@ -394,6 +453,10 @@ var supportedDashs = {
   'redis' : {
     'func': [ panelFactory(gRedisMemory),
               panelFactory(gRedisCommands),
+              panelFactory(gRedisConns),
+              panelFactory(gRedisDBKeys),
+              panelFactory(gRedisUnsavedChanges),
+              panelFactory(gRedisSlaves),
             ],
   },
   'memcache' : {
