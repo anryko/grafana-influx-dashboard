@@ -81,27 +81,30 @@ var targetGen = function (series, alias, interval, column, apply) {
 };
 
 
-var targetsGen = function (series, span, interval, grapghConf, aliasConf) {
+var targetsGen = function (series, span, interval, graphConf, aliasConf) {
   var targets = [];
   var aliasColors = {};
   var aliasColor = '';
   var alias = '';
   var column = '';
   var apply = '';
-  for (var match in grapghConf) {
+  for (var match in graphConf) {
+    var graph = graphConf[match];
     for (var i = 0; i < series.length; i++) {
       var s = series[i];
       if (s.lastIndexOf(match) === s.length - match.length) {
         if ((aliasConf) && ('position' in aliasConf)) {
           alias = s.split('.')[2] + '.' + s.split('.')[aliasConf.position];
+        } else if (graph.alias) {
+          alias = s.split('.')[2] + '.' + graph.alias;
         } else {
           alias = s.split('.')[2] + '.' + match;
         }
-        column = grapghConf[match].column;
-        apply = grapghConf[match].apply;
+        column = graph.column;
+        apply = graph.apply;
         targets.push(targetGen(s, alias, interval, column, apply));
-        if (grapghConf[match].color) {
-          aliasColor = grapghConf[match].color;
+        if (graph.color) {
+          aliasColor = graph.color;
         } else {
           aliasColor = '#' + ((1 << 24) * Math.random() | 0).toString(16);
         }
@@ -394,12 +397,21 @@ var gRedisReplBacklogSize = {
   },
 };
 
+var gRedisUptime = {
+  'graph': {
+    'uptime_in_seconds': { 'color': '#508642', 'alias': 'uptime_in_hours', 'column': 'value/3600' },
+  },
+  'panel': {
+    'title': 'Redis Uptime',
+    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
+  },
+};
 
 // Memcached plugin configuration
 var gMemcachedMemory = {
   'graph': {
-    'cache.used': { 'color': '#447EBC' },
-    'cache.free': { 'color': '#508642' },
+    'cache.used': { 'color': '#447EBC', 'alias': 'memory-used' },
+    'cache.free': { 'color': '#508642', 'alias': 'momory-free' },
   },
   'panel': {
     'title': 'Memcached Memomy',
@@ -410,7 +422,7 @@ var gMemcachedMemory = {
 
 var gMemcachedConns = {
   'graph': {
-    'connections-current': { 'color': '#447EBC' },
+    'connections-current': { 'color': '#447EBC', 'alias': 'connections' },
   },
   'panel': {
     'title': 'Memcached Connections',
@@ -420,7 +432,7 @@ var gMemcachedConns = {
 
 var gMemcachedItems = {
   'graph': {
-    'items-current': { 'color': '#447EBC' },
+    'items-current': { 'color': '#447EBC', 'alias': 'items' },
   },
   'panel': {
     'title': 'Memcached Items',
@@ -430,16 +442,79 @@ var gMemcachedItems = {
 
 var gMemcachedCommands = {
   'graph': {
-    'command-flush': { 'color': '#447EBC' },
-    'command-get': { 'color': '#508642' },
-    'command-set': { 'color': '#E9967A' },
-    'command-touch': { 'color': '#890F02' },
+    'command-flush': { },
+    'command-get': { },
+    'command-set': { },
+    'command-touch': { },
   },
   'panel': {
     'title': 'Memcached Commands',
     'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
   },
 };
+
+var gMemcachedPackets = {
+  'graph': {
+    'octets.rx': { 'color': '#447EBC' },
+    'octets.tx': { 'color': '#508642', 'column': 'value*-1' },
+  },
+  'panel': {
+    'title': 'Memcached Commands',
+    'y_formats': [ 'bytes' ],
+  },
+};
+
+var gMemcachedOperations = {
+  'graph': {
+    'ops-hits': { },
+    'ops-misses': { },
+    'ops-evictions': { },
+    'ops-incr_hits': { },
+    'ops-incr_misses': { },
+    'ops-decr_hits': { },
+    'ops-decr_misses': { },
+  },
+  'panel': {
+    'title': 'Memcached Operations',
+    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
+  },
+};
+
+var gMemcachedHits = {
+  'graph': {
+    'percent-hitratio': { },
+  },
+  'panel': {
+    'title': 'Memcached Hitratio',
+    'y_formats': [ 'percent' ],
+  },
+};
+
+var gMemcachedPs = {
+  'graph': {
+    'processes': { },
+    'threads': { },
+  },
+  'panel': {
+    'title': 'Memcached Process Stats',
+    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
+  },
+};
+
+var gMemcachedCPU = {
+  'graph': {
+    'cputime.syst': { 'color': '#EAB839' },
+    'cputime.user': { 'color': '#508642' },
+  },
+  'panel': {
+    'title': 'Memcached CPU Time',
+    'grid': { 'max': null, 'min': 0 },
+    'stack': true,
+  },
+};
+
+
+
 
 var setupRow = function (title, panels) {
   return {
@@ -486,6 +561,7 @@ var supportedDashs = {
   },
   'redis' : {
     'func': [ panelFactory(gRedisMemory),
+              panelFactory(gRedisUptime),
               panelFactory(gRedisCommands),
               panelFactory(gRedisConns),
               panelFactory(gRedisDBKeys),
@@ -501,6 +577,11 @@ var supportedDashs = {
               panelFactory(gMemcachedConns),
               panelFactory(gMemcachedItems),
               panelFactory(gMemcachedCommands),
+              panelFactory(gMemcachedPackets),
+              panelFactory(gMemcachedOperations),
+              panelFactory(gMemcachedHits),
+              panelFactory(gMemcachedPs),
+              panelFactory(gMemcachedCPU),
             ],
   },
 };
