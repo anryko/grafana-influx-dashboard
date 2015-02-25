@@ -212,7 +212,8 @@ return function (callback) {
         'func': [ panelFactory(gSwap), ],
       },
       'interface': {
-        'func': [ panelFactory(gNetworkTraffic),
+        'func': [
+                  panelFactory(gNetworkTraffic),
                   panelFactory(gNetworkPackets),
                 ],
         'multi': true,
@@ -227,12 +228,14 @@ return function (callback) {
         'regexp': /\d$/,
       },
       'processes': {
-        'func': [ panelFactory(gPsState),
+        'func': [
+                  panelFactory(gPsState),
                   panelFactory(gPsForks),
                 ],
       },
       'redis': {
-        'func': [ panelFactory(gRedisMemory),
+        'func': [
+                  panelFactory(gRedisMemory),
                   panelFactory(gRedisUptime),
                   panelFactory(gRedisCommands),
                   panelFactory(gRedisConns),
@@ -246,7 +249,8 @@ return function (callback) {
         'alias': 'redis',
       },
       'memcache': {
-        'func': [ panelFactory(gMemcachedMemory),
+        'func': [
+                  panelFactory(gMemcachedMemory),
                   panelFactory(gMemcachedConns),
                   panelFactory(gMemcachedItems),
                   panelFactory(gMemcachedCommands),
@@ -272,7 +276,12 @@ return function (callback) {
       },
       'elasticsearch': {
         'func': [
-                  panelFactory(gElasticsearchJVM),
+                  panelFactory(gElasticsearchJVMHeapPercent),
+                  panelFactory(gElasticsearchJVMMemHeap),
+                  panelFactory(gElasticsearchJVMMemNonHeap),
+                  panelFactory(gElasticsearchJVMThreads),
+                  panelFactory(gElasticsearchJVMGCCount),
+                  panelFactory(gElasticsearchJVMGCTime),
                 ],
         'alias': 'elasticsearch',
       },
@@ -339,5 +348,5 @@ return function (callback) {
 
     // Return dashboard
     callback(dashboard);
-    });
+  });
 };

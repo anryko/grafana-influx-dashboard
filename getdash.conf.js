@@ -24,6 +24,7 @@ var gCpu = {
   },
 };
 
+
 // collectd memory plugin configuration
 var gMemory = {
   'graph': {
@@ -40,6 +41,7 @@ var gMemory = {
   },
 };
 
+
 // collectd load plugin configuration
 var gLoad = {
   'graph': {
@@ -50,6 +52,7 @@ var gLoad = {
     'grid': { 'max': null, 'min': 0 },
   },
 };
+
 
 // collectd swap plugin configuration
 var gSwap = {
@@ -79,7 +82,6 @@ var gNetworkTraffic = {
   },
 };
 
-
 var gNetworkPackets = {
   'graph': {
     'packets.rx': { 'color': '#447EBC' },
@@ -105,7 +107,6 @@ var gDiskDf = {
     'stack': true,
   },
 };
-
 
 var gDiskIO = {
   'graph': {
@@ -134,7 +135,6 @@ var gPsState = {
     'grid': { 'max': null, 'min': 0 },
   },
 };
-
 
 var gPsForks = {
   'graph': {
@@ -257,6 +257,7 @@ var gRedisUptime = {
     'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
   },
 };
+
 
 // collectd memcached plugin configuration
 var gMemcachedMemory = {
@@ -463,7 +464,7 @@ var gRabbitmqSockets = {
 
 
 // collectd elasticsearch plugin configuration: https://github.com/phobos182/collectd-elasticsearch
-var gElasticsearchJVM = {
+var gElasticsearchJVMHeapPercent = {
   'graph': {
     'jvm_mem_heap-used-percent': { 'alias': 'jvm-heap-used' },
   },
@@ -474,4 +475,59 @@ var gElasticsearchJVM = {
   },
 };
 
+var gElasticsearchJVMMemHeap = {
+  'graph': {
+    'jvm_mem_heap-committed': { 'color': '#508642', 'alias': 'jvm-heap-commited' },
+    'bytes-jvm_mem_heap-used': { 'color': '#447EBC', 'alias': 'jvm-heap-used' },
+  },
+  'panel': {
+    'title': 'ElasticSearch JVM Heap Memory Usage',
+    'grid': { 'max': null, 'min': 0 },
+    'y_formats': [ 'bytes' ],
+  },
+};
 
+var gElasticsearchJVMMemNonHeap = {
+  'graph': {
+    'bytes-jvm_mem_non-heap-committed': { 'color': '#508642', 'alias': 'jvm-non-heap-commited' },
+    'bytes-jvm_mem_non-heap-used': { 'color': '#447EBC', 'alias': 'jvm-non-heap-used' },
+  },
+  'panel': {
+    'title': 'ElasticSearch JVM Non Heap Memory Usage',
+    'grid': { 'max': null, 'min': 0 },
+    'y_formats': [ 'bytes' ],
+  },
+};
+
+var gElasticsearchJVMThreads = {
+  'graph': {
+    'jvm_threads_peak': { 'color': '#508642' },
+    'jvm_threads_count': { 'color': '#447EBC' },
+  },
+  'panel': {
+    'title': 'ElasticSearch JVM Threads',
+    'grid': { 'max': null, 'min': 0 },
+  },
+};
+
+var gElasticsearchJVMGCCount = {
+  'graph': {
+    'jvm_gc_old-count': { },
+    'jvm_gc_count': { },
+  },
+  'panel': {
+    'title': 'ElasticSearch JVM GC Count',
+    'grid': { 'max': null, 'min': 0 },
+  },
+};
+
+var gElasticsearchJVMGCTime = {
+  'graph': {
+    'jvm_gc_old-time': { },
+    'jvm_gc_time': { },
+  },
+  'panel': {
+    'title': 'ElasticSearch JVM GC Time',
+    'grid': { 'max': null, 'min': 0 },
+  },
+};
