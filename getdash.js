@@ -321,7 +321,7 @@ return function (callback) {
       }
 
       if (showDashs[metric].multi) {
-        metricsExt = getExtendedMetrics(matchedSeries, pfx + '.');
+        var metricsExt = getExtendedMetrics(matchedSeries, pfx + '.');
         if (metricsExt.length > 1) {
           for (var k = 0; k < metricsExt.length; k++) {
             var metricExt = metricsExt[k];
