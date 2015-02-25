@@ -1,10 +1,38 @@
 # grafana-influx-dashboard
+
 Grafana InfluxDB scripted dashboard
+-----------------------------------
+
+Installation instructions
+.........................
 
 ```bash
-cp getdash.js <grafana root>/app/dashboards/
+git clone --depth=1 git@github.com:anryko/grafana-influx-dashboard.git
+cd grafana-influx-dashboard
+./install.sh GRAFANA_ROOT_DIR
 ```
 
+
+Usage examples
+..............
 http://grafanaIP/#/dashboard/script/getdash.js?host=hostname
 http://grafanaIP/#/dashboard/script/getdash.js?host=hostname&metric=cpu,load
+
+
+Supported metrics
+.................
+
+::
+    cpu
+    load
+    memory
+    swap
+    interface
+    df
+    disk
+    processes
+    redis
+    memcache
+    rabbitmq
+    elasticsearch
 
