@@ -201,33 +201,41 @@ return function (callback) {
     var supportedDashs = {
       'cpu': {
         'func': [ panelFactory(gCpu), ],
+        'groups': [ 'system' ],
       },
       'load': {
         'func': [ panelFactory(gLoad), ],
+        'groups': [ 'system' ],
       },
       'memory': {
         'func': [ panelFactory(gMemory), ],
+        'groups': [ 'system' ],
       },
       'swap': {
         'func': [ panelFactory(gSwap), ],
+        'groups': [ 'system' ],
       },
       'interface': {
         'func': [
                   panelFactory(gNetworkTraffic),
                   panelFactory(gNetworkPackets),
                 ],
+        'groups': [ 'system' ],
         'multi': true,
       },
       'df': {
         'func': [ panelFactory(gDiskDf), ],
+        'groups': [ 'system' ],
         'multi': true,
       },
       'disk': {
         'func': [ panelFactory(gDiskIO), ],
+        'groups': [ 'system' ],
         'multi': true,
         'regexp': /\d$/,
       },
       'processes': {
+        'groups': [ 'system' ],
         'func': [
                   panelFactory(gPsState),
                   panelFactory(gPsForks),
@@ -246,6 +254,7 @@ return function (callback) {
                   panelFactory(gRedisReplBacklogCounters),
                   panelFactory(gRedisReplBacklogSize),
                 ],
+        'groups': [ 'middleware' ],
         'alias': 'redis',
       },
       'memcache': {
@@ -272,6 +281,7 @@ return function (callback) {
                   panelFactory(gRabbitmqProc),
                   panelFactory(gRabbitmqSockets),
                 ],
+        'groups': [ 'middleware' ],
         'alias': 'rabbitmq',
       },
       'elasticsearch': {
@@ -283,6 +293,7 @@ return function (callback) {
                   panelFactory(gElasticsearchJVMGCCount),
                   panelFactory(gElasticsearchJVMGCTime),
                 ],
+        'groups': [ 'middleware', 'database' ],
         'alias': 'elasticsearch',
       },
     };
@@ -291,6 +302,13 @@ return function (callback) {
       displayMetric.split(',').forEach(function (metric) {
         if (metric in supportedDashs) {
           showDashs[metric] = supportedDashs[metric];
+        }
+        for (var key in supportedDashs) {
+          if (('groups' in supportedDashs[key]) &&
+            (supportedDashs[key].groups.indexOf(metric) !== -1) &&
+            !(key in showDashs)) {
+              showDashs[key] = supportedDashs[key];
+            }
         }
       });
     } else {

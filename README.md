@@ -14,6 +14,7 @@ cd grafana-influx-dashboard
 ####Usage examples
 http://grafanaIP/#/dashboard/script/getdash.js?host=hostname
 http://grafanaIP/#/dashboard/script/getdash.js?host=hostname&metric=cpu,load
+http://grafanaIP/#/dashboard/script/getdash.js?host=hostname&metric=load,database
 
 
 ####Supported metrics
@@ -30,4 +31,10 @@ redis
 memcache
 rabbitmq
 elasticsearch
+```
+####Supported metric groups
+```
+system
+middleware
+database
 ```
