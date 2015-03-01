@@ -204,6 +204,18 @@ return function (callback) {
     }
   };
 
+  var matchSeries = function (prefix, metric, series, dash) {
+    var matchedSeries = [];
+    for (var i = 0, len = series.length; i < len; i++) {
+      if ((series[i].indexOf(prefix + '.' + metric) === 0) &&
+        (!('regexp' in dash[metric].config) ||
+        dash[metric].config.regexp.test(series[i].split('.')[2]))) {
+          matchedSeries.push(series[i]);
+      }
+    }
+    return matchedSeries;
+  };
+
   // AJAX configuration
   $.ajaxSetup({
     async: true,
@@ -240,20 +252,9 @@ return function (callback) {
     }
 
     for (var metric in showDashs) {
-      var matchedSeries = [];
-      var pfxMetric = pfx + '.' + metric;
       var metricFunc;
       var seriesAlias = ('alias' in showDashs[metric].config) ? showDashs[metric].config.alias : null;
-
-      // match series to metric
-      for (var i = 0; i < hostSeries.length; i++) {
-        if ((hostSeries[i].indexOf(pfxMetric) === 0) &&
-            (!('regexp' in showDashs[metric].config) ||
-             ('regexp' in showDashs[metric].config &&
-              showDashs[metric].config.regexp.test(hostSeries[i].split('.')[2])))) {
-          matchedSeries.push(hostSeries[i]);
-        }
-      }
+      var matchedSeries = matchSeries(pfx, metric, hostSeries, showDashs);
 
       if (matchedSeries.length === 0) {
         continue;
@@ -280,6 +281,7 @@ return function (callback) {
          continue; 
         }
       }
+
       for (var n = 0; n < showDashs[metric].func.length; n++) {
         metricFunc = showDashs[metric].func[n];
         dashboard.rows.push(setupRow(metric.toUpperCase, [metricFunc(matchedSeries, seriesAlias, 12, '1m')]));
