@@ -17,8 +17,6 @@ return function (callback) {
   // Setup some variables
   var dashboard;
   var hostSeries = [];
-  var supportedDashs = {};
-  var showDashs = {};
 
   // InfluxDB setup
   var influxUser = 'root';
@@ -124,7 +122,7 @@ return function (callback) {
         'type': 'graphite',
         'span': span,
         'y_formats': [ 'none' ],
-        'grid': { 'max': null, 'min': null },
+        'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
         'lines': true,
         'fill': 1,
         'linewidth': 1,
@@ -168,6 +166,43 @@ return function (callback) {
     return metricsExt;
   };
 
+  var setupDash = function (plugin) {
+    var p = {
+      func: [],
+      config: plugin.config,
+    };
+    for (var name in plugin) {
+      p.func.push(panelFactory(plugin[name]));
+    }
+    return p;
+  };
+
+  var genDashs = function (metrics, plugins) {
+    var dashs = {};
+    if (metrics) {
+      var groups = plugins.groups;
+      for (var i = 0, mlen = metrics.length; i < mlen; i++) {
+        var metric = metrics[i];
+        if (metric in plugins) {
+          dashs[metric] = setupDash(plugins[metric]);
+        } else if (metric in groups) {
+          var group = groups[metric];
+          for (var j = 0, glen = group.length; j < glen; j++) {
+            var member = group[j];
+            if (!(member in dashs) && (member in plugins)) {
+              dashs[member] = setupDash(plugins[member]);
+            } 
+          }
+        }
+      }
+      return dashs;
+    } else {
+      for (var plugin in plugins) {
+        dashs[plugin] = setupDash(plugins[plugin]);
+      }
+      return dashs;
+    }
+  };
 
   // AJAX configuration
   $.ajaxSetup({
@@ -179,9 +214,10 @@ return function (callback) {
   $.when(
     $.getJSON(influxdbQueryUrl)
       .done(function (jsonData) {
-        jsonData[0].points.forEach(function (point) {
-          hostSeries.push(point[1]);
-        });
+        var points = jsonData[0].points;
+        for (var i = 0, len = points.length; i < len; i++) {
+          hostSeries.push(points[i][1]);
+        }
       })
       .fail(function () {
         throw new Error('Error loading InfluxDB data JSON from: ' + influxdbQueryUrl);
@@ -196,125 +232,8 @@ return function (callback) {
       $(deferred.resolve);
     })
   ).done(function () {
-
-    // supported dashboards configuration
-    var supportedDashs = {
-      'cpu': {
-        'func': [ panelFactory(gCpu), ],
-        'groups': [ 'system' ],
-      },
-      'load': {
-        'func': [ panelFactory(gLoad), ],
-        'groups': [ 'system' ],
-      },
-      'memory': {
-        'func': [ panelFactory(gMemory), ],
-        'groups': [ 'system' ],
-      },
-      'swap': {
-        'func': [ panelFactory(gSwap), ],
-        'groups': [ 'system' ],
-      },
-      'interface': {
-        'func': [
-                  panelFactory(gNetworkTraffic),
-                  panelFactory(gNetworkPackets),
-                ],
-        'groups': [ 'system' ],
-        'multi': true,
-      },
-      'df': {
-        'func': [ panelFactory(gDiskDf), ],
-        'groups': [ 'system' ],
-        'multi': true,
-      },
-      'disk': {
-        'func': [ panelFactory(gDiskIO), ],
-        'groups': [ 'system' ],
-        'multi': true,
-        'regexp': /\d$/,
-      },
-      'processes': {
-        'groups': [ 'system' ],
-        'func': [
-                  panelFactory(gPsState),
-                  panelFactory(gPsForks),
-                ],
-      },
-      'redis': {
-        'func': [
-                  panelFactory(gRedisMemory),
-                  panelFactory(gRedisUptime),
-                  panelFactory(gRedisCommands),
-                  panelFactory(gRedisConns),
-                  panelFactory(gRedisDBKeys),
-                  panelFactory(gRedisUnsavedChanges),
-                  panelFactory(gRedisSlaves),
-                  panelFactory(gRedisReplMaster),
-                  panelFactory(gRedisReplBacklogCounters),
-                  panelFactory(gRedisReplBacklogSize),
-                ],
-        'groups': [ 'middleware' ],
-        'alias': 'redis',
-      },
-      'memcache': {
-        'func': [
-                  panelFactory(gMemcachedMemory),
-                  panelFactory(gMemcachedConns),
-                  panelFactory(gMemcachedItems),
-                  panelFactory(gMemcachedCommands),
-                  panelFactory(gMemcachedPackets),
-                  panelFactory(gMemcachedOperations),
-                  panelFactory(gMemcachedHits),
-                  panelFactory(gMemcachedPs),
-                  panelFactory(gMemcachedCPU),
-                ],
-      },
-      'rabbitmq': {
-        'func': [
-                  panelFactory(gRabbitmqRates),
-                  panelFactory(gRabbitmqChannels),
-                  panelFactory(gRabbitmqConns),
-                  panelFactory(gRabbitmqMessages),
-                  panelFactory(gRabbitmqFD),
-                  panelFactory(gRabbitmqMemory),
-                  panelFactory(gRabbitmqProc),
-                  panelFactory(gRabbitmqSockets),
-                ],
-        'groups': [ 'middleware' ],
-        'alias': 'rabbitmq',
-      },
-      'elasticsearch': {
-        'func': [
-                  panelFactory(gElasticsearchJVMHeapPercent),
-                  panelFactory(gElasticsearchJVMMemHeap),
-                  panelFactory(gElasticsearchJVMMemNonHeap),
-                  panelFactory(gElasticsearchJVMThreads),
-                  panelFactory(gElasticsearchJVMGCCount),
-                  panelFactory(gElasticsearchJVMGCTime),
-                ],
-        'groups': [ 'middleware', 'database' ],
-        'alias': 'elasticsearch',
-      },
-    };
-
-    if (displayMetric) {
-      displayMetric.split(',').forEach(function (metric) {
-        if (metric in supportedDashs) {
-          showDashs[metric] = supportedDashs[metric];
-        }
-        for (var key in supportedDashs) {
-          if (('groups' in supportedDashs[key]) &&
-            (supportedDashs[key].groups.indexOf(metric) !== -1) &&
-            !(key in showDashs)) {
-              showDashs[key] = supportedDashs[key];
-            }
-        }
-      });
-    } else {
-      showDashs = supportedDashs;
-    }
-
+    var displayMetrics = (displayMetric) ? displayMetric.split(',') : null;
+    var showDashs = genDashs(displayMetrics, plugins);
 
     if (hostSeries.length === 0) {
       return dashboard;
@@ -324,12 +243,14 @@ return function (callback) {
       var matchedSeries = [];
       var pfxMetric = pfx + '.' + metric;
       var metricFunc;
-      var seriesAlias = ('alias' in showDashs[metric]) ? showDashs[metric].alias : null;
+      var seriesAlias = ('alias' in showDashs[metric].config) ? showDashs[metric].config.alias : null;
+
+      // match series to metric
       for (var i = 0; i < hostSeries.length; i++) {
         if ((hostSeries[i].indexOf(pfxMetric) === 0) &&
-            (!('regexp' in showDashs[metric]) ||
-             ('regexp' in showDashs[metric] &&
-              showDashs[metric].regexp.test(hostSeries[i].split('.')[2])))) {
+            (!('regexp' in showDashs[metric].config) ||
+             ('regexp' in showDashs[metric].config &&
+              showDashs[metric].config.regexp.test(hostSeries[i].split('.')[2])))) {
           matchedSeries.push(hostSeries[i]);
         }
       }
@@ -338,7 +259,8 @@ return function (callback) {
         continue;
       }
 
-      if (showDashs[metric].multi) {
+      // rematch series if we have multiple instances per plugin
+      if (showDashs[metric].config.multi) {
         var metricsExt = getExtendedMetrics(matchedSeries, pfx + '.');
         if (metricsExt.length > 1) {
           for (var k = 0; k < metricsExt.length; k++) {

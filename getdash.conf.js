@@ -1,7 +1,32 @@
 // Configuration JS file for getdash.js
 
+// Plugin constructor
+function Plugin (alias) {
+  Object.defineProperty(this, 'config', {
+    value: {},
+    enumerable: false,
+  });
+
+  this.config.alias = alias;
+}
+
+// collectd plugins configuration
+var plugins = {};
+plugins.groups = {};
+Object.defineProperty(plugins, 'groups', {
+  enumerable: false,
+});
+
+// plugin groups configuration
+plugins.groups.system = [ 'cpu', 'memory', 'load', 'swap', 'interface', 'df', 'disk', 'processes' ];
+plugins.groups.middleware = [ 'redis', 'memcache', 'rabbitmq', 'elasticsearch' ];
+plugins.groups.database = [ 'elasticsearch' ];
+
+
 // collectd cpu plugin configuration
-var gCpu = {
+plugins.cpu = new Plugin();
+
+plugins.cpu.cpu = {
   'graph': {
     'system': { 'color': '#EAB839' },
     'user': { 'color': '#508642' },
@@ -15,7 +40,6 @@ var gCpu = {
   'panel': {
     'title': 'CPU',
     'y_formats': [ 'percent' ],
-    'grid': { 'max': null, 'min': 0 },
     'lines': false,
     'bars': true,
     'stack': true,
@@ -26,7 +50,9 @@ var gCpu = {
 
 
 // collectd memory plugin configuration
-var gMemory = {
+plugins.memory = new Plugin();
+
+plugins.memory.memory = {
   'graph': {
     'used': { 'color': '#1F78C1' },
     'cached': { 'color': '#EF843C' },
@@ -36,26 +62,28 @@ var gMemory = {
   'panel': {
     'title': 'Memory',
     'y_formats': [ 'bytes' ],
-    'grid': { 'max': null, 'min': 0 },
     'stack': true,
   },
 };
 
 
 // collectd load plugin configuration
-var gLoad = {
+plugins.load = new Plugin();
+
+plugins.load.load = {
   'graph': {
     'midterm': { 'color': '#7B68EE' },
   },
   'panel': {
     'title': 'Load Average',
-    'grid': { 'max': null, 'min': 0 },
   },
 };
 
 
 // collectd swap plugin configuration
-var gSwap = {
+plugins.swap = new Plugin();
+
+plugins.swap.swap = {
   'graph': {
     'used': { 'color': '#1F78C1' },
     'cached': { 'color': '#EAB839' },
@@ -64,14 +92,16 @@ var gSwap = {
   'panel': {
     'title': 'Swap',
     'y_formats': [ 'bytes' ],
-    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
     'stack': true,
   },
 };
 
 
 // collectd interface plugin configuration
-var gNetworkTraffic = {
+plugins.interface = new Plugin();
+plugins.interface.config.multi = true;
+
+plugins.interface.traffic = {
   'graph': {
     'octets.rx': { 'color': '#447EBC' },
     'octets.tx': { 'color': '#508642', 'column': 'value*-1' },
@@ -79,22 +109,26 @@ var gNetworkTraffic = {
   'panel': {
     'title': 'Network Traffic on @metric',
     'y_formats': [ 'bytes' ],
+    'grid': { 'max': null, 'min': null },
   },
 };
 
-var gNetworkPackets = {
+plugins.interface.packets = {
   'graph': {
     'packets.rx': { 'color': '#447EBC' },
     'packets.tx': { 'color': '#508642', 'column': 'value*-1' },
   },
   'panel': {
     'title': 'Network Packets on @metric',
+    'grid': { 'max': null, 'min': null },
   },
 };
 
 
-// collectd disk plugin configuration
-var gDiskDf = {
+// collectd df plugin configuration
+plugins.df = new Plugin();
+
+plugins.df.df = {
   'graph': {
     'complex-used': { 'color': '#447EBC' },
     'complex-reserved': { 'color': '#EAB839' },
@@ -103,24 +137,32 @@ var gDiskDf = {
   'panel': {
     'title': 'Disk space for @metric',
     'y_formats': [ 'bytes' ],
-    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
     'stack': true,
   },
 };
 
-var gDiskIO = {
+
+// collectd disk plugin configuration
+plugins.disk = new Plugin();
+plugins.disk.config.multi = true;
+plugins.disk.config.regexp = /\d$/;
+
+plugins.disk.diskIO = {
   'graph': {
     'ops.write': { 'color': '#447EBC' },
     'ops.read': { 'color': '#508642', 'column': 'value*-1' },
   },
   'panel': {
     'title': 'Disk IO for @metric',
+    'grid': { 'max': null, 'min': null },
   },
 };
 
 
 // collectd processes plugin configuration
-var gPsState = {
+plugins.processes = new Plugin();
+
+plugins.processes.state = {
   'graph': {
     'sleeping': { 'color': '#EAB839', 'apply': 'max' },
     'running': { 'color': '#508642', 'apply': 'max' },
@@ -132,45 +174,43 @@ var gPsState = {
   'panel': {
     'title': 'Processes State',
     'y_formats': [ 'short' ],
-    'grid': { 'max': null, 'min': 0 },
   },
 };
 
-var gPsForks = {
+plugins.processes.fork = {
   'graph': {
     'fork_rate': { 'apply': 'max' },
   },
   'panel': {
     'title': 'Processes Fork Rate',
     'y_formats': [ 'short' ],
-    'grid': { 'max': null, 'min': 0 },
   },
 };
 
 
 // collectd redis plugin configuration: https://github.com/powdahound/redis-collectd-plugin
-var gRedisMemory = {
+plugins.redis = new Plugin('redis');
+
+plugins.redis.memory = {
   'graph': {
     'used_memory': { 'color': '#447EBC' },
   },
   'panel': {
     'title': 'Redis Memomy',
     'y_formats': [ 'bytes' ],
-    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
   },
 };
 
-var gRedisCommands = {
+plugins.redis.commands = {
   'graph': {
     'commands_processed': { 'color': '#447EBC' },
   },
   'panel': {
     'title': 'Redis Commands',
-    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
   },
 };
 
-var gRedisConns = {
+plugins.redis.connections = {
   'graph': {
     'connections_received': { 'color': '#447EBC', 'apply': 'max' },
     'blocked_clients': { 'color': '#E24D42', 'apply': 'max'},
@@ -178,65 +218,59 @@ var gRedisConns = {
   },
   'panel': {
     'title': 'Redis Connections',
-    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
   },
 };
 
-var gRedisUnsavedChanges = {
+plugins.redis.unsaved = {
   'graph': {
     'changes_since_last_save': { 'color': '#E24D42' },
   },
   'panel': {
     'title': 'Redis Unsaved Changes',
-    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
   },
 };
 
-var gRedisSlaves = {
+plugins.redis.slaves = {
   'graph': {
     'connected_slaves': { 'color': '#508642' },
   },
   'panel': {
     'title': 'Redis Connected Slaves',
-    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
   },
 };
 
-var gRedisDBKeys = {
+plugins.redis.keys = {
   'graph': {
     'keys': { },
   },
   'panel': {
     'title': 'Redis DB Keys',
-    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
   },
   'alias': {
     'position': 3,
   },
 };
 
-var gRedisReplMaster = {
+plugins.redis.replMaster = {
   'graph': {
     'master_repl_offset': { },
   },
   'panel': {
     'title': 'Redis Replication Master',
-    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
   },
 };
 
-var gRedisReplBacklogCounters = {
+plugins.redis.replBacklogCounters = {
   'graph': {
     'repl_backlog_active': { },
     'repl_backlog_histlen': { },
   },
   'panel': {
     'title': 'Redis Replication Backlog Counters',
-    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
   },
 };
 
-var gRedisReplBacklogSize = {
+plugins.redis.replBacklogSize = {
   'graph': {
     'backlog_first_byte_offset': { },
     'repl_backlog_size': { },
@@ -244,23 +278,23 @@ var gRedisReplBacklogSize = {
   'panel': {
     'title': 'Redis Replication Backlog Size',
     'y_formats': [ 'bytes' ],
-    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
   },
 };
 
-var gRedisUptime = {
+plugins.redis.uptime = {
   'graph': {
     'uptime_in_seconds': { 'color': '#508642', 'alias': 'uptime_in_hours', 'column': 'value/3600' },
   },
   'panel': {
     'title': 'Redis Uptime',
-    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
   },
 };
 
 
 // collectd memcached plugin configuration
-var gMemcachedMemory = {
+plugins.memcache = new Plugin();
+
+plugins.memcache.memory = {
   'graph': {
     'cache.used': { 'color': '#447EBC', 'alias': 'memory-used' },
     'cache.free': { 'color': '#508642', 'alias': 'momory-free' },
@@ -272,27 +306,25 @@ var gMemcachedMemory = {
   },
 };
 
-var gMemcachedConns = {
+plugins.memcache.connections = {
   'graph': {
     'connections-current': { 'color': '#447EBC', 'alias': 'connections' },
   },
   'panel': {
     'title': 'Memcached Connections',
-    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
   },
 };
 
-var gMemcachedItems = {
+plugins.memcache.items = {
   'graph': {
     'items-current': { 'color': '#447EBC', 'alias': 'items' },
   },
   'panel': {
     'title': 'Memcached Items',
-    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
   },
 };
 
-var gMemcachedCommands = {
+plugins.memcache.commands = {
   'graph': {
     'command-flush': { },
     'command-get': { },
@@ -301,11 +333,10 @@ var gMemcachedCommands = {
   },
   'panel': {
     'title': 'Memcached Commands',
-    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
   },
 };
 
-var gMemcachedPackets = {
+plugins.memcache.packets = {
   'graph': {
     'octets.rx': { 'color': '#447EBC' },
     'octets.tx': { 'color': '#508642', 'column': 'value*-1' },
@@ -313,10 +344,11 @@ var gMemcachedPackets = {
   'panel': {
     'title': 'Memcached Commands',
     'y_formats': [ 'bytes' ],
+    'grid': { 'max': null, 'min': null },
   },
 };
 
-var gMemcachedOperations = {
+plugins.memcache.operations = {
   'graph': {
     'ops-hits': { },
     'ops-misses': { },
@@ -328,11 +360,10 @@ var gMemcachedOperations = {
   },
   'panel': {
     'title': 'Memcached Operations',
-    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
   },
 };
 
-var gMemcachedHits = {
+plugins.memcache.hits = {
   'graph': {
     'percent-hitratio': { },
   },
@@ -342,32 +373,32 @@ var gMemcachedHits = {
   },
 };
 
-var gMemcachedPs = {
+plugins.memcache.ps = {
   'graph': {
     'processes': { },
     'threads': { },
   },
   'panel': {
     'title': 'Memcached Process Stats',
-    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
   },
 };
 
-var gMemcachedCPU = {
+plugins.memcache.cpu = {
   'graph': {
     'cputime.syst': { 'color': '#EAB839' },
     'cputime.user': { 'color': '#508642' },
   },
   'panel': {
     'title': 'Memcached CPU Time',
-    'grid': { 'max': null, 'min': 0 },
     'stack': true,
   },
 };
 
 
 // collectd rabbitmq plugin configuration: https://github.com/kozdincer/rabbitmq_collectd_plugin
-var gRabbitmqRates = {
+plugins.rabbitmq = new Plugin('rabbitmq');
+
+plugins.rabbitmq.rates = {
   'graph': {
     'ack_rate': { },
     'deliver_rate': { },
@@ -375,22 +406,21 @@ var gRabbitmqRates = {
   },
   'panel': {
     'title': 'RabbitMQ Rates',
-    'grid': { 'max': null, 'min': 0 },
   },
 };
 
-var gRabbitmqChannels = {
+
+plugins.rabbitmq.channels = {
   'graph': {
     'channels': { },
     'queues': { },
   },
   'panel': {
     'title': 'RabbitMQ Channels and Queues',
-    'grid': { 'max': null, 'min': 0 },
   },
 };
 
-var gRabbitmqConns = {
+plugins.rabbitmq.connections = {
   'graph': {
     'connections': { },
     'consumers': { },
@@ -398,11 +428,10 @@ var gRabbitmqConns = {
   },
   'panel': {
     'title': 'RabbitMQ Connections',
-    'grid': { 'max': null, 'min': 0 },
   },
 };
 
-var gRabbitmqMessages = {
+plugins.rabbitmq.messages = {
   'graph': {
     'messages_total': { },
     'messages_unack': { },
@@ -410,124 +439,306 @@ var gRabbitmqMessages = {
   },
   'panel': {
     'title': 'RabbitMQ Messages',
-    'grid': { 'max': null, 'min': 0 },
     'y_formats': [ 'short' ],
   },
 };
 
-var gRabbitmqFD = {
+plugins.rabbitmq.fd = {
   'graph': {
     'fd_total': { 'color': '#508642' },
     'fd_used': { 'color': '#447EBC' },
   },
   'panel': {
     'title': 'RabbitMQ File Descriptors',
-    'grid': { 'max': null, 'min': 0 },
   },
 };
 
-var gRabbitmqMemory = {
+plugins.rabbitmq.memory = {
   'graph': {
     'mem_limit': { 'color': '#508642' },
     'mem_used': { 'color': '#447EBC' },
   },
   'panel': {
     'title': 'RabbitMQ Memory',
-    'grid': { 'max': null, 'min': 0 },
     'y_formats': [ 'bytes' ],
   },
 };
 
-var gRabbitmqProc = {
+plugins.rabbitmq.proc = {
   'graph': {
     'proc_total': { 'color': '#508642' },
     'proc_used': { 'color': '#447EBC' },
   },
   'panel': {
     'title': 'RabbitMQ Proc',
-    'grid': { 'max': null, 'min': 0 },
     'y_formats': [ 'short' ],
   },
 };
 
-var gRabbitmqSockets = {
+plugins.rabbitmq.sockets = {
   'graph': {
     'sockets_total': { 'color': '#508642' },
     'sockets_used': { 'color': '#447EBC' },
   },
   'panel': {
     'title': 'RabbitMQ Sockets',
-    'grid': { 'max': null, 'min': 0 },
     'y_formats': [ 'short' ],
   },
 };
 
 
 // collectd elasticsearch plugin configuration: https://github.com/phobos182/collectd-elasticsearch
-var gElasticsearchJVMHeapPercent = {
+plugins.elasticsearch = new Plugin('elasticsearch');
+
+plugins.elasticsearch.http = {
+  'graph': {
+    'http_current_open': { },
+  },
+  'panel': {
+    'title': 'ElasticSearch HTTP Open',
+  },
+};
+
+plugins.elasticsearch.transport = {
+  'graph': {
+    'transport_rx_count': { },
+    'transport_tx_count': { 'column': 'value*-1' },
+  },
+  'panel': {
+    'title': 'ElasticSearch Transport',
+    'grid': { 'max': null, 'min': null },
+  },
+};
+
+
+plugins.elasticsearch.idxTimes = {
+  'graph': {
+    'indices_flush_time': { },
+    'indices_get_exists-time': { },
+    'indices_get_missing-time': { },
+    'indices_get_time': { },
+    'indices_indexing_delete-time': { },
+    'indices_indexing_index-time': { },
+    'indices_merges_time': { },
+    'indices_refresh_time': { },
+    'indices_search_fetch-time': { },
+    'indices_search_query-time': { },
+    'indices_store_throttle-time': { },
+  },
+  'panel': {
+    'title': 'ElasticSearch Indices Times',
+  },
+};
+
+plugins.elasticsearch.idxTotals = {
+  'graph': {
+    'indices_flush_total': { },
+    'indices_get_exists-total': { },
+    'indices_get_missing-total': { },
+    'indices_get_total': { },
+    'indices_indexing_delete-total': { },
+    'indices_indexing_index-total': { },
+    'indices_merges_total': { },
+    'indices_refresh_total': { },
+    'indices_search_fetch-total': { },
+    'indices_search_query-total': { },
+  },
+  'panel': {
+    'title': 'ElasticSearch Indices Totals',
+  },
+};
+
+plugins.elasticsearch.idxDocsDel = {
+  'graph': {
+    'indices_docs_deleted': { },
+  },
+  'panel': {
+    'title': 'ElasticSearch Indices Docs Deleted',
+  },
+};
+
+plugins.elasticsearch.idxCacheEvictions = {
+  'graph': {
+    'indices_cache_field_eviction': { },
+    'indices_cache_filter_evictions': { },
+  },
+  'panel': {
+    'title': 'ElasticSearch Indices Cache Evictions',
+  },
+};
+
+plugins.elasticsearch.jvmHeapPercent = {
   'graph': {
     'jvm_mem_heap-used-percent': { 'alias': 'jvm-heap-used' },
   },
   'panel': {
     'title': 'ElasticSearch JVM Heap Usage',
-    'grid': { 'max': null, 'min': 0 },
     'y_formats': [ 'percent' ],
   },
 };
 
-var gElasticsearchJVMMemHeap = {
+plugins.elasticsearch.jvmMemHeap = {
   'graph': {
     'jvm_mem_heap-committed': { 'color': '#508642', 'alias': 'jvm-heap-commited' },
     'bytes-jvm_mem_heap-used': { 'color': '#447EBC', 'alias': 'jvm-heap-used' },
   },
   'panel': {
     'title': 'ElasticSearch JVM Heap Memory Usage',
-    'grid': { 'max': null, 'min': 0 },
     'y_formats': [ 'bytes' ],
   },
 };
 
-var gElasticsearchJVMMemNonHeap = {
+plugins.elasticsearch.jvmMemNonHeap = {
   'graph': {
     'bytes-jvm_mem_non-heap-committed': { 'color': '#508642', 'alias': 'jvm-non-heap-commited' },
     'bytes-jvm_mem_non-heap-used': { 'color': '#447EBC', 'alias': 'jvm-non-heap-used' },
   },
   'panel': {
     'title': 'ElasticSearch JVM Non Heap Memory Usage',
-    'grid': { 'max': null, 'min': 0 },
     'y_formats': [ 'bytes' ],
   },
 };
 
-var gElasticsearchJVMThreads = {
+plugins.elasticsearch.jvmThreads = {
   'graph': {
     'jvm_threads_peak': { 'color': '#508642' },
     'jvm_threads_count': { 'color': '#447EBC' },
   },
   'panel': {
     'title': 'ElasticSearch JVM Threads',
-    'grid': { 'max': null, 'min': 0 },
   },
 };
 
-var gElasticsearchJVMGCCount = {
+plugins.elasticsearch.jvmGCCount = {
   'graph': {
     'jvm_gc_old-count': { },
     'jvm_gc_count': { },
   },
   'panel': {
     'title': 'ElasticSearch JVM GC Count',
-    'grid': { 'max': null, 'min': 0 },
   },
 };
 
-var gElasticsearchJVMGCTime = {
+plugins.elasticsearch.jvmGCTime = {
   'graph': {
     'jvm_gc_old-time': { },
     'jvm_gc_time': { },
   },
   'panel': {
     'title': 'ElasticSearch JVM GC Time',
-    'grid': { 'max': null, 'min': 0 },
+  },
+};
+
+plugins.elasticsearch.threadPoolCompleted = {
+  'graph': {
+    'thread_pool_bulk_completed': { },
+    'thread_pool_flush_completed': { },
+    'thread_pool_generic_completed': { },
+    'thread_pool_get_completed': { },
+    'thread_pool_index_completed': { },
+    'thread_pool_merge_completed': { },
+    'thread_pool_optimize_completed': { },
+    'thread_pool_refresh_completed': { },
+    'thread_pool_search_completed': { },
+    'thread_pool_snapshot_completed': { },
+    'thread_pool_warmer_completed': { },
+  },
+  'panel': {
+    'title': 'ElasticSearch Thread Pool Completed',
+  },
+};
+
+plugins.elasticsearch.threadPoolRejected = {
+  'graph': {
+    'thread_pool_bulk_rejected': { },
+    'thread_pool_flush_rejected': { },
+    'thread_pool_generic_rejected': { },
+    'thread_pool_get_rejected': { },
+    'thread_pool_index_rejected': { },
+    'thread_pool_merge_rejected': { },
+    'thread_pool_optimize_rejected': { },
+    'thread_pool_refresh_rejected': { },
+    'thread_pool_search_rejected': { },
+    'thread_pool_snapshot_rejected': { },
+    'thread_pool_warmer_rejected': { },
+  },
+  'panel': {
+    'title': 'ElasticSearch Thread Pool Rejected',
+  },
+};
+
+plugins.elasticsearch.threadPoolAcrive = {
+  'graph': {
+    'thread_pool_bulk_active': { },
+    'thread_pool_flush_active': { },
+    'thread_pool_generic_active': { },
+    'thread_pool_get_active': { },
+    'thread_pool_index_active': { },
+    'thread_pool_merge_active': { },
+    'thread_pool_optimize_active': { },
+    'thread_pool_refresh_active': { },
+    'thread_pool_search_active': { },
+    'thread_pool_snapshot_active': { },
+    'thread_pool_warmer_active': { },
+  },
+    'panel': {
+    'title': 'ElasticSearch Thread Pool Active',
+  },
+};
+
+plugins.elasticsearch.threadPoolLargest = {
+  'graph': {
+    'thread_pool_bulk_largest': { },
+    'thread_pool_flush_largest': { },
+    'thread_pool_generic_largest': { },
+    'thread_pool_get_largest': { },
+    'thread_pool_index_largest': { },
+    'thread_pool_merge_largest': { },
+    'thread_pool_optimize_largest': { },
+    'thread_pool_refresh_largest': { },
+    'thread_pool_search_largest': { },
+    'thread_pool_snapshot_largest': { },
+    'thread_pool_warmer_largest': { },
+  },
+    'panel': {
+    'title': 'ElasticSearch Thread Pool Largest',
+  },
+};
+
+plugins.elasticsearch.threadPoolQueue = {
+  'graph': {
+    'thread_pool_bulk_queue': { },
+    'thread_pool_flush_queue': { },
+    'thread_pool_generic_queue': { },
+    'thread_pool_get_queue': { },
+    'thread_pool_index_queue': { },
+    'thread_pool_merge_queue': { },
+    'thread_pool_optimize_queue': { },
+    'thread_pool_refresh_queue': { },
+    'thread_pool_search_queue': { },
+    'thread_pool_snapshot_queue': { },
+    'thread_pool_warmer_queue': { },
+  },
+    'panel': {
+    'title': 'ElasticSearch Thread Pool Queue',
+  },
+};
+
+plugins.elasticsearch.threadPoolThread = {
+  'graph': {
+    'thread_pool_bulk_threads': { },
+    'thread_pool_flush_threads': { },
+    'thread_pool_generic_threads': { },
+    'thread_pool_get_threads': { },
+    'thread_pool_index_threads': { },
+    'thread_pool_merge_threads': { },
+    'thread_pool_optimize_threads': { },
+    'thread_pool_refresh_threads': { },
+    'thread_pool_search_threads': { },
+    'thread_pool_snapshot_threads': { },
+    'thread_pool_warmer_threads': { },
+  },
+    'panel': {
+    'title': 'ElasticSearch Thread Pool Threads',
   },
 };
