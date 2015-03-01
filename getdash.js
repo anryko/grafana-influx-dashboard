@@ -58,38 +58,45 @@ return function (callback) {
 
   // Dashboard time and interval setup function
   var getDashTimeInterval = function (time) {
-    var defaultTimeInterval =  {
-      time: {
-        from: "now-6h",
-        to: "now"
+    var defaultTimeInterval = {
+      'time': {
+        'from': "now-6h",
+        'to': "now"
       },
-      interval: '1m',
+      'interval': '1m',
     };
 
     if (!time)
       return defaultTimeInterval;
 
     var timeM = 0;
+    var interval = '';
     var regexpTime = /(\d+)(m|h|d)/;
     var rTime = regexpTime.exec(time);
 
     if (!rTime)
       return defaultTimeInterval;
 
-    if (rTime[2] === 'm') {
+    if (rTime[2] === 'm')
       timeM = parseInt(rTime[1]);
-    } else if (rTime[2] === 'h') {
+    else if (rTime[2] === 'h')
       timeM = parseInt(rTime[1]) * 60;
-    } else if (rTime[2] === 'd') {
+    else if (rTime[2] === 'd')
       timeM = parseInt(rTime[1]) * 60 * 24;
-    }
+
+    if (timeM > 360)
+      interval = (Math.ceil((Math.floor(timeM / 360) + 1) / 5) * 5).toString() + 'm';
+    else if (timeM === 360)
+      interval = '1m';
+    else
+      interval = '30s';
 
     return {
-      time: {
-        from: "now-" + time,
-        to: "now"
+      'time': {
+        'from': "now-" + time,
+        'to': "now"
       },
-      interval: (timeM >= 360) ? Math.floor(timeM / 360).toString() + 'm' : '30s',
+      'interval': interval,
     };
   };
 
