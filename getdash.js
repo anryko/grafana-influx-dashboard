@@ -132,13 +132,11 @@ return function (callback) {
       };
 
       if (('title' in gConf.panel) && (gConf.panel.title.match('@metric'))) {
-        result = $.extend(result, panel, gConf.panel,
+        return $.extend(result, panel, gConf.panel,
             { 'title': gConf.panel.title.replace('@metric', series[0].split('.')[2]) });
-      } else {
-        result = $.extend(result, panel, gConf.panel);
       }
 
-      return result;
+      return $.extend(result, panel, gConf.panel);
    };
   };
 
