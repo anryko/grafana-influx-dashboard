@@ -15,6 +15,7 @@ cd grafana-influx-dashboard
 http://grafanaIP/#/dashboard/script/getdash.js?host=hostname
 http://grafanaIP/#/dashboard/script/getdash.js?host=hostname&metric=cpu,load
 http://grafanaIP/#/dashboard/script/getdash.js?host=hostname&metric=load,database
+http://grafanaIP/#/dashboard/script/getdash.js?host=hostname&metric=load&time=7d
 
 
 ####Supported metrics
@@ -38,3 +39,8 @@ system
 middleware
 database
 ```
+####Supported time format
+```
+/(\d)+(m|h|d)/
+```
+_(grouping by time is automatically adjusted)_

@@ -26,12 +26,16 @@ return function (callback) {
   // GET variables
   var displayHost = '';
   var displayMetric = '';
+  var displayTime;
 
   if(!_.isUndefined(ARGS.host)) {
     displayHost = ARGS.host;
   }
   if(!_.isUndefined(ARGS.metric)) {
     displayMetric = ARGS.metric;
+  }
+  if(!_.isUndefined(ARGS.time)) {
+    displayTime = ARGS.time;
   }
 
   var prefix = 'collectd.' + displayHost + '.';
@@ -51,16 +55,53 @@ return function (callback) {
   // Set default time
   // time can be overriden in the url using from/to parameteres, but this is
   // handled automatically in grafana core during dashboard initialization
-  dashboard.time = {
-    from: "now-6h",
-    to: "now"
+
+  // Dashboard time and interval setup function
+  var getDashTimeInterval = function (time) {
+    var defaultTimeInterval =  {
+      time: {
+        from: "now-6h",
+        to: "now"
+      },
+      interval: '1m',
+    };
+
+    if (!time)
+      return defaultTimeInterval;
+
+    var timeM = 0;
+    var regexpTime = /(\d)+(m|h|d)/;
+    var rTime = regexpTime.exec(time);
+
+    if (!rTime)
+      return defaultTimeInterval;
+
+    if (rTime[2] === 'm') {
+      timeM = parseInt(rTime[1]);
+    } else if (rTime[2] === 'h') {
+      timeM = parseInt(rTime[1]) * 60;
+    } else if (rTime[2] === 'd') {
+      timeM = parseInt(rTime[1]) * 60 * 24;
+    }
+
+    return {
+      time: {
+        from: "now-" + time,
+        to: "now"
+      },
+      interval: (timeM >= 360) ? Math.floor(timeM / 360).toString() + 'm' : '30s',
+    };
   };
+
+  var dashTimeInterval = getDashTimeInterval(displayTime);
+  dashboard.time = dashTimeInterval.time;
+  var interval = dashTimeInterval.interval;
 
   // Set a title
   dashboard.title = 'Scripted Dashboard for ' + displayHost;
 
 
-  // Helper Functions
+  // Dashboard setup helper functions
   var targetGen = function (series, alias, interval, column, apply) {
     return {
       'series': series,
@@ -266,7 +307,7 @@ return function (callback) {
       for (var j = 0, slen = matchedSeries.length; j < slen; j++) {
         for (var k = 0, flen = showDashs[plugin].func.length; k < flen; k++) {
           var metricFunc = showDashs[plugin].func[k];
-          dashboard.rows.push(setupRow(metric.toUpperCase, [metricFunc(matchedSeries[j], seriesAlias, 12, '1m')]));
+          dashboard.rows.push(setupRow(metric.toUpperCase, [metricFunc(matchedSeries[j], seriesAlias, 12, interval)]));
         }
       }
     }
