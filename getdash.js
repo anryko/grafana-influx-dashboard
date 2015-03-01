@@ -34,7 +34,7 @@ return function (callback) {
     displayMetric = ARGS.metric;
   }
 
-  var pfx = 'collectd.' + displayHost;
+  var prefix = 'collectd.' + displayHost + '.';
   var postfix = '';
   var influxdbQueryUrl = window.location.protocol + '//'+ window.location.host +
                    ':8086/db/' + influxDB + '/series?u=' + influxUser + '&p=' + influxPass +
@@ -204,12 +204,12 @@ return function (callback) {
     }
   };
 
-  var matchSeries = function (prefix, metric, series, dash) {
+  var matchSeries = function (prefix, metric, plugin, series, dash) {
     var matchedSeries = [];
     for (var i = 0, len = series.length; i < len; i++) {
-      if ((series[i].indexOf(prefix + '.' + metric) === 0) &&
-        (!('regexp' in dash[metric].config) ||
-        dash[metric].config.regexp.test(series[i].split('.')[2]))) {
+      if ((series[i].indexOf(prefix + metric) === 0) &&
+        (!('regexp' in dash[plugin].config) ||
+        dash[plugin].config.regexp.test(series[i].split('.')[2]))) {
           matchedSeries.push(series[i]);
       }
     }
@@ -244,47 +244,32 @@ return function (callback) {
       $(deferred.resolve);
     })
   ).done(function () {
-    var displayMetrics = (displayMetric) ? displayMetric.split(',') : null;
-    var showDashs = genDashs(displayMetrics, plugins);
-
     if (hostSeries.length === 0) {
       return dashboard;
     }
 
-    for (var metric in showDashs) {
-      var metricFunc;
-      var seriesAlias = ('alias' in showDashs[metric].config) ? showDashs[metric].config.alias : null;
-      var matchedSeries = matchSeries(pfx, metric, hostSeries, showDashs);
+    var displayMetrics = (displayMetric) ? displayMetric.split(',') : null;
+    var showDashs = genDashs(displayMetrics, plugins);
 
-      if (matchedSeries.length === 0) {
-        continue;
-      }
-
-      // rematch series if we have multiple instances per plugin
-      if (showDashs[metric].config.multi) {
-        var metricsExt = getExtendedMetrics(matchedSeries, pfx + '.');
-        if (metricsExt.length > 1) {
-          for (var k = 0; k < metricsExt.length; k++) {
-            var metricExt = metricsExt[k];
-            var rematchedSeries = [];
-            var repfxMetric = pfx + '.' + metricExt + '.';
-            for (var m = 0; m < matchedSeries.length; m++) {
-              if (matchedSeries[m].indexOf(repfxMetric) === 0) {
-                rematchedSeries.push(matchedSeries[m]);
-              }
-            }
-            for (var j = 0; j < showDashs[metric].func.length; j++) {
-              metricFunc = showDashs[metric].func[j];
-              dashboard.rows.push(setupRow(metricExt.toUpperCase, [metricFunc(rematchedSeries, seriesAlias, 12, '1m')]));
-            }
-          }
-         continue; 
+    for (var plugin in showDashs) {
+      var metric = plugin;
+      var seriesAlias = ('alias' in showDashs[plugin].config) ? showDashs[plugin].config.alias : null;
+      var matchedSeries = [];
+ 
+      if (showDashs[plugin].config.multi) {
+        var metricsExt = getExtendedMetrics(matchSeries(prefix, metric, plugin, hostSeries, showDashs), prefix);
+        for (var i = 0, mlen = metricsExt.length; i < mlen; i++) {
+          matchedSeries.push(matchSeries(prefix, metricsExt[i], plugin, hostSeries, showDashs));
         }
+      } else {
+        matchedSeries.push(matchSeries(prefix, metric, plugin, hostSeries, showDashs));
       }
 
-      for (var n = 0; n < showDashs[metric].func.length; n++) {
-        metricFunc = showDashs[metric].func[n];
-        dashboard.rows.push(setupRow(metric.toUpperCase, [metricFunc(matchedSeries, seriesAlias, 12, '1m')]));
+      for (var j = 0, slen = matchedSeries.length; j < slen; j++) {
+        for (var k = 0, flen = showDashs[plugin].func.length; k < flen; k++) {
+          var metricFunc = showDashs[plugin].func[k];
+          dashboard.rows.push(setupRow(metric.toUpperCase, [metricFunc(matchedSeries[j], seriesAlias, 12, '1m')]));
+        }
       }
     }
 
