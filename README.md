@@ -41,6 +41,6 @@ database
 ```
 ####Supported time format
 ```
-/(\d)+(m|h|d)/
+/(\d+)(m|h|d)/
 ```
 <sub>_(grouping by time is automatically adjusted)_</sub>

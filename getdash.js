@@ -70,7 +70,7 @@ return function (callback) {
       return defaultTimeInterval;
 
     var timeM = 0;
-    var regexpTime = /(\d)+(m|h|d)/;
+    var regexpTime = /(\d+)(m|h|d)/;
     var rTime = regexpTime.exec(time);
 
     if (!rTime)
