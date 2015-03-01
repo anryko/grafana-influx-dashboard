@@ -43,4 +43,4 @@ database
 ```
 /(\d)+(m|h|d)/
 ```
-_(grouping by time is automatically adjusted)_
+<sub>_(grouping by time is automatically adjusted)_</sub>
