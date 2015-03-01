@@ -12,8 +12,8 @@ function Plugin (alias) {
 
 // collectd plugins configuration
 var plugins = {};
-plugins.groups = {};
 Object.defineProperty(plugins, 'groups', {
+  value: {},
   enumerable: false,
 });
 
