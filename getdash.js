@@ -38,8 +38,6 @@ return function (callback) {
     displayTime = ARGS.time;
   }
 
-  var prefix = 'collectd.' + displayHost + '.';
-  var postfix = '';
   var influxdbQueryUrl = window.location.protocol + '//'+ window.location.host +
                    ':8086/db/' + influxDB + '/series?u=' + influxUser + '&p=' + influxPass +
                    '&q=list series /\.' + displayHost + '\./';
@@ -300,15 +298,16 @@ return function (callback) {
     for (var plugin in showDashs) {
       var metric = plugin;
       var seriesAlias = ('alias' in showDashs[plugin].config) ? showDashs[plugin].config.alias : null;
+      var seriesPrefix = showDashs[plugin].config.prefix + displayHost + '.';
       var matchedSeries = [];
  
       if (showDashs[plugin].config.multi) {
-        var metricsExt = getExtendedMetrics(matchSeries(prefix, metric, plugin, hostSeries, showDashs), prefix);
+        var metricsExt = getExtendedMetrics(matchSeries(seriesPrefix, metric, plugin, hostSeries, showDashs), prefix);
         for (var i = 0, mlen = metricsExt.length; i < mlen; i++) {
-          matchedSeries.push(matchSeries(prefix, metricsExt[i], plugin, hostSeries, showDashs));
+          matchedSeries.push(matchSeries(seriesPrefix, metricsExt[i], plugin, hostSeries, showDashs));
         }
       } else {
-        matchedSeries.push(matchSeries(prefix, metric, plugin, hostSeries, showDashs));
+        matchedSeries.push(matchSeries(seriesPrefix, metric, plugin, hostSeries, showDashs));
       }
 
       for (var j = 0, slen = matchedSeries.length; j < slen; j++) {

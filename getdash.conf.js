@@ -1,13 +1,14 @@
 // Configuration JS file for getdash.js
 
 // Plugin constructor
-function Plugin (alias) {
+function Plugin (alias, prefix) {
   Object.defineProperty(this, 'config', {
     value: {},
     enumerable: false,
   });
 
   this.config.alias = alias;
+  this.config.prefix = (prefix === undefined) ? 'collectd.' : prefix;
 }
 
 // collectd plugins configuration
