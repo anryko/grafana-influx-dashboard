@@ -18,10 +18,6 @@ return function (callback) {
   var dashboard;
   var hostSeries = [];
 
-  // InfluxDB setup
-  var influxUser = 'root';
-  var influxPass = 'root';
-  var influxDB = 'graphite'; 
 
   // GET variables
   var displayHost = '';
@@ -38,16 +34,20 @@ return function (callback) {
     displayTime = ARGS.time;
   }
 
-  var influxdbQueryUrl = window.location.protocol + '//'+ window.location.host +
-                   ':8086/db/' + influxDB + '/series?u=' + influxUser + '&p=' + influxPass +
-                   '&q=list series /\.' + displayHost + '\./';
+  // InfluxDB setup
+  var influxUser = 'root';
+  var influxPass = 'root';
+  var influxDB = 'graphite';
+  var influxDBUrl = window.location.protocol + '//' + window.location.host + ':8086';
+  var influxdbQueryUrl = influxDBUrl + '/db/' + influxDB + '/series?u=' + influxUser +
+                         '&p=' + influxPass + '&q=list series /\.' + displayHost + '\./';
 
   var getdashConfig = '/app/getdash/getdash.conf.js';
 
   // Intialize a skeleton with nothing but a rows array and service object
   dashboard = {
-      rows : [],
-      services : {}
+    'rows': [],
+    'services': {}
   };
 
   // Set default time
