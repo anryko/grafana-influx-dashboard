@@ -18,21 +18,19 @@ return function (callback) {
   var dashboard;
   var hostSeries = [];
 
-
   // GET variables
   var displayHost = '';
   var displayMetric = '';
   var displayTime;
 
-  if(!_.isUndefined(ARGS.host)) {
+  if(!_.isUndefined(ARGS.host))
     displayHost = ARGS.host;
-  }
-  if(!_.isUndefined(ARGS.metric)) {
+
+  if(!_.isUndefined(ARGS.metric))
     displayMetric = ARGS.metric;
-  }
-  if(!_.isUndefined(ARGS.time)) {
+
+  if(!_.isUndefined(ARGS.time))
     displayTime = ARGS.time;
-  }
 
   // InfluxDB setup
   var influxUser = 'root';
@@ -99,8 +97,8 @@ return function (callback) {
   };
 
   var dashTimeInterval = getDashTimeInterval(displayTime);
-  dashboard.time = dashTimeInterval.time;
   var interval = dashTimeInterval.interval;
+  dashboard.time = dashTimeInterval.time;
 
   // Set a title
   dashboard.title = 'Scripted Dashboard for ' + displayHost;
@@ -126,25 +124,25 @@ return function (callback) {
     var apply = '';
     for (var match in graphConf) {
       var graph = graphConf[match];
-      for (var i = 0; i < series.length; i++) {
+      for (var i = 0, len = series.length; i < len; i++) {
         var s = series[i];
         seriesAlias = (seriesAlias) ? seriesAlias : s.split('.')[2];
         if (s.lastIndexOf(match) === s.length - match.length) {
-          if ((aliasConf) && ('position' in aliasConf)) {
+          if ((aliasConf) && ('position' in aliasConf))
             alias = seriesAlias + '.' + s.split('.')[aliasConf.position];
-          } else if (graph.alias) {
+          else if (graph.alias)
             alias = seriesAlias + '.' + graph.alias;
-          } else {
+          else
             alias = seriesAlias + '.' + match;
-          }
+
           column = graph.column;
           apply = graph.apply;
           targets.push(targetGen(s, alias, interval, column, apply));
-          if (graph.color) {
+          if (graph.color)
             aliasColor = graph.color;
-          } else {
+          else
             aliasColor = '#' + ((1 << 24) * Math.random() | 0).toString(16);
-          }
+
           aliasColors[alias] = aliasColor;
         }
       }
@@ -159,7 +157,6 @@ return function (callback) {
     return function (series, seriesAlias, span, interval) {
       span = (span === undefined) ? 12 : span;
       interval = (interval === undefined) ? '1m' : interval;
-      var result = {};
       var graph = gConf.graph;
       var alias = gConf.alias;
       var targets = targetsGen(series, seriesAlias, span, interval, graph, alias);
@@ -177,12 +174,11 @@ return function (callback) {
         'aliasColors': targets.aliasColors,
       };
 
-      if (('title' in gConf.panel) && (gConf.panel.title.match('@metric'))) {
-        return $.extend(result, panel, gConf.panel,
+      if (('title' in gConf.panel) && (gConf.panel.title.match('@metric')))
+        return $.extend({}, panel, gConf.panel,
             { 'title': gConf.panel.title.replace('@metric', series[0].split('.')[2]) });
-      }
 
-      return $.extend(result, panel, gConf.panel);
+      return $.extend({}, panel, gConf.panel);
    };
   };
 
@@ -198,13 +194,12 @@ return function (callback) {
   var getExtendedMetrics = function (series, prefix) {
     var metricsExt = [];
     var postfix = '';
-    for (var i = 0; i < series.length; i++) {
+    for (var i = 0, len = series.length; i < len; i++) {
       if (series[i].indexOf(prefix) === 0) {
         postfix = series[i].slice(prefix.length);
         postfix = postfix.slice(0, postfix.indexOf('.'));
-        if (metricsExt.indexOf(postfix) === -1) {
+        if (metricsExt.indexOf(postfix) === -1)
           metricsExt.push(postfix);
-        }
       }
     }
     return metricsExt;
@@ -288,9 +283,8 @@ return function (callback) {
       $(deferred.resolve);
     })
   ).done(function () {
-    if (hostSeries.length === 0) {
+    if (hostSeries.length === 0)
       return dashboard;
-    }
 
     var displayMetrics = (displayMetric) ? displayMetric.split(',') : null;
     var showDashs = genDashs(displayMetrics, plugins);
@@ -302,7 +296,7 @@ return function (callback) {
       var matchedSeries = [];
  
       if (showDashs[plugin].config.multi) {
-        var metricsExt = getExtendedMetrics(matchSeries(seriesPrefix, metric, plugin, hostSeries, showDashs), prefix);
+        var metricsExt = getExtendedMetrics(matchSeries(seriesPrefix, metric, plugin, hostSeries, showDashs), seriesPrefix);
         for (var i = 0, mlen = metricsExt.length; i < mlen; i++) {
           matchedSeries.push(matchSeries(seriesPrefix, metricsExt[i], plugin, hostSeries, showDashs));
         }

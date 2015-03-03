@@ -132,6 +132,7 @@ Supported configuration keys are:
  * *color* - if not defined color will be random
  * *alias* - to change metric name on the graph
  * *column* - used to manipulate the graph (in this case we want to make it upsidedown so we multiply values by -1)
+ * *apply* - used to apply InfluxDB SQL value function (e.g. max, min, cont, etc.)
 
 Next we define Panel title and grid.
 ```javascript
