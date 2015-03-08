@@ -53,7 +53,7 @@ return function (callback) {
   // handled automatically in grafana core during dashboard initialization
 
   // Dashboard time and interval setup function
-  var getDashTimeInterval = function (time) {
+  var getDashTimeInterval = function getDashTimeInterval (time) {
     var defaultTimeInterval = {
       'time': {
         'from': "now-6h",
@@ -103,48 +103,77 @@ return function (callback) {
   // Set a title
   dashboard.title = 'Scripted Dashboard for ' + displayHost;
 
-
-  // Dashboard setup helper functions
-  var targetGen = function (series, alias, interval, column, apply) {
-    return {
-      'series': series,
-      'alias': alias,
-      'column': (column === undefined) ? 'value' : column,
-      'interval': (interval === undefined) ? '1m' : interval,
-      'function': (apply === undefined) ? 'mean' : apply,
-    };
+  // Object prototypes
+  var targetProto = {
+    'series': '',
+    'alias': '',
+    'column': 'value',
+    'interval': '1m',
+    'function': 'mean',
   };
 
-  var targetsGen = function (series, seriesAlias, span, interval, graphConf, aliasConf) {
+  var panelProto = {
+    'title': 'Default Title',
+    'type': 'graphite',
+    'span': 12,
+    'y_formats': [ 'none' ],
+    'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
+    'lines': true,
+    'fill': 1,
+    'linewidth': 1,
+    'nullPointMode': 'null',
+    'targets': {},
+    'aliasColors': {},
+  };
+
+  var rowProto = {
+    'title': 'Default Row Title',
+    'height': '250px',
+    'panels': [],
+  };
+
+
+  // Dashboard setup helper functions
+  var setupTarget = function setupTarget (target) {
+    return $.extend({}, targetProto, target);
+  };
+
+  var genRandomColor = function genRandomColor () {
+    return '#' + ((1 << 24) * Math.random() | 0).toString(16);
+  };
+
+  var genTargets = function genTargets (seriesArr, seriesAlias, interval, pluginConf) {
     var targets = [];
     var aliasColors = {};
-    var aliasColor = '';
     var alias = '';
-    var column = '';
-    var apply = '';
-    for (var match in graphConf) {
-      var graph = graphConf[match];
-      for (var i = 0, len = series.length; i < len; i++) {
-        var s = series[i];
-        seriesAlias = (seriesAlias) ? seriesAlias : s.split('.')[2];
-        if (s.lastIndexOf(match) === s.length - match.length) {
-          if ((aliasConf) && ('position' in aliasConf))
-            alias = seriesAlias + '.' + s.split('.')[aliasConf.position];
-          else if (graph.alias)
-            alias = seriesAlias + '.' + graph.alias;
-          else
-            alias = seriesAlias + '.' + match;
+    for (var match in pluginConf.graph) {
+      var graph = pluginConf.graph[match];
+      for (var i = 0, len = seriesArr.length; i < len; i++) {
+        var series = seriesArr[i];
+        seriesAlias = (seriesAlias) ? seriesAlias : series.split('.')[2];
 
-          column = graph.column;
-          apply = graph.apply;
-          targets.push(targetGen(s, alias, interval, column, apply));
-          if (graph.color)
-            aliasColor = graph.color;
-          else
-            aliasColor = '#' + ((1 << 24) * Math.random() | 0).toString(16);
+        if (series.lastIndexOf(match) !== series.length - match.length)
+          continue;
 
-          aliasColors[alias] = aliasColor;
-        }
+        if ((pluginConf.alias) && ('position' in pluginConf.alias))
+          alias = seriesAlias + '.' + series.split('.')[pluginConf.alias.position];
+        else if (graph.alias)
+          alias = seriesAlias + '.' + graph.alias;
+        else
+          alias = seriesAlias + '.' + match;
+
+        targets.push(setupTarget({
+          'series': series,
+          'alias': alias,
+          'interval': interval,
+          'column': graph.column,
+          'apply': graph.apply,
+        }));
+
+        if (graph.color)
+          aliasColors[alias] = graph.color;
+        else
+          aliasColors[alias] = genRandomColor();
       }
     }
     return {
@@ -153,45 +182,29 @@ return function (callback) {
     };
   };
 
-  var panelFactory = function (gConf) {
+  var panelFactory = function panelFactory (pluginConf) {
     return function (series, seriesAlias, span, interval) {
-      span = (span === undefined) ? 12 : span;
       interval = (interval === undefined) ? '1m' : interval;
-      var graph = gConf.graph;
-      var alias = gConf.alias;
-      var targets = targetsGen(series, seriesAlias, span, interval, graph, alias);
+      var targets = genTargets(series, seriesAlias, interval, pluginConf);
       var panel = {
-        'title': 'Default Title',
-        'type': 'graphite',
         'span': span,
-        'y_formats': [ 'none' ],
-        'grid': { 'max': null, 'min': 0, 'leftMin': 0 },
-        'lines': true,
-        'fill': 1,
-        'linewidth': 1,
-        'nullPointMode': 'null',
         'targets': targets.targets,
         'aliasColors': targets.aliasColors,
       };
 
-      if (('title' in gConf.panel) && (gConf.panel.title.match('@metric')))
-        return $.extend({}, panel, gConf.panel,
-            { 'title': gConf.panel.title.replace('@metric', series[0].split('.')[2]) });
+      if (('title' in pluginConf.panel) && (pluginConf.panel.title.match('@metric')))
+        return $.extend({}, panelProto, panel, pluginConf.panel,
+            { 'title': pluginConf.panel.title.replace('@metric', series[0].split('.')[2]) });
 
-      return $.extend({}, panel, gConf.panel);
+      return $.extend({}, panelProto, panel, pluginConf.panel);
    };
   };
 
-  var setupRow = function (title, panels) {
-    return {
-      'title': title,
-      'height': '250px',
-      'panels': panels,
-      'grid': { 'max': null, 'min': 0 },
-    };
+  var setupRow = function setupRow (row) {
+    return $.extend({}, rowProto, row);
   };
   
-  var getExtendedMetrics = function (series, prefix) {
+  var getExtendedMetrics = function getExtendedMetrics (series, prefix) {
     var metricsExt = [];
     var postfix = '';
     for (var i = 0, len = series.length; i < len; i++) {
@@ -205,7 +218,7 @@ return function (callback) {
     return metricsExt;
   };
 
-  var setupDash = function (plugin) {
+  var setupDash = function setupDash (plugin) {
     var p = {
       func: [],
       config: plugin.config,
@@ -216,7 +229,7 @@ return function (callback) {
     return p;
   };
 
-  var genDashs = function (metrics, plugins) {
+  var genDashs = function genDashs (metrics, plugins) {
     var dashs = {};
     if (metrics) {
       var groups = plugins.groups;
@@ -243,7 +256,7 @@ return function (callback) {
     }
   };
 
-  var matchSeries = function (prefix, metric, plugin, series, dash) {
+  var matchSeries = function matchSeries (prefix, metric, plugin, series, dash) {
     var matchedSeries = [];
     for (var i = 0, len = series.length; i < len; i++) {
       if ((series[i].indexOf(prefix + metric) === 0) &&
@@ -307,7 +320,10 @@ return function (callback) {
       for (var j = 0, slen = matchedSeries.length; j < slen; j++) {
         for (var k = 0, flen = showDashs[plugin].func.length; k < flen; k++) {
           var metricFunc = showDashs[plugin].func[k];
-          dashboard.rows.push(setupRow(metric.toUpperCase, [metricFunc(matchedSeries[j], seriesAlias, 12, interval)]));
+          dashboard.rows.push(setupRow({
+            'title': metric.toUpperCase,
+            'panels': [ metricFunc(matchedSeries[j], seriesAlias, 12, interval) ],
+          }));
         }
       }
     }
