@@ -1,14 +1,24 @@
 // Configuration JS file for getdash.js
 
+var influxdbConf = {
+    'user': 'root',
+    'password': 'root',
+    'db': 'graphite',
+    'url': undefined, // Autodetected
+};
+
+var pluginConfProto = {
+  'alias': undefined,
+  'prefix': 'collectd.',
+  'datastore': [],
+};
+
 // Plugin constructor
-function Plugin (alias, prefix) {
+function Plugin (config) {
   Object.defineProperty(this, 'config', {
-    value: {},
+    value: $.extend({}, pluginConfProto, config),
     enumerable: false,
   });
-
-  this.config.alias = alias;
-  this.config.prefix = (prefix === undefined) ? 'collectd.' : prefix;
 }
 
 // collectd plugins configuration
@@ -190,7 +200,7 @@ plugins.processes.fork = {
 
 
 // collectd redis plugin configuration: https://github.com/powdahound/redis-collectd-plugin
-plugins.redis = new Plugin('redis');
+plugins.redis = new Plugin({ 'alias': 'redis' });
 
 plugins.redis.memory = {
   'graph': {
@@ -397,7 +407,7 @@ plugins.memcache.cpu = {
 
 
 // collectd rabbitmq plugin configuration: https://github.com/kozdincer/rabbitmq_collectd_plugin
-plugins.rabbitmq = new Plugin('rabbitmq');
+plugins.rabbitmq = new Plugin({ 'alias': 'rabbitmq' });
 
 plugins.rabbitmq.rates = {
   'graph': {
@@ -489,7 +499,7 @@ plugins.rabbitmq.sockets = {
 
 
 // collectd elasticsearch plugin configuration: https://github.com/phobos182/collectd-elasticsearch
-plugins.elasticsearch = new Plugin('elasticsearch');
+plugins.elasticsearch = new Plugin({ 'alias': 'elasticsearch' });
 
 plugins.elasticsearch.http = {
   'graph': {

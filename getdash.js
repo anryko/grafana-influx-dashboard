@@ -16,7 +16,7 @@ return function (callback) {
 
   // Setup some variables
   var dashboard;
-  var hostSeries = [];
+  var getdashConfig = '/app/getdash/getdash.conf.js';
 
   // GET variables
   var displayHost = '';
@@ -31,16 +31,6 @@ return function (callback) {
 
   if(!_.isUndefined(ARGS.time))
     displayTime = ARGS.time;
-
-  // InfluxDB setup
-  var influxUser = 'root';
-  var influxPass = 'root';
-  var influxDB = 'graphite';
-  var influxDBUrl = window.location.protocol + '//' + window.location.host + ':8086';
-  var influxdbQueryUrl = influxDBUrl + '/db/' + influxDB + '/series?u=' + influxUser +
-                         '&p=' + influxPass + '&q=list series /\.' + displayHost + '\./';
-
-  var getdashConfig = '/app/getdash/getdash.conf.js';
 
   // Intialize a skeleton with nothing but a rows array and service object
   dashboard = {
@@ -108,7 +98,7 @@ return function (callback) {
     'series': '',
     'alias': '',
     'column': 'value',
-    'interval': '1m',
+    'interval': interval,
     'function': 'mean',
   };
 
@@ -122,6 +112,7 @@ return function (callback) {
     'fill': 1,
     'linewidth': 1,
     'nullPointMode': 'null',
+//TODO:    'datasource': 'ops',
     'targets': {},
     'aliasColors': {},
   };
@@ -142,7 +133,7 @@ return function (callback) {
     return '#' + ((1 << 24) * Math.random() | 0).toString(16);
   };
 
-  var genTargets = function genTargets (seriesArr, seriesAlias, interval, pluginConf) {
+  var genTargets = function genTargets (seriesArr, seriesAlias, pluginConf) {
     var targets = [];
     var aliasColors = {};
     var alias = '';
@@ -165,7 +156,6 @@ return function (callback) {
         targets.push(setupTarget({
           'series': series,
           'alias': alias,
-          'interval': interval,
           'column': graph.column,
           'apply': graph.apply,
         }));
@@ -183,9 +173,8 @@ return function (callback) {
   };
 
   var panelFactory = function panelFactory (pluginConf) {
-    return function (series, seriesAlias, span, interval) {
-      interval = (interval === undefined) ? '1m' : interval;
-      var targets = genTargets(series, seriesAlias, interval, pluginConf);
+    return function (series, seriesAlias, span) {
+      var targets = genTargets(series, seriesAlias, pluginConf);
       var panel = {
         'span': span,
         'targets': targets.targets,
@@ -268,36 +257,9 @@ return function (callback) {
     return matchedSeries;
   };
 
-  // AJAX configuration
-  $.ajaxSetup({
-    async: true,
-    cache: false,
-  });
-
-  // Get series and panel configuration to perepare dashboard
-  $.when(
-    $.getJSON(influxdbQueryUrl)
-      .done(function (jsonData) {
-        var points = jsonData[0].points;
-        for (var i = 0, len = points.length; i < len; i++) {
-          hostSeries.push(points[i][1]);
-        }
-      })
-      .fail(function () {
-        throw new Error('Error loading InfluxDB data JSON from: ' + influxdbQueryUrl);
-      }),
-
-    $.getScript(getdashConfig)
-      .fail(function () {
-        throw new Error('Error loading getdash config from: ' + getdashConfig);
-      }),
-
-    $.Deferred(function (deferred) {
-      $(deferred.resolve);
-    })
-  ).done(function () {
+  var setupDashboard = function setupDashboard (hostSeries, plugins, displayMetric, dashboard, callback) {
     if (hostSeries.length === 0)
-      return dashboard;
+      callback(dashboard);
 
     var displayMetrics = (displayMetric) ? displayMetric.split(',') : null;
     var showDashs = genDashs(displayMetrics, plugins);
@@ -307,9 +269,10 @@ return function (callback) {
       var seriesAlias = ('alias' in showDashs[plugin].config) ? showDashs[plugin].config.alias : null;
       var seriesPrefix = showDashs[plugin].config.prefix + displayHost + '.';
       var matchedSeries = [];
- 
+
       if (showDashs[plugin].config.multi) {
-        var metricsExt = getExtendedMetrics(matchSeries(seriesPrefix, metric, plugin, hostSeries, showDashs), seriesPrefix);
+        var metrics = matchSeries(seriesPrefix, metric, plugin, hostSeries, showDashs);
+        var metricsExt = getExtendedMetrics(metrics, seriesPrefix);
         for (var i = 0, mlen = metricsExt.length; i < mlen; i++) {
           matchedSeries.push(matchSeries(seriesPrefix, metricsExt[i], plugin, hostSeries, showDashs));
         }
@@ -322,13 +285,45 @@ return function (callback) {
           var metricFunc = showDashs[plugin].func[k];
           dashboard.rows.push(setupRow({
             'title': metric.toUpperCase,
-            'panels': [ metricFunc(matchedSeries[j], seriesAlias, 12, interval) ],
+            'panels': [ metricFunc(matchedSeries[j], seriesAlias, 12) ],
           }));
         }
       }
     }
 
-    // Return dashboard
     callback(dashboard);
+  };
+
+  // AJAX configuration
+  $.ajaxSetup({
+    cache: false,
   });
+
+  // Get series and panel configuration to perepare dashboard
+  $.getScript(getdashConfig)
+    .done(function () {
+      var influxAPIPort = (window.location.protocol === 'https:') ? '8084' : '8086';
+      var influxDBUrl = window.location.protocol + '//' +
+                        window.location.host.split(':')[0] + ':' + influxAPIPort;
+      var influxdbQueryUrl = influxDBUrl + '/db/' + influxdbConf.db + '/series?u=' + influxdbConf.user +
+                        '&p=' + influxdbConf.password + '&q=list series /\.' + displayHost + '\./';
+      $.getJSON(influxdbQueryUrl)
+        .done(function (jsonData) {
+          var hostSeries = [];
+          var points = jsonData[0].points;
+          for (var i = 0, len = points.length; i < len; i++) {
+            hostSeries.push(points[i][1]);
+          }
+          // Setup dashboard and return using callback
+          setupDashboard(hostSeries, plugins, displayMetric, dashboard, callback);
+        })
+        .fail(function () {
+          throw new Error('Error loading InfluxDB data JSON from: ' + influxdbQueryUrl);
+        });
+      })
+    .fail(function () {
+      throw new Error('Error loading getdash config from: ' + getdashConfig);
+    });
 };
+
+
