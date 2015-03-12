@@ -112,7 +112,6 @@ return function (callback) {
     'fill': 1,
     'linewidth': 1,
     'nullPointMode': 'null',
-//TODO:    'datasource': 'ops',
     'targets': {},
     'aliasColors': {},
   };
@@ -172,11 +171,12 @@ return function (callback) {
     };
   };
 
-  var panelFactory = function panelFactory (pluginConf) {
+  var panelFactory = function panelFactory (pluginConf, datasource) {
     return function (series, seriesAlias, span) {
       var targets = genTargets(series, seriesAlias, pluginConf);
       var panel = {
         'span': span,
+        'datasource': datasource,
         'targets': targets.targets,
         'aliasColors': targets.aliasColors,
       };
@@ -212,8 +212,14 @@ return function (callback) {
       func: [],
       config: plugin.config,
     };
-    for (var name in plugin) {
-      p.func.push(panelFactory(plugin[name]));
+    for (var metric in plugin) {
+      if (('datasources' in plugin.config) && (plugin.config.datasources.length)) {
+        for (var i = 0, len = plugin.config.datasources.length; i < len; i++) {
+          p.func.push(panelFactory(plugin[metric], plugin.config.datasources[i]));
+        }
+      } else {
+        p.func.push(panelFactory(plugin[metric]));
+      }
     }
     return p;
   };
@@ -294,19 +300,19 @@ return function (callback) {
     callback(dashboard);
   };
 
-  // AJAX configuration
-  $.ajaxSetup({
-    cache: false,
-  });
-
   // Get series and panel configuration to perepare dashboard
   $.getScript(getdashConfig)
     .done(function () {
       var influxAPIPort = (window.location.protocol === 'https:') ? '8084' : '8086';
       var influxDBUrl = window.location.protocol + '//' +
                         window.location.host.split(':')[0] + ':' + influxAPIPort;
-      var influxdbQueryUrl = influxDBUrl + '/db/' + influxdbConf.db + '/series?u=' + influxdbConf.user +
-                        '&p=' + influxdbConf.password + '&q=list series /\.' + displayHost + '\./';
+      var influxdbQuery = (displayMetric) ? '&q=list series /\.' + displayHost + '\.(' +
+                          displayMetric.replace(',', '|') + ')/'
+                          : '&q=list series /\.' + displayHost + '\./';
+      // TODO: Implement multiple dbs support
+      var influxdbQueryUrl = influxDBUrl + '/db/' + influxdbConf.dbs[0] + '/series?u=' + influxdbConf.user +
+                             '&p=' + influxdbConf.password + influxdbQuery;
+
       $.getJSON(influxdbQueryUrl)
         .done(function (jsonData) {
           var hostSeries = [];
@@ -325,5 +331,3 @@ return function (callback) {
       throw new Error('Error loading getdash config from: ' + getdashConfig);
     });
 };
-
-

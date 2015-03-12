@@ -3,14 +3,15 @@
 var influxdbConf = {
     'user': 'root',
     'password': 'root',
-    'db': 'graphite',
+    'dbs': [ 'graphite' ],
     'url': undefined, // Autodetected
 };
 
 var pluginConfProto = {
   'alias': undefined,
   'prefix': 'collectd.',
-  'datastore': [],
+// Useful in case of multiple datasources
+//   'datasources': [ 'ops' ],
 };
 
 // Plugin constructor
