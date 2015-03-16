@@ -44,14 +44,8 @@ return function (callback) {
 //    var influxdbQuery = (displayMetric) ? '&q=list series /\.' + displayHost + '\.(' +
 //                    displayMetric.replace(',', '|') + ')/'
 //                    : '&q=list series /\.' + displayHost + '\./';
-    var influxdbQuery = '&q=list series /\.' + displayHost + '\./';
+    var influxdbQuery = 'list series /\.' + displayHost + '\./';
 
-    var dsQueries = _.map(datasources, function (ds) {
-      return {
-        'datasource': ds.name,
-        'url': ds.url + '/series?u=' + ds.username + '&p=' + ds.password + influxdbQuery,
-      };
-    });
 
     // Intialize a skeleton with nothing but a rows array and service object
     dashboard = {
@@ -112,7 +106,7 @@ return function (callback) {
     dashboard.time = dashTimeInterval.time;
 
     // Set a title
-    dashboard.title = 'Scripted Dashboard for ' + displayHost;
+    dashboard.title = 'Grafana - Scripted Dashboard for ' + displayHost;
 
     // Object prototypes
     var targetProto = {
@@ -290,7 +284,7 @@ return function (callback) {
       };
     };
 
-    var setupDashboard = function setupDashboard (hostSeries, plugins, displayMetric, dashboard, callback) {
+    var setupDashboard = function setupDashboard (hostSeries, plugins, displayMetric, dashboard) {
       if (!hostSeries.length)
         return;
 
@@ -327,26 +321,70 @@ return function (callback) {
         }, []));
       }.bind(showDashs));
 
-      callback(dashboard);
+      return dashboard;
     };
 
-    // Get series from InfluxDB
-    var jsonLoad = [];
-    var hostSeries = [];
-    $.each(dsQueries, function (i, query) {
-      jsonLoad.push(
-        $.getJSON(query.url, function (json) {
-          json[0].points.forEach(function (point) {
-            hostSeries.push({ 'source': query.datasource, 'name': point[1] });
-          });
-        })
-      );
-    });
 
-    // Setup Grafana dashboard
-    $.when.apply($, jsonLoad).done(function () {
-      setupDashboard(hostSeries, plugins, displayMetric, dashboard, callback);
-    });
+    // Get series from InfluxDB
+    var getSeries = function (datasources, query) {
+      var dsQueries = _.map(datasources, function (ds) {
+        return {
+          'datasource': ds.name,
+          'url': ds.url + '/series?u=' + ds.username + '&p=' + ds.password + '&q=' + query,
+        };
+      });
+
+      var hostSeries = _.map(dsQueries, function (query) {
+        $.ajaxSetup({ 'async': false });
+        var series = [];
+        $.getJSON(query.url, function (json) {
+          series = _.map(json[0].points, function (point) {
+            return {
+              'source': query.datasource,
+              'name': point[1],
+            };
+          });
+        });
+        $.ajaxSetup({ 'async': true });
+        return _.flatten(series);
+      });
+
+      return _.flatten(hostSeries);
+    };
+
+
+    if (!displayHost) {
+      var hostsAll = _.uniq(_.map(_.pluck(getSeries(datasources, 'list series'), 'name'), function (series) {
+        return series.split('.')[1];
+      }));
+
+      var hostsLinks = _.reduce(hostsAll, function (string, host) {
+        return string + '\n\t\t\t<li>\n\t\t\t\t<a href="' +
+          window.location.protocol + '//' + window.location.host + '/#/dashboard/script/getdash.js?host=' +
+          host + '" onclick="location.reload()">' + host + '</a>\n\t\t\t</li>';
+      }, '');
+
+      var defaultRow = {
+        'title': 'Default',
+        'height': '190px',
+        'panels': [
+          {
+            'title': '',
+            'span': 12,
+            'type': 'text',
+            'mode': 'html',
+            'content': '<h3 class="text-center">Welcome to Grafana Scripted Dashboard.</h3>\n<div class="row-fluid">\n\t<div class="span12">\n\t\t<h4>Grafana InfluxDB Scripted Dashboard Documentation</h4>\n\t\t<ul>\n\t\t\t<li>\n\t\t\t\t<a href="https://github.com/anryko/grafana-influx-dashboard">GitHub</a>\n\t\t\t</li>\n\t\t</ul>\n\t\t<h4>Available Hosts:</h4>\n\t\t<ul>' + hostsLinks + '\n\t\t</ul>\n\t</div>\n</div>',
+          },
+        ],
+      };
+
+      dashboard.title = 'Grafana - Scripted Dashboard';
+      dashboard.rows.push(defaultRow);
+      callback(dashboard);
+      return;
+    }
+
+    callback(setupDashboard(getSeries(datasources, influxdbQuery), plugins, displayMetric, dashboard));
 
   });
 };
