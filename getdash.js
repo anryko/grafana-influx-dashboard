@@ -324,9 +324,8 @@ return function (callback) {
       return dashboard;
     };
 
-
     // Get series from InfluxDB
-    var getSeries = function (datasources, query) {
+    var getSeries = function getSeries (datasources, query, callback) {
       var dsQueries = _.map(datasources, function (ds) {
         return {
           'datasource': ds.name,
@@ -334,34 +333,33 @@ return function (callback) {
         };
       });
 
-      var hostSeries = _.map(dsQueries, function (query) {
-        $.ajaxSetup({ 'async': false });
-        var series = [];
-        $.getJSON(query.url, function (json) {
-          series = _.map(json[0].points, function (point) {
+      var hostSeries = [];
+      var gettingHostSeries = [];
+      _.each(dsQueries, function (query) {
+        gettingHostSeries.push($.getJSON(query.url, function (json) {
+          hostSeries = _.union(hostSeries, _.map(json[0].points, function (point) {
             return {
               'source': query.datasource,
               'name': point[1],
             };
-          });
-        });
-        $.ajaxSetup({ 'async': true });
-        return _.flatten(series);
+          }));
+        }));
       });
 
-      return _.flatten(hostSeries);
+      $.when.apply($, gettingHostSeries).done(function () {
+        callback(hostSeries);
+      });
     };
 
-
-    if (!displayHost) {
-      var hostsAll = _.uniq(_.map(_.pluck(getSeries(datasources, 'list series'), 'name'), function (series) {
+    var setupDefaultDashboard = function setupDashboard (allSeries, dashboard) {
+      var hostsAll = _.uniq(_.map(_.pluck(allSeries, 'name'), function (series) {
         return series.split('.')[1];
       }));
 
       var hostsLinks = _.reduce(hostsAll, function (string, host) {
         return string + '\n\t\t\t<li>\n\t\t\t\t<a href="' +
-          window.location.protocol + '//' + window.location.host + '/#/dashboard/script/getdash.js?host=' +
-          host + '" onclick="location.reload()">' + host + '</a>\n\t\t\t</li>';
+          window.location.href + '?host=' + host + '" onclick="location.reload()">' +
+          host + '</a>\n\t\t\t</li>';
       }, '');
 
       var defaultRow = {
@@ -380,11 +378,19 @@ return function (callback) {
 
       dashboard.title = 'Grafana - Scripted Dashboard';
       dashboard.rows.push(defaultRow);
-      callback(dashboard);
+      return dashboard;
+    };
+
+
+    if (!displayHost) {
+      getSeries(datasources, 'list series', function (series) {
+        callback(setupDefaultDashboard(series, dashboard));
+      });
       return;
     }
-
-    callback(setupDashboard(getSeries(datasources, influxdbQuery), plugins, displayMetric, dashboard));
+    getSeries(datasources, influxdbQuery, function (series) {
+      callback(setupDashboard(series, plugins, displayMetric, dashboard));
+    });
 
   });
 };
