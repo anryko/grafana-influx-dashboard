@@ -44,7 +44,7 @@ return function (callback) {
 //    var influxdbQuery = (displayMetric) ? '&q=list series /\.' + displayHost + '\.(' +
 //                    displayMetric.replace(',', '|') + ')/'
 //                    : '&q=list series /\.' + displayHost + '\./';
-    var influxdbQuery = 'list series /\.' + displayHost + '\./';
+    var influxdbQuery = 'list series /\\.' + displayHost + '\\./';
 
 
     // Intialize a skeleton with nothing but a rows array and service object
@@ -333,21 +333,25 @@ return function (callback) {
         };
       });
 
-      var hostSeries = [];
-      var gettingHostSeries = [];
-      _.each(dsQueries, function (query) {
-        gettingHostSeries.push($.getJSON(query.url, function (json) {
-          hostSeries = _.union(hostSeries, _.map(json[0].points, function (point) {
-            return {
-              'source': query.datasource,
-              'name': point[1],
-            };
-          }));
-        }));
+      var gettingDBData = _.map(dsQueries, function (query) {
+        return $.getJSON(query.url);
       });
 
-      $.when.apply($, gettingHostSeries).done(function () {
-        callback(hostSeries);
+      Promise.all(gettingDBData).then(function (json) {
+        var datasources = _.pluck(dsQueries, 'datasource');
+        var points = _(json).flatten().pluck('points').value();
+        var series = _(datasources).zip(points).map(function (dsPoints) {
+          var ds = dsPoints[0];
+          var points = dsPoints[1];
+          return _.map(points, function (point) {
+            return {
+              'source': ds,
+              'name': point[1],
+            };
+          });
+        }).flatten().value();
+
+        callback(series);
       });
     };
 
@@ -395,14 +399,13 @@ return function (callback) {
       });
 
       dashboard.title = 'Grafana - Scripted Dashboard';
-      console.log(rowDocs, rowHosts);
       dashboard.rows = [ rowDocs, rowHosts ];
       return dashboard;
     };
 
 
     if (!displayHost) {
-      getSeries(datasources, 'list series /load\.load\.midterm/', function (series) {
+      getSeries(datasources, 'list series /load\\.load\\.midterm/', function (series) {
         callback(setupDefaultDashboard(series, dashboard));
       });
       return;
