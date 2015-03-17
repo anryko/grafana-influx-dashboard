@@ -377,6 +377,7 @@ return function (callback) {
       };
 
       var rowDocs = _.merge({}, rowProto, {
+        'title': 'Docs',
         'panels': [
           {
             'content': '<div class="row-fluid">\n\t<div class="span12">\n\t\t<h4>Grafana InfluxDB Scripted Dashboard Documentation</h4>\n\t\t<ul>\n\t\t\t<li>\n\t\t\t\t<a href="https://github.com/anryko/grafana-influx-dashboard">GitHub</a>\n\t\t\t</li>\n\t</div>\n</div>',
@@ -385,6 +386,7 @@ return function (callback) {
       });
 
       var rowHosts = _.merge({}, rowProto, {
+        'title': 'Hosts',
         'panels': [
           {
             'content': '<div class="row-fluid">\n\t<div class="span6">\n\t\t<h4>Available Hosts</h4>\n\t\t<ul>' + hostsLinks + '\n\t\t</ul>',
@@ -393,6 +395,7 @@ return function (callback) {
       });
 
       dashboard.title = 'Grafana - Scripted Dashboard';
+      console.log(rowDocs, rowHosts);
       dashboard.rows = [ rowDocs, rowHosts ];
       return dashboard;
     };

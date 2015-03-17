@@ -115,7 +115,7 @@ define(['config'], function(config) {
     'panel': {
       'title': 'Network Traffic on @metric',
       'y_formats': [ 'bytes' ],
-      'grid': { 'max': null, 'min': null },
+      'grid': { 'max': null, 'min': null, 'leftMin': null },
     },
   };
 
@@ -126,7 +126,7 @@ define(['config'], function(config) {
     },
     'panel': {
       'title': 'Network Packets on @metric',
-      'grid': { 'max': null, 'min': null },
+      'grid': { 'max': null, 'min': null, 'leftMin': null },
     },
   };
 
@@ -153,14 +153,37 @@ define(['config'], function(config) {
   plugins.disk.config.multi = true;
   plugins.disk.config.regexp = /\d$/;
 
-  plugins.disk.diskIO = {
+  plugins.disk.diskOps = {
     'graph': {
       'ops.write': { 'color': '#447EBC' },
       'ops.read': { 'color': '#508642', 'column': 'value*-1' },
     },
     'panel': {
-      'title': 'Disk IO for @metric',
-      'grid': { 'max': null, 'min': null },
+      'title': 'Disk Operations for @metric',
+      'grid': { 'max': null, 'min': null, 'leftMin': null },
+    },
+  };
+
+  plugins.disk.diskOctets = {
+    'graph': {
+      'octets.write': { 'color': '#447EBC' },
+      'octets.read': { 'color': '#508642', 'column': 'value*-1' },
+    },
+    'panel': {
+      'title': 'Disk Traffic for @metric',
+      'grid': { 'max': null, 'min': null, 'leftMin': null },
+      'y_formats': [ 'bytes' ],
+    },
+  };
+
+  plugins.disk.diskTime = {
+    'graph': {
+      'time.write': { 'color': '#447EBC' },
+      'time.read': { 'color': '#508642', 'column': 'value*-1' },
+    },
+    'panel': {
+      'title': 'Disk Wait for @metric',
+      'grid': { 'max': null, 'min': null, 'leftMin': null },
     },
   };
 
@@ -348,9 +371,9 @@ define(['config'], function(config) {
       'octets.tx': { 'color': '#508642', 'column': 'value*-1' },
     },
     'panel': {
-      'title': 'Memcached Commands',
+      'title': 'Memcached Traffic',
       'y_formats': [ 'bytes' ],
-      'grid': { 'max': null, 'min': null },
+      'grid': { 'max': null, 'min': null, 'leftMin': null },
     },
   };
 
@@ -512,7 +535,7 @@ define(['config'], function(config) {
     },
     'panel': {
       'title': 'ElasticSearch Transport',
-      'grid': { 'max': null, 'min': null },
+      'grid': { 'max': null, 'min': null, 'leftMin': null },
     },
   };
 
