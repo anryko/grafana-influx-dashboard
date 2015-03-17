@@ -358,32 +358,48 @@ return function (callback) {
 
       var hostsLinks = _.reduce(hostsAll, function (string, host) {
         return string + '\n\t\t\t<li>\n\t\t\t\t<a href="' +
-          window.location.href + '?host=' + host + '" onclick="location.reload()">' +
+          window.location.href + '?host=' + host + '" onclick="window.location=this.href;window.location.reload();">' +
           host + '</a>\n\t\t\t</li>';
       }, '');
 
-      var defaultRow = {
+      var rowProto = {
         'title': 'Default',
-        'height': '190px',
+        'height': '90px',
         'panels': [
           {
             'title': '',
             'span': 12,
             'type': 'text',
             'mode': 'html',
-            'content': '<h3 class="text-center">Welcome to Grafana Scripted Dashboard.</h3>\n<div class="row-fluid">\n\t<div class="span12">\n\t\t<h4>Grafana InfluxDB Scripted Dashboard Documentation</h4>\n\t\t<ul>\n\t\t\t<li>\n\t\t\t\t<a href="https://github.com/anryko/grafana-influx-dashboard">GitHub</a>\n\t\t\t</li>\n\t\t</ul>\n\t\t<h4>Available Hosts:</h4>\n\t\t<ul>' + hostsLinks + '\n\t\t</ul>\n\t</div>\n</div>',
+            'content': 'default',
           },
         ],
       };
 
+      var rowDocs = _.merge({}, rowProto, {
+        'panels': [
+          {
+            'content': '<div class="row-fluid">\n\t<div class="span12">\n\t\t<h4>Grafana InfluxDB Scripted Dashboard Documentation</h4>\n\t\t<ul>\n\t\t\t<li>\n\t\t\t\t<a href="https://github.com/anryko/grafana-influx-dashboard">GitHub</a>\n\t\t\t</li>\n\t</div>\n</div>',
+          },
+        ],
+      });
+
+      var rowHosts = _.merge({}, rowProto, {
+        'panels': [
+          {
+            'content': '<div class="row-fluid">\n\t<div class="span6">\n\t\t<h4>Available Hosts</h4>\n\t\t<ul>' + hostsLinks + '\n\t\t</ul>',
+          },
+        ],
+      });
+
       dashboard.title = 'Grafana - Scripted Dashboard';
-      dashboard.rows.push(defaultRow);
+      dashboard.rows = [ rowDocs, rowHosts ];
       return dashboard;
     };
 
 
     if (!displayHost) {
-      getSeries(datasources, 'list series', function (series) {
+      getSeries(datasources, 'list series /load\.load\.midterm/', function (series) {
         callback(setupDefaultDashboard(series, dashboard));
       });
       return;
