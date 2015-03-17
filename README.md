@@ -54,9 +54,12 @@ This HOWTO will guide you through initial script configuration and example of ad
 Grafana datasource configuration is used for InfluxDB backend requests.
 
 ####Plugin/metric configuration
-If you don't use CollectD or your series prefix is not 'collectd.' you will have to change one line in Plugin constructor function in detdash.conf.js file.
+If you don't use CollectD or your series prefix is not 'collectd.' you will have to change 'prefix' in Plugin Config Prototype object in detdash.conf.js file.
 ```javascript
-  this.config.prefix = (prefix === undefined) ? 'collectd.' : prefix;
+  var pluginConfProto = {
+    'alias': undefined,
+    'prefix': 'collectd.',
+  };
 ```
 Just substitute 'collectd.' with the prefix used in your setup.
 
