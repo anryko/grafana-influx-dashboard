@@ -10,13 +10,13 @@ cd grafana-influx-dashboard
 ./install.sh GRAFANA_ROOT_DIR
 ```
 
-
 ##Usage examples
+```
 http://grafanaIP/#/dashboard/script/getdash.js?host=hostname
 http://grafanaIP/#/dashboard/script/getdash.js?host=hostname&metric=cpu,load
 http://grafanaIP/#/dashboard/script/getdash.js?host=hostname&metric=load,database
 http://grafanaIP/#/dashboard/script/getdash.js?host=hostname&metric=load&time=7d
-
+```
 
 ##Features
 ####Supported metrics
@@ -51,14 +51,7 @@ database
 This HOWTO will guide you through initial script configuration and example of adding additional plugins/metrics.
 
 ####Initial getdash.js script configuration
-You will need to setup couple of your uniq InfluxDB parameters like user, password, URL and database name to use. This is done in getdash.js script itself by adjusting below listed variables.
-```javascript
-  var influxUser = 'root';
-  var influxPass = 'root';
-  var influxDB = 'graphite';
-  var influxDBUrl = window.location.protocol + '//'+ window.location.host + ':8086';
-```
-<sub>_You don't need to change influxDBUrl If your Grafana and InfluxDB are installed on the same server and use default ports._</sub>
+Grafana datasource configuration is used for InfluxDB backend requests.
 
 ####Plugin/metric configuration
 If you don't use CollectD or your series prefix is not 'collectd.' you will have to change one line in Plugin constructor function in detdash.conf.js file.
