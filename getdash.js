@@ -49,13 +49,13 @@ return function (callback) {
         return _.keys(plugins);
 
       var displayMetrics = displayMetric.split(',');
-      return _.reduce(displayMetrics, function (arr, metric) {
+      
+      return _.uniq(_.reduce(displayMetrics, function (arr, metric) {
         if (metric in plugins)
-          arr.push(metric);
+          return _(arr).push(metric).value();
         else if (metric in plugins.groups)
-          arr = _.union(arr, plugins.groups[metric]);
-        return _.uniq(arr);
-      }, []);
+          return _.union(arr, plugins.groups[metric]);
+      }, []));
     };
 
     var getMetricRegexp = function getMetricRegexp (arr) {
