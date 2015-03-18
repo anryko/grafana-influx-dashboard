@@ -30,14 +30,18 @@ return function (callback) {
     var displayMetric = '';
     var displayTime;
 
+    var sanitize = function sanitize (str) {
+      return str.replace(/[^\w\s-]/gi, '');
+    };
+
     if(!_.isUndefined(ARGS.host))
-      displayHost = ARGS.host;
+      displayHost = sanitize(ARGS.host);
 
     if(!_.isUndefined(ARGS.metric))
-      displayMetric = ARGS.metric;
+      displayMetric = sanitize(ARGS.metric);
 
     if(!_.isUndefined(ARGS.time))
-      displayTime = ARGS.time;
+      displayTime = sanitize(ARGS.time);
 
     // Setup influxDB queries
 // TODO: Implement query optimization with account for service groups
