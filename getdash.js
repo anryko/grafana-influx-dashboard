@@ -311,35 +311,36 @@ return function (callback) {
       var displayMetrics = (displayMetric) ? displayMetric.split(',') : null;
       var showDashs = genDashs(displayMetrics, plugins);
 
-      _.each(showDashs, function (plugin, name) {
-        var metric = name;
-        var seriesAlias = ('alias' in plugin.config) ? plugin.config.alias : null;
-        var seriesPrefix = plugin.config.prefix + displayHost + '.';
-        var matchedSeries = _.filter(hostSeries, filterSeriesFactory(seriesPrefix, metric, name, this));
-        var matchedSeriesArr = [];
+      dashboard.rows = _(showDashs)
+        .map(function (plugin, name) {
+          var metric = name;
+          var seriesAlias = ('alias' in plugin.config) ? plugin.config.alias : null;
+          var seriesPrefix = plugin.config.prefix + displayHost + '.';
+          var matchedSeries = _.filter(hostSeries, filterSeriesFactory(seriesPrefix, metric, name, this));
+          var matchedSeriesArr = [];
 
-        if (plugin.config.multi) {
-          var metricsExt = getExtendedMetrics(matchedSeries, seriesPrefix);
-          matchedSeriesArr = _.map(metricsExt, function (metric) {
-            return _.filter(hostSeries, filterSeriesFactory(seriesPrefix, metric, name, this));
-          }.bind(this));
-        } else {
-          matchedSeriesArr.push(matchedSeries);
-        }
+          if (plugin.config.multi) {
+            var metricsExt = getExtendedMetrics(matchedSeries, seriesPrefix);
+            matchedSeriesArr = _.map(metricsExt, function (metric) {
+              return _.filter(hostSeries, filterSeriesFactory(seriesPrefix, metric, name, this));
+            }.bind(this));
+          } else {
+            matchedSeriesArr.push(matchedSeries);
+          }
 
-        dashboard.rows = _.union(dashboard.rows, _.reduceRight(plugin.func, function (rows, func) {
-          _.each(matchedSeriesArr, function (series) {
-            var panels = func(series, seriesAlias, 12);
-            rows = _.union(rows, _.map(panels, function (panel) {
-              return setupRow({
-                'title': metric.toUpperCase(),
-                'panels': [ panel ],
+          return _.map(plugin.func, function (makePanels) {
+            return _.map(matchedSeriesArr, function (series) {
+              return _.map(makePanels(series, seriesAlias, 12), function (panel) {
+                return setupRow({
+                  'title': metric.toUpperCase(),
+                  'panels': [ panel ],
+                });
               });
-            }));
+            });
           });
-          return rows;
-        }, []));
-      }.bind(showDashs));
+        }.bind(showDashs))
+        .flatten()
+        .value();
 
       return dashboard;
     };
