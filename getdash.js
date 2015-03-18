@@ -247,20 +247,12 @@ return function (callback) {
       return _.merge({}, rowProto, row);
     };
 
-    var getExtendedMetrics = function getExtendedMetrics (series, prefix) {
-      var metricsExt = [];
-      var sufix = '';
-
-      _.each(series, function (s) {
-        if (s.name.indexOf(prefix) === 0) {
-          sufix = s.name.slice(prefix.length);
-          sufix = sufix.slice(0, sufix.indexOf('.'));
-          if (metricsExt.indexOf(sufix) === -1)
-            metricsExt.push(sufix);
-        }
-      });
-
-      return metricsExt;
+    var getExtendedMetrics = function getExtendedMetrics (matchedSeries, prefix) {
+      return _(matchedSeries).map(function (series) {
+        return series.name.slice(prefix.length, series.name.indexOf('.', prefix.length));
+      })
+        .uniq()
+        .value();
     };
 
     var setupDash = function setupDash (plugin) {
