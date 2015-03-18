@@ -228,13 +228,15 @@ return function (callback) {
     var panelFactory = function panelFactory (pluginConf) {
       return function (series, seriesAlias, span) {
         var sourceSeries = _.groupBy(series, 'source');
-        var sourceTargets = {};
-
-        _.each(sourceSeries, function (series, source) {
-          sourceTargets[source] = genTargets(series, seriesAlias, pluginConf);
-        });
-
         var genPanel = genPanelFactory(series, seriesAlias, pluginConf.panel);
+
+        var sourceTargets = _(sourceSeries)
+          .map(function (series, source) {
+            return [ source, genTargets(series, seriesAlias, pluginConf) ];
+          })
+          .zipObject()
+          .value();
+
         var panels = _.map(sourceSeries, function (series, source) {
           return genPanel(source, series, seriesAlias, sourceTargets[source], span);
         });
