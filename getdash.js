@@ -265,35 +265,39 @@ return function (callback) {
 
     var setupDash = function setupDash (plugin) {
       return {
-        func: _.map(plugin, function (metricConf) {
+        'func': _.map(plugin, function (metricConf) {
           return panelFactory(metricConf);
         }),
-        config: plugin.config,
+        'config': plugin.config,
       };
     };
 
     var genDashs = function genDashs (metrics, plugins) {
-      var dashs = {};
-
       if (!metrics) {
-        _.each(plugins, function (plugin, name) {
-          dashs[name] = setupDash(plugin);
-        });
-        return dashs;
+        return _(plugins)
+          .map(function (plugin, name) {
+            return [ name, setupDash(plugin) ];
+          })
+          .zipObject()
+          .value();
       }
 
-      _.each(metrics, function (metric) {
+      return _(metrics).map(function (metric) {
         if (metric in plugins) {
-          dashs[metric] = setupDash(plugins[metric]);
+          return [ metric, setupDash(plugins[metric]) ];
         } else if (metric in plugins.groups) {
-          var members = plugins.groups[metric];
-          _.each(members, function (member) {
-            if (!(member in dashs) && (member in plugins))
-              dashs[member] = setupDash(plugins[member]);
+          return _.map(plugins.groups[metric], function (member) {
+            return [ member, setupDash(plugins[member]) ];
           });
         }
-      });
-      return dashs;
+      })
+        .flatten()
+        .groupBy(function (val, index) {
+          return index % 2;
+        })
+        .zip()
+        .zipObject()
+        .value();
     };
 
     var filterSeriesFactory = function filterSeriesFactory (prefix, metric, plugin, dash) {
