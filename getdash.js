@@ -31,7 +31,7 @@ return function (callback) {
     var displayTime;
 
     var sanitize = function sanitize (str) {
-      return str.replace(/[^\w\s-]/gi, '');
+      return str.replace(/[^\w\s-,]/gi, '');
     };
 
     if(!_.isUndefined(ARGS.host))
@@ -44,12 +44,28 @@ return function (callback) {
       displayTime = sanitize(ARGS.time);
 
     // Setup influxDB queries
-// TODO: Implement query optimization with account for service groups
-//    var influxdbQuery = (displayMetric) ? '&q=list series /\.' + displayHost + '\.(' +
-//                    displayMetric.replace(',', '|') + ')/'
-//                    : '&q=list series /\.' + displayHost + '\./';
-    var influxdbQuery = 'list series /\\.' + displayHost + '\\./';
+    var getMetricArr = function getMetrics (displayMetric) {
+      if (!displayMetric)
+        return _.keys(plugins);
 
+      var displayMetrics = displayMetric.split(',');
+      return _.reduce(displayMetrics, function (arr, metric) {
+        if (metric in plugins)
+          arr.push(metric);
+        else if (metric in plugins.groups)
+          arr = _.union(arr, plugins.groups[metric]);
+        return _.uniq(arr);
+      }, []);
+    };
+
+    var getMetricRegexp = function getMetricRegexp (arr) {
+      if (!arr.length)
+        return '';
+      return '(' + arr.join('|') + ')';
+    };
+
+    var influxdbQuery = 'list series /\\.' + displayHost + '\\.' +
+      getMetricRegexp(getMetricArr(displayMetric)) + '/';
 
     // Intialize a skeleton with nothing but a rows array and service object
     dashboard = {
