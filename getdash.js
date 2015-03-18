@@ -357,21 +357,27 @@ return function (callback) {
         return $.getJSON(query.url);
       });
 
-      Promise.all(gettingDBData).then(function (json) {
+      return Promise.all(gettingDBData).then(function (json) {
         var datasources = _.pluck(dsQueries, 'datasource');
-        var points = _(json).flatten().pluck('points').value();
-        var series = _(datasources).zip(points).map(function (dsPoints) {
-          var ds = dsPoints[0];
-          var points = dsPoints[1];
-          return _.map(points, function (point) {
-            return {
-              'source': ds,
-              'name': point[1],
-            };
-          });
-        }).flatten().value();
+        var points = _(json)
+          .flatten()
+          .pluck('points')
+          .value();
 
-        callback(series);
+        return _(datasources)
+          .zip(points)
+          .map(function (dsPoints) {
+            var ds = dsPoints[0];
+            var points = dsPoints[1];
+            return _.map(points, function (point) {
+              return {
+                'source': ds,
+                'name': point[1],
+              };
+            });
+          })
+          .flatten()
+          .value();
       });
     };
 
@@ -425,14 +431,15 @@ return function (callback) {
 
 
     if (!displayHost) {
-      getSeries(datasources, 'list series /load\\.load\\.midterm/', function (series) {
-        callback(setupDefaultDashboard(series, dashboard));
-      });
+      getSeries(datasources, 'list series /load\\.load\\.midterm/')
+        .then(function (series) {
+          callback(setupDefaultDashboard(series, dashboard));
+        });
       return;
     }
-    getSeries(datasources, influxdbQuery, function (series) {
-      callback(setupDashboard(series, plugins, displayMetric, dashboard));
-    });
-
+    getSeries(datasources, influxdbQuery)
+      .then(function (series) {
+        callback(setupDashboard(series, plugins, displayMetric, dashboard));
+      });
   });
 };
