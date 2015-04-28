@@ -20,7 +20,7 @@ return function (callback) {
     var plugins = getdashConf.plugins;
     var datasourcesAll = getdashConf.datasources;
     var datasources = _.filter(datasourcesAll, function (ds) {
-      return (!(ds.grafanaDB || ds.type !== 'influxdb'));
+      return (ds.grafanaDB && ds.type == 'influxdb'));
     });
     var dashboard;
     var getdashConfig = '/app/getdash/getdash.conf.js';
