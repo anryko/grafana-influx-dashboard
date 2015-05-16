@@ -13,7 +13,7 @@ usage() {
 [[ ! -d $GRAFANA_ROOT_DIR ]] && usage
 
 [[ ! -d $GRAFANA_ROOT_DIR/app/getdash ]] && mkdir $GRAFANA_ROOT_DIR/app/getdash
-cp getdash.{conf.,}js $GRAFANA_ROOT_DIR/app/getdash/
+cp getdash.{app.,conf.,}js $GRAFANA_ROOT_DIR/app/getdash/
 cd $GRAFANA_ROOT_DIR/app/dashboards/
 ln -sf ../getdash/getdash.js .
 

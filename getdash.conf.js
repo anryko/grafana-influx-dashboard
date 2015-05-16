@@ -1,11 +1,16 @@
-// Configuration JS file for getdash.js
+// Configuration JS file for getdash.app.js
 
-define(['config'], function(config) {
+define(function getDashConf () {
+  'use strict';
 
+  // You can add custom 'alias', 'prefix', 'separator', 'datasources', 'multi', 'regexp' per plugin.
   var pluginConfProto = {
     'alias': undefined,
-    'prefix': 'collectd.',
-    //'datasources': [ 'graphite' ],
+    'prefix': 'collectd\\.',          // Special characters in prefix should be escaped by '\\'.
+                                      // If you use no prefix set it to undefined or comment it out.
+    'separator': '.',                 // In backend query separator is automatically escaped by '\\'.
+    //'datasources': [ 'graphite' ],  // You can add custom datasources per plugin.
+                                      // If datasources is not set all grafana datasources will be used.
   };
 
   // Plugin constructor
@@ -40,7 +45,7 @@ define(['config'], function(config) {
       'wait': { 'color': '#890F02' },
       'steal': { 'color': '#E24D42'},
       'nice': { 'color': '#9400D3' },
-      'softirq': {'color': '#E9967A' },
+      'softirq': { 'color': '#E9967A' },
       'interrupt': { 'color': '#1E90FF' },
     },
     'panel': {
@@ -101,7 +106,6 @@ define(['config'], function(config) {
       'stack': true,
     },
   };
-
 
   // collectd interface plugin configuration
   plugins.interface = new Plugin();
@@ -438,7 +442,6 @@ define(['config'], function(config) {
     },
   };
 
-
   plugins.rabbitmq.channels = {
     'graph': {
       'channels': { },
@@ -538,7 +541,6 @@ define(['config'], function(config) {
       'grid': { 'max': null, 'min': null, 'leftMin': null },
     },
   };
-
 
   plugins.elasticsearch.idxTimes = {
     'graph': {
@@ -775,6 +777,5 @@ define(['config'], function(config) {
 
   return {
     'plugins': plugins,
-    'datasources': config.datasources,
   }; 
 });
