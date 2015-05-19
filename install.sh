@@ -1,5 +1,5 @@
 #!/bin/bash
-# Grafanas getdash scripted dashboard install script.
+# Grafana2 getdash scripted dashboard install script.
 
 set -e
 
@@ -12,9 +12,11 @@ usage() {
 [[ -z $1 ]] && usage || GRAFANA_ROOT_DIR=$1
 [[ ! -d $GRAFANA_ROOT_DIR ]] && usage
 
-[[ ! -d $GRAFANA_ROOT_DIR/app/getdash ]] && mkdir $GRAFANA_ROOT_DIR/app/getdash
-cp getdash.{app.,conf.,}js $GRAFANA_ROOT_DIR/app/getdash/
-cd $GRAFANA_ROOT_DIR/app/dashboards/
-ln -sf ../getdash/getdash.js .
+INSTALL_PATH=$GRAFANA_ROOT_DIR/public/app/getdash/
+
+[[ ! -d $INSTALL_PATH ]] && mkdir $INSTALL_PATH
+cp getdash.{app.,conf.,}js $INSTALL_PATH
+cd $GRAFANA_ROOT_DIR/public/dashboards/
+ln -sf $INSTALL_PATH/getdash.js .
 
 echo "Install finished."

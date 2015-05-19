@@ -1,14 +1,42 @@
 // Getdash application
 
-define(['config', 'getdash/getdash1.conf'], function getDashApp (grafanaConf, getdashConf) {
+define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, getdashConf) {
   'use strict';
+
+  // Helper Functions
+
+  // isError :: valueAny -> Boolean
+  var isError = function isError (value) {
+    return Object.prototype.toString.call(value) === '[object Error]';
+  };
+
+
+  // genRandomColor :: -> colorString
+  var genRandomColor = function genRandomColor () {
+    return '#' + ((1 << 24) * Math.random() | 0).toString(16);
+  };
+
+
+  // endsWith :: String, targetString -> Boolean
+  var endsWith = function endsWith (string, target) {
+    var position = string.length - target.length;
+    return position >= 0 && string.indexOf(target, position) === position;
+  };
+
+
+  // startsWith :: String, targetString -> Boolean
+  var startsWith = function startsWith (string, target) {
+    return string.indexOf(target) === 0;
+  };
+
 
   // Variables
   var plugins = getdashConf.plugins;
   var datasourcesAll = grafanaConf.datasources;
   var datasources = _.filter(datasourcesAll, function (ds) {
-    return (!(ds.grafanaDB || ds.type !== 'influxdb'));
+    return !ds.grafanaDB && startsWith(ds.type, 'influxdb');
   });
+
 
   // Object prototypes
   var dashboardProto = {
@@ -72,33 +100,6 @@ define(['config', 'getdash/getdash1.conf'], function getDashApp (grafanaConf, ge
     title: 'default',
     height: '250px',
     panels: [],  // [panelProtos]
-  };
-
-
-  // Helper Functions
-
-  // isError :: valueAny -> Boolean
-  var isError = function isError (value) {
-    return Object.prototype.toString.call(value) === '[object Error]';
-  };
-
-
-  // genRandomColor :: -> colorString
-  var genRandomColor = function genRandomColor () {
-    return '#' + ((1 << 24) * Math.random() | 0).toString(16);
-  };
-
-
-  // endsWith :: String, targetString -> Boolean
-  var endsWith = function endsWith (string, target) {
-    var position = string.length - target.length;
-    return position >= 0 && string.indexOf(target, position) === position;
-  };
-
-
-  // startsWith :: String, targetString -> Boolean
-  var startsWith = function startsWith (string, target) {
-    return string.indexOf(target) === 0;
   };
 
 
