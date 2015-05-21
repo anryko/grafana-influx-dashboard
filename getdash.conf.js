@@ -54,7 +54,6 @@ define(function getDashConf () {
       'lines': false,
       'bars': true,
       'stack': true,
-      'legend': { 'show': true },
       'percentage': true,
     },
   };

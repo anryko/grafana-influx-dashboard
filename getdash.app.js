@@ -84,6 +84,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
 
   var panelProto = {
     title: 'default',
+    height: '300px',
     type: 'graphite',
     span: 12,
     y_formats: [ 'none' ],
@@ -98,7 +99,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
 
   var rowProto = {
     title: 'default',
-    height: '250px',
+    height: '300px',
     panels: [],  // [panelProtos]
   };
 
@@ -314,18 +315,21 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
                            initPanel);
 
 
-  // setupRow :: panelObject -> rowObject
-  var setupRow = function setupRow (panel) {
+  // setupRow :: panelObject || [panelObjects] -> rowObject
+  var setupRow = function setupRow (panels) {
+    if (_.isArray(panels))
+      return _.merge({}, rowProto, {
+        title: ('title' in panels[0]) ?
+          panels[0].title.toUpperCase() :
+          'Default Title',
+        panels: panels
+      });
     return _.merge({}, rowProto, {
-      title: ('title' in panel) ? panel.title.toUpperCase() : 'Default Title',
+      title: ('title' in panel) ?
+        panel.title.toUpperCase() :
+        'Default Title',
       panels: [ panel ],
     });
-  };
-
-
-  // setupRows :: [panelObjects] -> [rowObjects]
-  var setupRows = function setupRows (panels) {
-    return _.flatten(_.map(panels, setupRow));
   };
 
 
@@ -389,7 +393,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   var getRowsForPlugin = function getRowsForPlugin (series) {
     // curry doesn't work inside compose... probably lodash issue
     // :: pluginConfObject, pluginNameString -> [rowObjects]
-    return _.compose(setupRows,
+    return _.compose(setupRow,
                      stripErrorsFromPanels,
                      getPanelsForPlugin,
                      setupPlugin(series));
