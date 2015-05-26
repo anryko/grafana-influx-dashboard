@@ -315,20 +315,13 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
                            initPanel);
 
 
-  // setupRow :: panelObject || [panelObjects] -> rowObject
+  // setupRow :: [panelObjects] -> rowObject
   var setupRow = function setupRow (panels) {
-    if (_.isArray(panels))
-      return _.merge({}, rowProto, {
-        title: ('title' in panels[0]) ?
-          panels[0].title.toUpperCase() :
-          'Default Title',
-        panels: panels
-      });
     return _.merge({}, rowProto, {
-      title: ('title' in panel) ?
-        panel.title.toUpperCase() :
+      title: ('title' in panels[0]) ?
+        panels[0].title.toUpperCase() :
         'Default Title',
-      panels: [ panel ],
+      panels: panels
     });
   };
 
