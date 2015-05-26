@@ -209,6 +209,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
       column: graphConf.column,
       interval: graphConf.interval,
       function: graphConf.apply,
+      condition: graphConf.where,
     };
     return _.merge({}, targetProto, { 'interval': series.interval }, target);
   });
@@ -600,6 +601,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   // stripPlugins :: pluginsObject, [metricsStrings] -> new pluginsObject
   var stripPlugins = _.curry(function stripPlugins (plugins, metrics) {
     var newPlugins = _.merge({}, plugins);
+    // have to use this ugly thing because reduce will strip unenumerable 'config'
     _.each(_.keys(plugins), function (pluginName) {
       if (!_.contains(metrics, pluginName)) {
         delete newPlugins[pluginName];
