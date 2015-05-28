@@ -5,26 +5,26 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
 
   // Helper Functions
 
-  // isError :: valueAny -> Boolean
+  // isError :: valueAny -> Bool
   var isError = function isError (value) {
     return Object.prototype.toString.call(value) === '[object Error]';
   };
 
 
-  // genRandomColor :: -> colorString
+  // genRandomColor :: -> colorStr
   var genRandomColor = function genRandomColor () {
     return '#' + ((1 << 24) * Math.random() | 0).toString(16);
   };
 
 
-  // endsWith :: String, targetString -> Boolean
+  // endsWith :: Str, targetStr -> Bool
   var endsWith = function endsWith (string, target) {
     var position = string.length - target.length;
     return position >= 0 && string.indexOf(target, position) === position;
   };
 
 
-  // startsWith :: String, targetString -> Boolean
+  // startsWith :: Str, targetStr -> Bool
   var startsWith = function startsWith (string, target) {
     return string.indexOf(target) === 0;
   };
@@ -106,7 +106,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
 
   // Application Functions
 
-  // seriesFilter :: metricConfObject, metricNameObject, seriesObject -> Boolean
+  // seriesFilter :: metricConfObj, metricNameObj, seriesObj -> Bool
   var seriesFilter = _.curry(function seriesFilter (metricConf, metricName, series) {
     if (endsWith(series.name, metricName)) {
       var instancePositionRight = metricName.split(metricConf.separator).length + 1;
@@ -120,13 +120,13 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   });
 
 
-  // initMetric :: metricConfObject, metricNameString -> metricObject
+  // initMetric :: metricConfObj, metricNameStr -> metricObj
   var initMetric = _.curry(function initMetric (metricConf, metricName) {
     return _.merge({}, metricProto, metricConf, { name: metricName });
   });
 
 
-  // addProperty :: keyString, valueAny, Object -> new Object{key: value}
+  // addProperty :: keyStr, valueAny, Obj -> new Obj{key: value}
   var addProperty = _.curry(function addProperty (k, v, obj) {
     var o = {};
     o[k] = v;
@@ -134,7 +134,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   });
 
 
-  // addInstanceToSeries :: seriesObject, separatorString, nameString -> new seriesObject
+  // addInstanceToSeries :: seriesObj, separatorStr, nameStr -> new seriesObj
   var addInstanceToSeries = function addInstanceToSeries (series, separator, name) {
     var instancePositionRight = name.split(separator).length + 1;
     return _.map(series, function (obj) {
@@ -144,49 +144,55 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   };
 
 
-  // addSeriesToMetricGraphs :: seriesObject, metricConfObject -> new metricConfObject
+  // addSeriesToMetricGraphs :: seriesObj, metricConfObj -> new metricConfObj
   var addSeriesToMetricGraphs = _.curry(function addSeriesToMetricGraphs (series, metricConf) {
+    // seriesThisFilter :: graphNameStr -> [seriesObjs]
     var seriesThisFilter = seriesFilter(metricConf);
     var graphSeries = _.reduce(metricConf.graph, function (newConf, graphConf, graphName) {
       var matchedSeries = _.filter(series, seriesThisFilter(graphName));
       if (_.isEmpty(matchedSeries))
         return newConf;
 
-      newConf[graphName] = {
-        series: addInstanceToSeries(matchedSeries, metricConf.separator, graphName),
-      };
-      return newConf;
-    }, {});
+      var instanceSeries = addInstanceToSeries(matchedSeries, metricConf.separator, graphName);
+      if (_.isArray(graphConf))
+        newConf.graph[graphName] = _.map(_.range(graphConf.length), function () {
+          return { series: instanceSeries };
+        });
+      else
+        newConf.graph[graphName] = {
+          series: instanceSeries,
+        };
 
-    return _.merge({}, metricConf, {
-      graph: graphSeries,
-    });
+      return newConf;
+    }, { graph: {} });
+
+    return _.merge({}, metricConf, graphSeries);
   });
 
 
-  // addSourcesToMetric :: metricConfObject -> new metricConfObject
-  var addSourcesToMetric = function addSourcesToMetric (metricConf) {
-    return _.merge({}, metricConf, {
-      sources: _.union(_.flatten(_.map(metricConf.graph, function (graph) {
-        return _.pluck(graph.series, 'source');
-      }))),
-    });
-  };
+  //  moveUpToMetric :: keyStr, metricConfObj -> new metricConfObj
+  var moveUpToMetric = _.curry(function moveUpToMetric (key, metricConf) {
+    var keys = key + 's';
+    var o = {};
+    o[keys] =  _.union(_.flatten(_.map(metricConf.graph, function (graph) {
+      var g = (_.isArray(graph)) ? graph[0] : graph;
+      return _.pluck(g.series, key);
+    })));
+    return _.merge({}, metricConf, o);
+  });
 
 
-  // addInstancesToMetric :: metricConfObject -> new metricConfObject
-  var addInstancesToMetric = function addInstancesToMetric (metricConf) {
-    return _.merge({}, metricConf, {
-      instances: _.union(_.flatten(_.map(metricConf.graph, function (graph) {
-        return _.pluck(graph.series, 'instance');
-      }))),
-    });
-  };
+  // addSourcesToMetric :: metricConfObj -> new metricConfObj
+  var addSourcesToMetric = moveUpToMetric('source');
 
 
-  // getMetric :: [seriesObject], pluginObject -> function
+  // addInstancesToMetric :: metricConfObj -> new metricConfObj
+  var addInstancesToMetric = moveUpToMetric('instance');
+
+
+  // getMetric :: [seriesObj], pluginObj -> func
   var getMetric = _.curry(function getMetric (series, plugin) {
-    // :: metricConfObject, metricNameString -> metricObject
+    // :: metricConfObj, metricNameStr -> metricObj
     return _.compose(addInstancesToMetric,
                      addSourcesToMetric,
                      addSeriesToMetricGraphs(series),
@@ -198,7 +204,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   });
 
 
-  // setupTarget :: metricConfObject, graphConfObject, metricString, seriesObject -> targetObject
+  // setupTarget :: metricConfObj, graphConfObj, metricStr, seriesObj -> targetObj
   var setupTarget = _.curry(function setupTarget (metricConf, graphConf, series) {
     var metric = series.name.split(series.instance + metricConf.separator).slice(-1)[0];
     var target = {
@@ -215,18 +221,18 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   });
 
 
-  // transformObj :: keyKeyString, valueKeyString, {}, Object -> Object{key: value}
+  // transformObj :: keyKeyStr, valueKeyStr, {}, Obj -> Obj{key: value}
   var transformObj = _.curry(function transformObj (k, v, o, obj) {
     o[obj[k]] = obj[v];
     return o;
   });
 
 
-  // setupAlias :: targetsObject -> aliasColorsObject
+  // setupAlias :: targetsObj -> aliasColorsObj
   var setupAlias = transformObj('alias', 'color');
 
 
-  // initPanel :: metricConfObject, datasourceString, instanceString -> panelObject
+  // initPanel :: metricConfObj, datasourceStr, instanceStr -> panelObj
   var initPanel = _.curry(function initPanel (metricConf, datasource, instance) {
     if (_.isUndefined(datasource) || _.isUndefined(metricConf)) {
       return new Error('undefined argument in initPanel function.');
@@ -242,21 +248,33 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   });
 
 
-  // addTargetsToPanel :: panelObject -> new panelObject
+  // getTargetsForPanel :: panelObj, graphConfObj -> [targetObjs]
+  var getTargetsForPanel = _.curry(function getTargetsForPanel (panel, graphConf) {
+    var grepBy = (_.isUndefined(panel.config.instance)) ?
+      { source: panel.datasource } :
+      { source: panel.datasource, instance: panel.config.instance };
+    var graphSeries = _.where(graphConf.series, grepBy);
+    if (_.isEmpty(graphSeries))
+      return [];
+
+    // setupThisTarget :: graphConfObj -> [targetObjs]
+    var setupThisTarget = setupTarget(panel.config.metric, graphConf);
+    return _.map(graphSeries, setupThisTarget);
+  });
+
+
+  // addTargetsToPanel :: panelObj -> new panelObj
   var addTargetsToPanel = function addTargetsToPanel (panel) {
     if (isError(panel))
       return panel;
 
+    // getTargetsForThisPanel :: graphConfObj -> [targetObjs]
+    var getTargetsForThisPanel = getTargetsForPanel(panel);
     var targets = _.flatten(_.map(panel.config.metric.graph, function (graphConf) {
-      var grepBy = (_.isUndefined(panel.config.instance)) ?
-                    { source: panel.datasource } :
-                    { source: panel.datasource, instance: panel.config.instance };
-      var series = _.where(graphConf.series, grepBy);
-      var setupThisTarget = setupTarget(panel.config.metric, graphConf);
-      if (_.isEmpty(series))
-        return [];
+      if (_.isArray(graphConf))
+        return _.flatten(_.map(graphConf, getTargetsForThisPanel));
 
-      return _.map(series, setupThisTarget);
+      return getTargetsForThisPanel(graphConf);
     }));
 
     if (_.isEmpty(targets))
@@ -269,7 +287,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   };
 
 
-  // addAliasColorsToPanel :: panelObject -> new panelObject
+  // addAliasColorsToPanel :: panelObj -> new panelObj
   var addAliasColorsToPanel = function addAliasColorsToPanel (panel) {
     if (isError(panel))
       return panel;
@@ -280,7 +298,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   };
 
 
-  // addTitleToPanle :: panelObject -> new panelObject
+  // addTitleToPanle :: panelObj -> new panelObj
   var addTitleToPanel = function addTitleToPanel (panel) {
     if (isError(panel))
       return panel;
@@ -297,7 +315,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   };
 
 
-  // setupPanel :: panelObject -> new panelObject
+  // setupPanel :: panelObj -> new panelObj
   var setupPanel = function setupPanel (panel) {
     if (isError(panel))
       return panel;
@@ -308,7 +326,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   };
 
 
-  // getPanel :: metricConfigObject, datasourceString, instanceString -> panelObject
+  // getPanel :: metricConfigObj, datasourceStr, instanceStr -> panelObj
   var getPanel = _.compose(setupPanel,
                            addTitleToPanel,
                            addAliasColorsToPanel,
@@ -316,7 +334,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
                            initPanel);
 
 
-  // setupRow :: [panelObjects] -> rowObject
+  // setupRow :: [panelObjs] -> rowObj
   var setupRow = function setupRow (panels) {
     return _.merge({}, rowProto, {
       title: ('title' in panels[0]) ?
@@ -327,7 +345,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   };
 
 
-  // stripErrorPanels :: [panelObjects] -> new [panelObjects]
+  // stripErrorPanels :: [panelObjs] -> new [panelObjs]
   var stripErrorsFromPanels = function stripErrorsFromPanels (panels) {
     var errors = _.filter(panels, isError);
     if (!_.isEmpty(errors))
@@ -338,13 +356,13 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   };
 
 
-  // getPanelsForPlugin :: pluginObject -> [panelObjects]
+  // getPanelsForPlugin :: pluginObj -> [panelObjs]
   var getPanelsForPlugin = function getPanelsForPlugin (plugin) {
     return _.flatten(_.map(plugin.metrics, getPanelsForMetric(plugin.config)));
   };
 
 
-  // getDatasources :: pluginConfObject, metricConfObject -> [Strings]
+  // getDatasources :: pluginConfObj, metricConfObj -> [Strs]
   var getDatasourcesForPanel = _.curry(function getDatasourcesForPanel (pluginConf, metricConf) {
     return (_.isArray(pluginConf.datasources) && !_.isEmpty(pluginConf.datasources)) ?
       pluginConf.datasources :
@@ -352,7 +370,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   });
 
 
-  // getInstances :: pluginConfObject, metricConfObject -> [Strings]
+  // getInstances :: pluginConfObj, metricConfObj -> [Strs]
   var getInstancesForPanel = _.curry(function getInstancesForPanel (pluginConf, metricConf) {
     return (_.has(pluginConf, 'multi') && pluginConf.multi) ?
       metricConf.instances :
@@ -360,7 +378,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   });
 
 
-  // getPanelsForMetric :: metricConfObject, datasources[Strings], instances[Strings] -> [panelObjects]
+  // getPanelsForMetric :: metricConfObj, [datasourceStrs], [instanceStrs] -> [panelObjs]
   var getPanelsForMetric = _.curry(function getPanelsForMetric (pluginConf, metricConf) {
     var datasources = getDatasourcesForPanel(pluginConf, metricConf);
     var instances = getInstancesForPanel(pluginConf, metricConf);
@@ -372,7 +390,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   });
 
 
-  // setupPlugin :: [seriesObjects], pluginConfObject, pluginNameString -> pluginObject
+  // setupPlugin :: [seriesObjects], pluginConfObj, pluginNameStr -> pluginObj
   var setupPlugin = _.curry(function setupPlugin (series, pluginConf, pluginName) {
     var plugin = {
       name: pluginName,
@@ -383,10 +401,10 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   });
 
 
-  // getRowsForPlugin :: [seriesObjects] -> function
+  // getRowsForPlugin :: [seriesObjs] -> func
   var getRowsForPlugin = function getRowsForPlugin (series) {
     // curry doesn't work inside compose... probably lodash issue
-    // :: pluginConfObject, pluginNameString -> [rowObjects]
+    // :: pluginConfObj, pluginNameStr -> [rowObjs]
     return _.compose(setupRow,
                      stripErrorsFromPanels,
                      getPanelsForPlugin,
@@ -394,7 +412,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   };
 
 
-  // getRows :: seriesObject, pluginsObject -> [rowObjects]
+  // getRows :: seriesObj, pluginsObj -> [rowObjs]
   var getRows = _.curry(function getRows (plugins, series) {
     return (_.isArray(series) && !_.isEmpty(series)) ?
       _.flatten(_.map(plugins, getRowsForPlugin(series))) :
@@ -402,7 +420,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   });
 
 
-  // getSeries :: intervalString, [datasourcePointsObjects] -> Promise -> [seriesObjects]
+  // getSeries :: intervalStr, [datasourcePointsObjs] -> Promise -> [seriesObjs]
   var getSeries = _.curry(function getSeries (interval, dsQueries) {
     var gettingDBData = _.map(dsQueries, function (query) {
       return $.getJSON(query.url);
@@ -427,7 +445,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   });
 
 
-  // getQueriesForDDash :: [datasourcesObjects], [queriesString] -> [queryObjects]
+  // getQueriesForDDash :: [datasourcesObjs], [queriesStrs] -> [queryObjs]
   var getQueriesForDDash = _.curry(function getQueriesForDDash (datasources, queries) {
     return _.flatten(_.map(datasources, function (ds) {
       return _.map(queries, function (query) {
@@ -441,7 +459,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   });
 
 
-  // setupDefaultDashboard :: [seriesObjects], dashboardObject -> mod dashboardObject
+  // setupDefaultDashboard :: [seriesObjs], dashboardObj -> mod dashboardObj
   var setupDefaultDashboard = function setupDefaultDashboard (series, dashboard) {
     var hostsAll = _.uniq(_.map(_.pluck(series, 'name'), function (series) {
       return series.split('.')[1];
@@ -492,14 +510,14 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   };
 
 
-  // parseTime :: timeString -> timeArray
+  // parseTime :: timeStr -> [timeStrs]
   var parseTime = function parseTime (time) {
     var regexpTime = /(\d+)(m|h|d)/;
     return regexpTime.exec(time);
   };
 
 
-  // getDashboardTime :: timeString -> dashboardTimeObject
+  // getDashboardTime :: timeStr -> dashboardTimeObj
   var getDashboardTime = function getDashboardTime (time) {
     if (!time || !parseTime(time))
       return _.merge({}, dashboardTimeProto);
@@ -508,7 +526,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   };
 
 
-  // getInterval :: timeString -> intervalString
+  // getInterval :: timeStr -> intervalStr
   var getInterval = function getInterval (time) {
     var rTime = parseTime(time);
     if (!rTime)
@@ -531,7 +549,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   };
 
 
-  // getMetricArr :: pluginsObject, displayMetricString -> [metricStrings]
+  // getMetricArr :: pluginsObj, displayMetricStr -> [metricStrs]
   var getMetricArr = _.curry(function getMetricArr (plugins, displayMetric) {
     if (!displayMetric)
       return _.keys(plugins);
@@ -548,7 +566,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   });
 
 
-  // getQueryConfigs :: [datasourceObjects], pluginsObject -> [queryConfigObjects]
+  // getQueryConfigs :: [datasourceObjs], pluginsObj -> [queryConfigObjs]
   var getQueryConfigs = _.curry(function getQueryConfigs (datasources, plugins) {
     var queryConfigsAll = _.map(plugins, function (plugin, name) {
       return {
@@ -583,7 +601,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   });
 
 
-  // getDSQueryArr :: hostNameString, [queryConfigObjects] -> [urlDatasourceObjects]
+  // getDSQueryArr :: hostNameStr, [queryConfigObjs] -> [urlDatasourceObjs]
   var getDSQueryArr = _.curry(function getDSQueryArr (hostName, queryConfigs) {
     return _.flatten(_.map(queryConfigs, function (qConf) {
       return _.map(qConf.datasources, function (ds) {
@@ -598,7 +616,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   });
 
 
-  // stripPlugins :: pluginsObject, [metricsStrings] -> new pluginsObject
+  // stripPlugins :: pluginsObj, [metricsStrs] -> new pluginsObj
   var stripPlugins = _.curry(function stripPlugins (plugins, metrics) {
     var newPlugins = _.merge({}, plugins);
     // have to use this ugly thing because reduce will strip unenumerable 'config'
@@ -611,19 +629,20 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   });
 
 
-  // getQueries :: hostNameString, datasourcesObject, pluginsObject -> [queryStrings]
+  // getQueries :: hostNameStr, datasourcesObj, pluginsObj -> [queryStrs]
   var getQueries = function getQueries (hostName, datasources, plugins) {
     return _.compose(getDSQueryArr(hostName), getQueryConfigs(datasources))(plugins);
   };
 
 
-  // pickPlugins :: pluginObject, metricsString -> new pluginsObject
+  // pickPlugins :: pluginObj, metricsStr -> new pluginsObj
   var pickPlugins = function pickPlugins (plugins, metrics) {
     return _.compose(stripPlugins(plugins), getMetricArr(plugins))(metrics);
   };
 
 
-  // getDashboard :: dashConfObject, grafanaCallbackFunction -> grafanaCallbackFunction(dashboardObject)
+  // getDashboard :: [datasources], pluginsObj, dashConfObj,
+  //                 grafanaCallbackFunc -> grafanaCallbackFunc(dashboardObj)
   var getDashboard = _.curry(function getDashboard (datasources, plugins, dashConf, callback) {
     var interval = getInterval(dashConf.time);
     var dashboard = {
@@ -650,6 +669,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
 
 
   return {
+    // get :: dashConfObj, grafanaCallbackFunc -> grafanaCallbackFunc(dashboardObj)
     get: getDashboard(datasources, plugins),
   };
 });
