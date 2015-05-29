@@ -61,8 +61,8 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   var metricProto = {
     name: '',
     plugin: '',
-    pluginAlias: undefined,  // String
-    regexp: undefined,  // String
+    pluginAlias: undefined,  // Str
+    regexp: undefined,  // Str
     separator: '',
     graph: {},
     panel: {},
@@ -93,7 +93,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
     fill: 1,
     linewidth: 1,
     nullPointMode: 'null',
-    targets: {},  //  {targetNames: targetProtos}
+    targets: {},  // {targetNames: targetProtos}
     aliasColors: {},
   };
 
@@ -336,6 +336,9 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
 
   // setupRow :: [panelObjs] -> rowObj
   var setupRow = function setupRow (panels) {
+    if (_.isEmpty(panels))
+      return [];
+
     return _.merge({}, rowProto, {
       title: ('title' in panels[0]) ?
         panels[0].title.toUpperCase() :
@@ -381,6 +384,9 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   // getPanelsForMetric :: metricConfObj, [datasourceStrs], [instanceStrs] -> [panelObjs]
   var getPanelsForMetric = _.curry(function getPanelsForMetric (pluginConf, metricConf) {
     var datasources = getDatasourcesForPanel(pluginConf, metricConf);
+    if (_.isEmpty(datasources))
+      return new Error('Datasources for ' + metricConf.plugin +
+        metricConf.separator + metricConf.name + ' are empty.');
     var instances = getInstancesForPanel(pluginConf, metricConf);
     return _.flatten(_.map(datasources, function (source) {
       return _.map(instances, function (instance) {
@@ -404,7 +410,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   // getRowsForPlugin :: [seriesObjs] -> func
   var getRowsForPlugin = function getRowsForPlugin (series) {
     // curry doesn't work inside compose... probably lodash issue
-    // :: pluginConfObj, pluginNameStr -> [rowObjs]
+    // :: pluginConfObj, pluginNameStr -> rowObj
     return _.compose(setupRow,
                      stripErrorsFromPanels,
                      getPanelsForPlugin,
@@ -450,9 +456,9 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
     return _.flatten(_.map(datasources, function (ds) {
       return _.map(queries, function (query) {
         return {
-          'datasource': ds.name,
-          'url': ds.url + '/series?u=' + ds.username + '&p=' + ds.password +
-            '&q=' + encodeURIComponent(query),
+          datasource: ds.name,
+          url: ds.url + '/series?u=' + ds.username + '&p=' + ds.password +
+            '&q=' + encodeURIComponent('list series ' + query),
         };
       });
     }));
@@ -460,9 +466,13 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
 
 
   // setupDefaultDashboard :: [seriesObjs], dashboardObj -> mod dashboardObj
-  var setupDefaultDashboard = function setupDefaultDashboard (series, dashboard) {
-    var hostsAll = _.uniq(_.map(_.pluck(series, 'name'), function (series) {
-      return series.split('.')[1];
+  var setupDefaultDashboard = function setupDefaultDashboard (series, dashboard, defQuery) {
+    var hostsAll = _.uniq(_.map(series, function (s) {
+      var rDQ = new RegExp(defQuery.slice(1, -1));
+      var name = s.name;
+      var sp = name.search(rDQ);
+      var host = name.slice(0, sp).split(name.charAt(sp)).slice(-1)[0];
+      return host;
     }));
 
     var hostsLinks = _.reduce(hostsAll, function (string, host) {
@@ -653,7 +663,8 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
     if (!dashConf.host) {
       getSeries(interval, getQueriesForDDash(datasources, dashConf.defaultQueries))
         .then(function (series) {
-          callback(setupDefaultDashboard(series, dashboard));
+          // TODO: implement multiple default queries support
+          callback(setupDefaultDashboard(series, dashboard, dashConf.defaultQueries[0]));
         });
       return;
     }
