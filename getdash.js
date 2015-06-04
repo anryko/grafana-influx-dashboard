@@ -42,7 +42,7 @@ return function scriptedDashboard (callback) {
       title: 'Grafana - Scripted Dashboard for ' + displayHost,
       // Queries used to get list of all hosts. Query must match series string between
       // hostname and end of the series string.
-      defaultQueries: [ '/\\.load\\.load\\.midterm$/', ],
+      defaultQueries: [ '/\\/load\\/load$/', ],
     };
 
     dash.get(dashConf, callback);

@@ -6,9 +6,9 @@ define(function getDashConf () {
   // You can add custom 'alias', 'prefix', 'separator', 'datasources', 'multi', 'regexp' per plugin.
   var pluginConfProto = {
     'alias': undefined,
-    'prefix': 'collectd\\.',          // Special characters in prefix should be escaped by '\\'.
+    //'prefix': 'collectd\\.',        // Special characters in prefix should be escaped by '\\'.
                                       // If you use no prefix set it to undefined or comment it out.
-    'separator': '.',                 // In backend query separator is automatically escaped by '\\'.
+    'separator': '/',                 // In backend query separator is automatically escaped by '\\'.
     //'datasources': [ 'graphite' ],  // You can add custom datasources per plugin.
                                       // If datasources is not set all grafana datasources will be used.
   };
@@ -39,14 +39,14 @@ define(function getDashConf () {
 
   plugins.cpu.cpu = {
     'graph': {
-      'system': { 'color': '#EAB839' },
-      'user': { 'color': '#508642' },
-      'idle': { 'color': '#303030' },
-      'wait': { 'color': '#890F02' },
-      'steal': { 'color': '#E24D42'},
-      'nice': { 'color': '#9400D3' },
-      'softirq': { 'color': '#E9967A' },
-      'interrupt': { 'color': '#1E90FF' },
+      'system': { 'color': '#EAB839', 'alias': 'system' },
+      'user': { 'color': '#508642', 'alias': 'user' },
+      'idle': { 'color': '#303030', 'alias': 'idle' },
+      'wait': { 'color': '#890F02', 'alias': 'wait' },
+      'steal': { 'color': '#E24D42', 'alias': 'steal'},
+      'nice': { 'color': '#9400D3', 'alias': 'nice' },
+      'softirq': { 'color': '#E9967A', 'alias': 'softirq' },
+      'interrupt': { 'color': '#1E90FF', 'alias': 'interrupt' },
     },
     'panel': {
       'title': 'CPU',
@@ -64,10 +64,10 @@ define(function getDashConf () {
 
   plugins.memory.memory = {
     'graph': {
-      'used': { 'color': '#1F78C1' },
-      'cached': { 'color': '#EF843C' },
-      'buffered': { 'color': '#CCA300' },
-      'free': { 'color': '#629E51' },
+      'used': { 'color': '#1F78C1', 'alias': 'used' },
+      'cached': { 'color': '#EF843C', 'alias': 'cached' },
+      'buffered': { 'color': '#CCA300', 'alias': 'buffered' },
+      'free': { 'color': '#629E51', 'alias': 'free' },
     },
     'panel': {
       'title': 'Memory',
@@ -82,7 +82,7 @@ define(function getDashConf () {
 
   plugins.load.load = {
     'graph': {
-      'midterm': { 'color': '#7B68EE' },
+      'load': { 'color': '#7B68EE', 'where': "dsname='midterm'", 'alias': 'midterm' },
     },
     'panel': {
       'title': 'Load Average',
@@ -95,9 +95,9 @@ define(function getDashConf () {
 
   plugins.swap.swap = {
     'graph': {
-      'used': { 'color': '#1F78C1' },
-      'cached': { 'color': '#EAB839' },
-      'free': { 'color': '#508642' },
+      'used': { 'color': '#1F78C1', 'alias': 'used' },
+      'cached': { 'color': '#EAB839', 'alias': 'cached' },
+      'free': { 'color': '#508642', 'alias': 'free' },
     },
     'panel': {
       'title': 'Swap',
@@ -112,8 +112,21 @@ define(function getDashConf () {
 
   plugins.interface.traffic = {
     'graph': {
-      'octets.rx': { 'color': '#447EBC' },
-      'octets.tx': { 'color': '#508642', 'column': 'value*-1' },
+      'octets': [
+        {
+          'color': '#447EBC',
+          'where': "dsname='rx'",
+          'alias': 'octets-rx',
+          'apply': 'derivative',
+        },
+        {
+          'color': '#508642',
+          'where': "dsname='tx'",
+          'column': 'value*-1',
+          'alias': 'octets-tx',
+          'apply': 'derivative',
+        },
+      ],
     },
     'panel': {
       'title': 'Network Traffic on @metric',
@@ -124,8 +137,21 @@ define(function getDashConf () {
 
   plugins.interface.packets = {
     'graph': {
-      'packets.rx': { 'color': '#447EBC' },
-      'packets.tx': { 'color': '#508642', 'column': 'value*-1' },
+      'packets': [
+        {
+          'color': '#447EBC',
+          'where': "dsname='rx'",
+          'alias': 'packets-rx',
+          'apply': 'derivative',
+        },
+        {
+          'color': '#508642',
+          'where': "dsname='tx'",
+          'column': 'value*-1',
+          'alias': 'packets-tx',
+          'apply': 'derivative',
+        },
+      ],
     },
     'panel': {
       'title': 'Network Packets on @metric',
@@ -139,9 +165,9 @@ define(function getDashConf () {
 
   plugins.df.df = {
     'graph': {
-      'complex-used': { 'color': '#447EBC' },
-      'complex-reserved': { 'color': '#EAB839' },
-      'complex-free': { 'color': '#508642' },
+      'complex-used': { 'color': '#447EBC', 'alias': 'used' },
+      'complex-reserved': { 'color': '#EAB839', 'alias': 'reserved' },
+      'complex-free': { 'color': '#508642', 'alias': 'free' },
     },
     'panel': {
       'title': 'Disk space for @metric',
@@ -158,8 +184,21 @@ define(function getDashConf () {
 
   plugins.disk.diskOps = {
     'graph': {
-      'ops.write': { 'color': '#447EBC' },
-      'ops.read': { 'color': '#508642', 'column': 'value*-1' },
+      'ops': [
+        {
+          'color': '#447EBC',
+          'where': "dsname='write'",
+          'alias': 'write',
+          'apply': 'derivative',
+        },
+        {
+          'color': '#508642',
+          'where': "dsname='read'",
+          'alias': 'read',
+          'column': 'value*-1',
+          'apply': 'derivative',
+        },
+      ]
     },
     'panel': {
       'title': 'Disk Operations for @metric',
@@ -169,8 +208,21 @@ define(function getDashConf () {
 
   plugins.disk.diskOctets = {
     'graph': {
-      'octets.write': { 'color': '#447EBC' },
-      'octets.read': { 'color': '#508642', 'column': 'value*-1' },
+      'octets': [
+        {
+          'color': '#447EBC',
+          'where': "dsname='write'",
+          'alias': 'write',
+          'apply': 'derivative',
+        },
+        {
+          'color': '#508642',
+          'where': "dsname='read'",
+          'alias': 'read',
+          'column': 'value*-1',
+          'apply': 'derivative',
+        },
+      ],
     },
     'panel': {
       'title': 'Disk Traffic for @metric',
@@ -181,8 +233,21 @@ define(function getDashConf () {
 
   plugins.disk.diskTime = {
     'graph': {
-      'time.write': { 'color': '#447EBC' },
-      'time.read': { 'color': '#508642', 'column': 'value*-1' },
+      'time': [
+        {
+          'color': '#447EBC',
+          'where': "dsname='write'",
+          'alias': 'write',
+          'apply': 'derivative',
+        },
+        {
+          'color': '#508642',
+          'where': "dsname='read'",
+          'alias': 'read',
+          'column': 'value*-1',
+          'apply': 'derivative',
+        },
+      ],
     },
     'panel': {
       'title': 'Disk Wait for @metric',
@@ -196,12 +261,12 @@ define(function getDashConf () {
 
   plugins.processes.state = {
     'graph': {
-      'sleeping': { 'color': '#EAB839', 'apply': 'max' },
-      'running': { 'color': '#508642', 'apply': 'max' },
-      'stopped': { 'color': '#E9967A', 'apply': 'max' },
-      'blocked': { 'color': '#890F02', 'apply': 'max' },
-      'zombies': { 'color': '#E24D42', 'apply': 'max' },
-      'paging': { 'color': '#9400D3', 'apply': 'max' },
+      'sleeping': { 'color': '#EAB839', 'alias': 'sleeping' },
+      'running': { 'color': '#508642', 'alias': 'running' },
+      'stopped': { 'color': '#E9967A', 'alias': 'stopped' },
+      'blocked': { 'color': '#890F02', 'alias': 'blocked' },
+      'zombies': { 'color': '#E24D42', 'alias': 'zombies' },
+      'paging': { 'color': '#9400D3', 'alias': 'paging' },
     },
     'panel': {
       'title': 'Processes State',
@@ -211,7 +276,7 @@ define(function getDashConf () {
 
   plugins.processes.fork = {
     'graph': {
-      'fork_rate': { 'apply': 'max' },
+      'fork_rate': { 'apply': 'derivative' },
     },
     'panel': {
       'title': 'Processes Fork Rate',
@@ -225,7 +290,7 @@ define(function getDashConf () {
 
   plugins.redis.memory = {
     'graph': {
-      'used_memory': { 'color': '#447EBC' },
+      'used_memory': { 'color': '#447EBC', 'alias': 'memory-used' },
     },
     'panel': {
       'title': 'Redis Memomy',
@@ -235,7 +300,7 @@ define(function getDashConf () {
 
   plugins.redis.commands = {
     'graph': {
-      'commands_processed': { 'color': '#447EBC' },
+      'commands_processed': { 'color': '#447EBC', 'alias': 'commands-processed', 'apply': 'derivative' },
     },
     'panel': {
       'title': 'Redis Commands',
@@ -244,9 +309,9 @@ define(function getDashConf () {
 
   plugins.redis.connections = {
     'graph': {
-      'connections_received': { 'color': '#447EBC', 'apply': 'max' },
-      'blocked_clients': { 'color': '#E24D42', 'apply': 'max'},
-      'connected_clients': { 'color': '#508642' },
+      'connections_received': { 'color': '#447EBC', 'apply': 'derivative', 'alias': 'connections' },
+      'blocked_clients': { 'color': '#E24D42', 'apply': 'derivative', 'alias': 'clients-blocked' },
+      'connected_clients': { 'color': '#508642', 'apply': 'derivative', 'alias': 'clients-connected' },
     },
     'panel': {
       'title': 'Redis Connections',
@@ -255,7 +320,7 @@ define(function getDashConf () {
 
   plugins.redis.unsaved = {
     'graph': {
-      'changes_since_last_save': { 'color': '#E24D42' },
+      'changes_since_last_save': { 'color': '#E24D42', 'alias': 'changes-unsaved' },
     },
     'panel': {
       'title': 'Redis Unsaved Changes',
@@ -264,7 +329,7 @@ define(function getDashConf () {
 
   plugins.redis.slaves = {
     'graph': {
-      'connected_slaves': { 'color': '#508642' },
+      'connected_slaves': { 'color': '#508642', 'alias': 'slaves-connected' },
     },
     'panel': {
       'title': 'Redis Connected Slaves',
@@ -278,14 +343,11 @@ define(function getDashConf () {
     'panel': {
       'title': 'Redis DB Keys',
     },
-    'alias': {
-      'position': 3,
-    },
   };
 
   plugins.redis.replMaster = {
     'graph': {
-      'master_repl_offset': { },
+      'master_repl_offset': { 'alias': 'master-repl-offset' },
     },
     'panel': {
       'title': 'Redis Replication Master',
@@ -294,8 +356,8 @@ define(function getDashConf () {
 
   plugins.redis.replBacklogCounters = {
     'graph': {
-      'repl_backlog_active': { },
-      'repl_backlog_histlen': { },
+      'repl_backlog_active': { 'alias': 'backlog' },
+      'repl_backlog_histlen': { 'alias': 'history'},
     },
     'panel': {
       'title': 'Redis Replication Backlog Counters',
@@ -304,8 +366,8 @@ define(function getDashConf () {
 
   plugins.redis.replBacklogSize = {
     'graph': {
-      'backlog_first_byte_offset': { },
-      'repl_backlog_size': { },
+      'backlog_first_byte_offset': { 'alias': 'offset' },
+      'repl_backlog_size': { 'alias': 'backlog-size' },
     },
     'panel': {
       'title': 'Redis Replication Backlog Size',
@@ -315,7 +377,7 @@ define(function getDashConf () {
 
   plugins.redis.uptime = {
     'graph': {
-      'uptime_in_seconds': { 'color': '#508642', 'alias': 'uptime_in_hours', 'column': 'value/3600' },
+      'uptime_in_seconds': { 'color': '#508642', 'alias': 'uptime-hours', 'column': 'value/3600' },
     },
     'panel': {
       'title': 'Redis Uptime',
@@ -328,8 +390,18 @@ define(function getDashConf () {
 
   plugins.memcache.memory = {
     'graph': {
-      'cache.used': { 'color': '#447EBC', 'alias': 'memory-used' },
-      'cache.free': { 'color': '#508642', 'alias': 'momory-free' },
+      'cache': [
+        {
+          'color': '#447EBC',
+          'alias': 'memory-used',
+          'where': "dsname='used'",
+        },
+        {
+          'color': '#508642',
+          'alias': 'momory-free',
+          'where': "dsname='free'"
+        },
+      ],
     },
     'panel': {
       'title': 'Memcached Memomy',
@@ -340,7 +412,7 @@ define(function getDashConf () {
 
   plugins.memcache.connections = {
     'graph': {
-      'connections-current': { 'color': '#447EBC', 'alias': 'connections' },
+      'connections-current': { 'alias': 'connections' },
     },
     'panel': {
       'title': 'Memcached Connections',
@@ -349,7 +421,7 @@ define(function getDashConf () {
 
   plugins.memcache.items = {
     'graph': {
-      'items-current': { 'color': '#447EBC', 'alias': 'items' },
+      'items-current': { 'alias': 'items' },
     },
     'panel': {
       'title': 'Memcached Items',
@@ -358,20 +430,33 @@ define(function getDashConf () {
 
   plugins.memcache.commands = {
     'graph': {
-      'command-flush': { },
-      'command-get': { },
-      'command-set': { },
-      'command-touch': { },
+      'command-flush': { 'apply': 'derivative', 'alias': 'command-flush' },
+      'command-get': { 'apply': 'derivative', 'alias': 'command-get' },
+      'command-set': { 'apply': 'derivative', 'alias': 'command-set' },
+      'command-touch': { 'apply': 'derivative', 'alias': 'command-touch' },
     },
     'panel': {
       'title': 'Memcached Commands',
     },
   };
 
-  plugins.memcache.packets = {
+  plugins.memcache.octets = {
     'graph': {
-      'octets.rx': { 'color': '#447EBC' },
-      'octets.tx': { 'color': '#508642', 'column': 'value*-1' },
+      'octets': [
+        {
+          'color': '#447EBC',
+          'where': "dsname='tx'",
+          'alias': 'octets-tx',
+          'apply': 'derivative',
+        },
+        {
+          'color': '#508642',
+          'where': "dsname='rx'",
+          'alias': 'octets-rx',
+          'column': 'value*-1',
+          'apply': 'derivative',
+        },
+      ],
     },
     'panel': {
       'title': 'Memcached Traffic',
@@ -382,13 +467,14 @@ define(function getDashConf () {
 
   plugins.memcache.operations = {
     'graph': {
-      'ops-hits': { },
-      'ops-misses': { },
-      'ops-evictions': { },
-      'ops-incr_hits': { },
-      'ops-incr_misses': { },
-      'ops-decr_hits': { },
-      'ops-decr_misses': { },
+      'ops-hits': { 'apply': 'derivative', 'alias': 'hits' },
+      'ops-misses': { 'apply': 'derivative', 'alias': 'misses' },
+      'ops-evictions': { 'apply': 'derivative', 'alias': 'evictions' },
+      'ops-incr_hits': { 'apply': 'derivative', 'alias': 'hits' },
+      'ops-incr_misses': { 'apply': 'derivative', 'alias': 'incr-misses' },
+      'ops-decr_misses': { 'apply': 'derivative', 'alias': 'decr-misses' },
+      'ops-incr_hits': { 'apply': 'derivative', 'alias': 'incr-hits' },
+      'ops-decr_hits': { 'apply': 'derivative', 'alias': 'decr-hits' },
     },
     'panel': {
       'title': 'Memcached Operations',
@@ -397,7 +483,7 @@ define(function getDashConf () {
 
   plugins.memcache.hits = {
     'graph': {
-      'percent-hitratio': { },
+      'percent-hitratio': { 'alias': 'hitratio' },
     },
     'panel': {
       'title': 'Memcached Hitratio',
@@ -407,8 +493,16 @@ define(function getDashConf () {
 
   plugins.memcache.ps = {
     'graph': {
-      'processes': { },
-      'threads': { },
+      'ps_count': [
+        {
+          'alias': 'processes',
+          'where': "dsname='processes'",
+        },
+        {
+          'alias': 'threads',
+          'where': "dsname='threads'",
+        },
+      ],
     },
     'panel': {
       'title': 'Memcached Process Stats',
@@ -417,8 +511,20 @@ define(function getDashConf () {
 
   plugins.memcache.cpu = {
     'graph': {
-      'cputime.syst': { 'color': '#EAB839' },
-      'cputime.user': { 'color': '#508642' },
+      'ps_cputime': [
+        {
+          'color': '#EAB839',
+          'alias': 'system',
+          'where': "dsname='syst'",
+          'apply': 'derivative',
+        },
+        {
+          'color': '#508642',
+          'alias': 'user',
+          'where': "dsname='user'",
+          'apply': 'derivative',
+        },
+      ],
     },
     'panel': {
       'title': 'Memcached CPU Time',
@@ -432,9 +538,9 @@ define(function getDashConf () {
 
   plugins.rabbitmq.rates = {
     'graph': {
-      'ack_rate': { },
-      'deliver_rate': { },
-      'publish_rate': { },
+      'ack_rate': { 'alias': 'rate-ack' },
+      'deliver_rate': { 'alias': 'rate-deliver' },
+      'publish_rate': { 'alias': 'rate-publish' },
     },
     'panel': {
       'title': 'RabbitMQ Rates',
@@ -443,8 +549,8 @@ define(function getDashConf () {
 
   plugins.rabbitmq.channels = {
     'graph': {
-      'channels': { },
-      'queues': { },
+      'channels': { 'alias': 'channels' },
+      'queues': { 'alias': 'queues' },
     },
     'panel': {
       'title': 'RabbitMQ Channels and Queues',
@@ -453,9 +559,9 @@ define(function getDashConf () {
 
   plugins.rabbitmq.connections = {
     'graph': {
-      'connections': { },
-      'consumers': { },
-      'exchanges': { },
+      'connections': { 'alias': 'connections' },
+      'consumers': { 'alias': 'consumers' },
+      'exchanges': { 'alias': 'exchanges' },
     },
     'panel': {
       'title': 'RabbitMQ Connections',
@@ -464,9 +570,9 @@ define(function getDashConf () {
 
   plugins.rabbitmq.messages = {
     'graph': {
-      'messages_total': { },
-      'messages_unack': { },
-      'messages_ready': { },
+      'messages_total': { 'alias': 'messages-total' },
+      'messages_unack': { 'alias': 'messages-unack' },
+      'messages_ready': { 'alias': 'messages-ready' },
     },
     'panel': {
       'title': 'RabbitMQ Messages',
@@ -476,8 +582,8 @@ define(function getDashConf () {
 
   plugins.rabbitmq.fd = {
     'graph': {
-      'fd_total': { 'color': '#508642' },
-      'fd_used': { 'color': '#447EBC' },
+      'fd_total': { 'color': '#508642', 'alias': 'fd-total' },
+      'fd_used': { 'color': '#447EBC', 'alias': 'fd-used' },
     },
     'panel': {
       'title': 'RabbitMQ File Descriptors',
@@ -486,8 +592,8 @@ define(function getDashConf () {
 
   plugins.rabbitmq.memory = {
     'graph': {
-      'mem_limit': { 'color': '#508642' },
-      'mem_used': { 'color': '#447EBC' },
+      'mem_limit': { 'color': '#508642', 'alias': 'mem-limit' },
+      'mem_used': { 'color': '#447EBC', 'alias': 'mem-used' },
     },
     'panel': {
       'title': 'RabbitMQ Memory',
@@ -497,8 +603,8 @@ define(function getDashConf () {
 
   plugins.rabbitmq.proc = {
     'graph': {
-      'proc_total': { 'color': '#508642' },
-      'proc_used': { 'color': '#447EBC' },
+      'proc_total': { 'color': '#508642', 'alias': 'proc-total' },
+      'proc_used': { 'color': '#447EBC', 'alias': 'proc-used' },
     },
     'panel': {
       'title': 'RabbitMQ Proc',
@@ -508,8 +614,8 @@ define(function getDashConf () {
 
   plugins.rabbitmq.sockets = {
     'graph': {
-      'sockets_total': { 'color': '#508642' },
-      'sockets_used': { 'color': '#447EBC' },
+      'sockets_total': { 'color': '#508642', 'alias': 'sockets-total' },
+      'sockets_used': { 'color': '#447EBC', 'alias': 'sockets-used' },
     },
     'panel': {
       'title': 'RabbitMQ Sockets',
@@ -523,37 +629,50 @@ define(function getDashConf () {
 
   plugins.elasticsearch.http = {
     'graph': {
-      'http_current_open': { },
+      'http.current_open': { 'alias': 'http-open' },
     },
     'panel': {
       'title': 'ElasticSearch HTTP Open',
     },
   };
 
-  plugins.elasticsearch.transport = {
+  plugins.elasticsearch.transportCount = {
     'graph': {
-      'transport_rx_count': { },
-      'transport_tx_count': { 'column': 'value*-1' },
+      'transport.rx.count': { 'apply': 'derivative', 'alias': 'transport.rx' },
+      'transport.tx.count': { 'apply': 'derivative', 'column': 'value*-1', 'alias': 'transport.tx' },
     },
     'panel': {
-      'title': 'ElasticSearch Transport',
+      'title': 'ElasticSearch Transport Counters',
       'grid': { 'max': null, 'min': null, 'leftMin': null },
+      'y_formats': [ 'short' ],
+    },
+  };
+
+  plugins.elasticsearch.transportSize = {
+    'graph': {
+      'transport.rx.size': { 'alias': 'transport.rx' },
+      'transport.tx.size': { 'column': 'value*-1', 'alias': 'transport.tx' },
+    },
+    'panel': {
+      'title': 'ElasticSearch Transport Size',
+      'grid': { 'max': null, 'min': null, 'leftMin': null },
+      'y_formats': [ 'bytes' ],
     },
   };
 
   plugins.elasticsearch.idxTimes = {
     'graph': {
-      'indices_flush_time': { },
-      'indices_get_exists-time': { },
-      'indices_get_missing-time': { },
-      'indices_get_time': { },
-      'indices_indexing_delete-time': { },
-      'indices_indexing_index-time': { },
-      'indices_merges_time': { },
-      'indices_refresh_time': { },
-      'indices_search_fetch-time': { },
-      'indices_search_query-time': { },
-      'indices_store_throttle-time': { },
+      'indices.flush.time': { },
+      'indices.get.exists-time': { },
+      'indices.get.missing-time': { },
+      'indices.get.time': { },
+      'indices.indexing.delete-time': { },
+      'indices.indexing.index-time': { },
+      'indices.merges.time': { },
+      'indices.refresh.time': { },
+      'indices.search.fetch-time': { },
+      'indices.search.query-time': { },
+      'indices.store.throttle-time': { },
     },
     'panel': {
       'title': 'ElasticSearch Indices Times',
@@ -562,35 +681,36 @@ define(function getDashConf () {
 
   plugins.elasticsearch.idxTotals = {
     'graph': {
-      'indices_flush_total': { },
-      'indices_get_exists-total': { },
-      'indices_get_missing-total': { },
-      'indices_get_total': { },
-      'indices_indexing_delete-total': { },
-      'indices_indexing_index-total': { },
-      'indices_merges_total': { },
-      'indices_refresh_total': { },
-      'indices_search_fetch-total': { },
-      'indices_search_query-total': { },
+      'indices.flush.total': { 'apply': 'derivative' },
+      'indices.get.exists-total': { 'apply': 'derivative' },
+      'indices.get.missing-total': { 'apply': 'derivative' },
+      'indices.get.total': { 'apply': 'derivative' },
+      'indices.indexing.delete-total': { 'apply': 'derivative' },
+      'indices.indexing.index-total': { 'apply': 'derivative' },
+      'indices.merges.total': { 'apply': 'derivative' },
+      'indices.refresh.total': { 'apply': 'derivative' },
+      'indices.search.fetch-total': { 'apply': 'derivative' },
+      'indices.search.query-total': { 'apply': 'derivative' },
     },
     'panel': {
       'title': 'ElasticSearch Indices Totals',
     },
   };
 
-  plugins.elasticsearch.idxDocsDel = {
+  plugins.elasticsearch.idxDocs = {
     'graph': {
-      'indices_docs_deleted': { },
+      'indices.docs.count': { },
+      'indices.docs.deleted': { 'apply': 'derivative' },
     },
     'panel': {
-      'title': 'ElasticSearch Indices Docs Deleted',
+      'title': 'ElasticSearch Indices Docs',
     },
   };
 
   plugins.elasticsearch.idxCacheEvictions = {
     'graph': {
-      'indices_cache_field_eviction': { },
-      'indices_cache_filter_evictions': { },
+      'indices.cache.field.eviction': { 'apply': 'derivative' },
+      'indices.cache.filter.evictions': { 'apply': 'derivative' },
     },
     'panel': {
       'title': 'ElasticSearch Indices Cache Evictions',
@@ -599,7 +719,7 @@ define(function getDashConf () {
 
   plugins.elasticsearch.jvmHeapPercent = {
     'graph': {
-      'jvm_mem_heap-used-percent': { 'alias': 'jvm-heap-used' },
+      'jvm.mem.heap-used-percent': { 'alias': 'jvm-heap-used' },
     },
     'panel': {
       'title': 'ElasticSearch JVM Heap Usage',
@@ -609,8 +729,8 @@ define(function getDashConf () {
 
   plugins.elasticsearch.jvmMemHeap = {
     'graph': {
-      'jvm_mem_heap-committed': { 'color': '#508642', 'alias': 'jvm-heap-commited' },
-      'bytes-jvm_mem_heap-used': { 'color': '#447EBC', 'alias': 'jvm-heap-used' },
+      'jvm.mem.heap-committed': { 'color': '#508642', 'alias': 'jvm-heap-commited' },
+      'bytes-jvm.mem.heap-used': { 'color': '#447EBC', 'alias': 'jvm-heap-used' },
     },
     'panel': {
       'title': 'ElasticSearch JVM Heap Memory Usage',
@@ -620,8 +740,8 @@ define(function getDashConf () {
 
   plugins.elasticsearch.jvmMemNonHeap = {
     'graph': {
-      'bytes-jvm_mem_non-heap-committed': { 'color': '#508642', 'alias': 'jvm-non-heap-commited' },
-      'bytes-jvm_mem_non-heap-used': { 'color': '#447EBC', 'alias': 'jvm-non-heap-used' },
+      'bytes-jvm.mem.non-heap-committed': { 'color': '#508642', 'alias': 'jvm-non-heap-commited' },
+      'bytes-jvm.mem.non-heap-used': { 'color': '#447EBC', 'alias': 'jvm-non-heap-used' },
     },
     'panel': {
       'title': 'ElasticSearch JVM Non Heap Memory Usage',
@@ -631,8 +751,8 @@ define(function getDashConf () {
 
   plugins.elasticsearch.jvmThreads = {
     'graph': {
-      'jvm_threads_peak': { 'color': '#508642' },
-      'jvm_threads_count': { 'color': '#447EBC' },
+      'jvm.threads.peak': { 'color': '#508642' },
+      'jvm.threads.count': { 'color': '#447EBC' },
     },
     'panel': {
       'title': 'ElasticSearch JVM Threads',
@@ -641,8 +761,8 @@ define(function getDashConf () {
 
   plugins.elasticsearch.jvmGCCount = {
     'graph': {
-      'jvm_gc_old-count': { },
-      'jvm_gc_count': { },
+      'jvm.gc.old-count': { 'apply': 'derivative' },
+      'jvm.gc.count': { 'apply': 'derivative' },
     },
     'panel': {
       'title': 'ElasticSearch JVM GC Count',
@@ -651,8 +771,8 @@ define(function getDashConf () {
 
   plugins.elasticsearch.jvmGCTime = {
     'graph': {
-      'jvm_gc_old-time': { },
-      'jvm_gc_time': { },
+      'jvm.gc.old-time': { 'apply': 'derivative' },
+      'jvm.gc.time': { 'apply': 'derivative' },
     },
     'panel': {
       'title': 'ElasticSearch JVM GC Time',
@@ -661,17 +781,17 @@ define(function getDashConf () {
 
   plugins.elasticsearch.threadPoolCompleted = {
     'graph': {
-      'thread_pool_bulk_completed': { },
-      'thread_pool_flush_completed': { },
-      'thread_pool_generic_completed': { },
-      'thread_pool_get_completed': { },
-      'thread_pool_index_completed': { },
-      'thread_pool_merge_completed': { },
-      'thread_pool_optimize_completed': { },
-      'thread_pool_refresh_completed': { },
-      'thread_pool_search_completed': { },
-      'thread_pool_snapshot_completed': { },
-      'thread_pool_warmer_completed': { },
+      'thread_pool.bulk.completed': { 'apply': 'derivative' },
+      'thread_pool.flush.completed': { 'apply': 'derivative' },
+      'thread_pool.generic.completed': { 'apply': 'derivative' },
+      'thread_pool.get.completed': { 'apply': 'derivative' },
+      'thread_pool.index.completed': { 'apply': 'derivative' },
+      'thread_pool.merge.completed': { 'apply': 'derivative' },
+      'thread_pool.optimize.completed': { 'apply': 'derivative' },
+      'thread_pool.refres._completed': { 'apply': 'derivative' },
+      'thread_pool.search.completed': { 'apply': 'derivative' },
+      'thread_pool.snapshot.completed': { 'apply': 'derivative' },
+      'thread_pool.warmer.completed': { 'apply': 'derivative' },
     },
     'panel': {
       'title': 'ElasticSearch Thread Pool Completed',
@@ -680,17 +800,17 @@ define(function getDashConf () {
 
   plugins.elasticsearch.threadPoolRejected = {
     'graph': {
-      'thread_pool_bulk_rejected': { },
-      'thread_pool_flush_rejected': { },
-      'thread_pool_generic_rejected': { },
-      'thread_pool_get_rejected': { },
-      'thread_pool_index_rejected': { },
-      'thread_pool_merge_rejected': { },
-      'thread_pool_optimize_rejected': { },
-      'thread_pool_refresh_rejected': { },
-      'thread_pool_search_rejected': { },
-      'thread_pool_snapshot_rejected': { },
-      'thread_pool_warmer_rejected': { },
+      'thread_pool.bulk.rejected': { 'apply': 'derivative' },
+      'thread_pool.flush.rejected': { 'apply': 'derivative' },
+      'thread_pool.generic.rejected': { 'apply': 'derivative' },
+      'thread_pool.get.rejected': { 'apply': 'derivative' },
+      'thread_pool.index.rejected': { 'apply': 'derivative' },
+      'thread_pool.merge.rejected': { 'apply': 'derivative' },
+      'thread_pool.optimize.rejected': { 'apply': 'derivative' },
+      'thread_pool.refresh.rejected': { 'apply': 'derivative' },
+      'thread_pool.search.rejected': { 'apply': 'derivative' },
+      'thread_pool.snapshot.rejected': { 'apply': 'derivative' },
+      'thread_pool.warmer.rejected': { 'apply': 'derivative' },
     },
     'panel': {
       'title': 'ElasticSearch Thread Pool Rejected',
@@ -699,17 +819,17 @@ define(function getDashConf () {
 
   plugins.elasticsearch.threadPoolAcrive = {
     'graph': {
-      'thread_pool_bulk_active': { },
-      'thread_pool_flush_active': { },
-      'thread_pool_generic_active': { },
-      'thread_pool_get_active': { },
-      'thread_pool_index_active': { },
-      'thread_pool_merge_active': { },
-      'thread_pool_optimize_active': { },
-      'thread_pool_refresh_active': { },
-      'thread_pool_search_active': { },
-      'thread_pool_snapshot_active': { },
-      'thread_pool_warmer_active': { },
+      'thread_pool.bulk.active': { 'apply': 'derivative' },
+      'thread_pool.flush.active': { 'apply': 'derivative' },
+      'thread_pool.generic.active': { 'apply': 'derivative' },
+      'thread_pool.get.active': { 'apply': 'derivative' },
+      'thread_pool.index.active': { 'apply': 'derivative' },
+      'thread_pool.merge.active': { 'apply': 'derivative' },
+      'thread_pool.optimize.active': { 'apply': 'derivative' },
+      'thread_pool.refresh.active': { 'apply': 'derivative' },
+      'thread_pool.search.active': { 'apply': 'derivative' },
+      'thread_pool.snapshot.active': { 'apply': 'derivative' },
+      'thread_pool.warmer.active': { 'apply': 'derivative' },
     },
       'panel': {
       'title': 'ElasticSearch Thread Pool Active',
@@ -718,17 +838,17 @@ define(function getDashConf () {
 
   plugins.elasticsearch.threadPoolLargest = {
     'graph': {
-      'thread_pool_bulk_largest': { },
-      'thread_pool_flush_largest': { },
-      'thread_pool_generic_largest': { },
-      'thread_pool_get_largest': { },
-      'thread_pool_index_largest': { },
-      'thread_pool_merge_largest': { },
-      'thread_pool_optimize_largest': { },
-      'thread_pool_refresh_largest': { },
-      'thread_pool_search_largest': { },
-      'thread_pool_snapshot_largest': { },
-      'thread_pool_warmer_largest': { },
+      'thread_pool.bulk.largest': { },
+      'thread_pool.flush.largest': { },
+      'thread_pool.generic.largest': { },
+      'thread_pool.get.largest': { },
+      'thread_pool.index.largest': { },
+      'thread_pool.merge.largest': { },
+      'thread_pool.optimize.largest': { },
+      'thread_pool.refresh.largest': { },
+      'thread_pool.search.largest': { },
+      'thread_pool.snapshot.largest': { },
+      'thread_pool.warmer.largest': { },
     },
       'panel': {
       'title': 'ElasticSearch Thread Pool Largest',
@@ -737,17 +857,17 @@ define(function getDashConf () {
 
   plugins.elasticsearch.threadPoolQueue = {
     'graph': {
-      'thread_pool_bulk_queue': { },
-      'thread_pool_flush_queue': { },
-      'thread_pool_generic_queue': { },
-      'thread_pool_get_queue': { },
-      'thread_pool_index_queue': { },
-      'thread_pool_merge_queue': { },
-      'thread_pool_optimize_queue': { },
-      'thread_pool_refresh_queue': { },
-      'thread_pool_search_queue': { },
-      'thread_pool_snapshot_queue': { },
-      'thread_pool_warmer_queue': { },
+      'thread_pool.bulk.queue': { },
+      'thread_pool.flush.queue': { },
+      'thread_pool.generic.queue': { },
+      'thread_pool.get.queue': { },
+      'thread_pool.index.queue': { },
+      'thread_pool.merge.queue': { },
+      'thread_pool.optimize.queue': { },
+      'thread_pool.refresh.queue': { },
+      'thread_pool.search.queue': { },
+      'thread_pool.snapshot.queue': { },
+      'thread_pool.warmer.queue': { },
     },
       'panel': {
       'title': 'ElasticSearch Thread Pool Queue',
@@ -756,17 +876,17 @@ define(function getDashConf () {
 
   plugins.elasticsearch.threadPoolThread = {
     'graph': {
-      'thread_pool_bulk_threads': { },
-      'thread_pool_flush_threads': { },
-      'thread_pool_generic_threads': { },
-      'thread_pool_get_threads': { },
-      'thread_pool_index_threads': { },
-      'thread_pool_merge_threads': { },
-      'thread_pool_optimize_threads': { },
-      'thread_pool_refresh_threads': { },
-      'thread_pool_search_threads': { },
-      'thread_pool_snapshot_threads': { },
-      'thread_pool_warmer_threads': { },
+      'thread_pool.bulk.threads': { },
+      'thread_pool.flush.threads': { },
+      'thread_pool.generic.threads': { },
+      'thread_pool.get.threads': { },
+      'thread_pool.index.threads': { },
+      'thread_pool.merge.threads': { },
+      'thread_pool.optimize.threads': { },
+      'thread_pool.refresh.threads': { },
+      'thread_pool.search.threads': { },
+      'thread_pool.snapshot.threads': { },
+      'thread_pool.warmer.threads': { },
     },
       'panel': {
       'title': 'ElasticSearch Thread Pool Threads',
