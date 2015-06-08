@@ -470,11 +470,11 @@ define(function getDashConf () {
       'ops-hits': { 'apply': 'derivative', 'alias': 'hits' },
       'ops-misses': { 'apply': 'derivative', 'alias': 'misses' },
       'ops-evictions': { 'apply': 'derivative', 'alias': 'evictions' },
-      'ops-incr_hits': { 'apply': 'derivative', 'alias': 'hits' },
-      'ops-incr_misses': { 'apply': 'derivative', 'alias': 'incr-misses' },
-      'ops-decr_misses': { 'apply': 'derivative', 'alias': 'decr-misses' },
       'ops-incr_hits': { 'apply': 'derivative', 'alias': 'incr-hits' },
       'ops-decr_hits': { 'apply': 'derivative', 'alias': 'decr-hits' },
+      'ops-incr_misses': { 'apply': 'derivative', 'alias': 'incr-misses' },
+      'ops-decr_misses': { 'apply': 'derivative', 'alias': 'decr-misses' },
+
     },
     'panel': {
       'title': 'Memcached Operations',
