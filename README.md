@@ -12,10 +12,10 @@ cd grafana-influx-dashboard
 
 ##Usage examples
 ```
-http://grafanaIP/#/dashboard/script/getdash.js?host=hostname
-http://grafanaIP/#/dashboard/script/getdash.js?host=hostname&metric=cpu,load
-http://grafanaIP/#/dashboard/script/getdash.js?host=hostname&metric=load,database
-http://grafanaIP/#/dashboard/script/getdash.js?host=hostname&metric=load&time=7d
+http://grafanaIP/dashboard/script/getdash.js?host=hostname
+http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=cpu,load
+http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=load,database
+http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=load&time=7d
 ```
 
 ##Features
@@ -59,7 +59,7 @@ If you don't use CollectD or your series prefix is not 'collectd.' you will have
 ```javascript
   var pluginConfProto = {
     'alias': undefined,
-    'prefix': 'collectd.',
+    //'prefix': 'collectd.',
   };
 ```
 Just substitute 'collectd.' with the prefix used in your setup.
@@ -68,17 +68,17 @@ Just substitute 'collectd.' with the prefix used in your setup.
 Lets asume you have some metric in your InfluxDB and you want it to be displayed. Before starting plugin configuration you will need *hostname* and *metricname*. For this demonstration I will use *hostname* and *disk* accordingly.
 First you get metric names if you don't already know them.
 ```bash
-curl -sG "http://InfluxDBIP:8086/db/graphite/series?u=root&p=root" --data-urlencode "q=select * from /.*\.hostname\.disk/ limit 1" | python -m json.tool | grep name | grep ops
+curl -sG "http://InfluxDBIP:8086/db/graphite/series?u=root&p=root" --data-urlencode "q=select * from /hostname\/disk/ limit 1" | python -m json.tool | grep name | grep ops
 ```
 
 Output will be something like this.
 ```json
-        "name": "collectd.hostname.disk-vda.disk_ops.read",
-        "name": "collectd.hostname.disk-vda.disk_ops.write",
-        "name": "collectd.hostname.disk-vda1.disk_ops.read",
-        "name": "collectd.hostname.disk-vda1.disk_ops.write",
-        "name": "collectd.hostname.disk-vda2.disk_ops.read",
-        "name": "collectd.hostname.disk-vda2.disk_ops.write",
+        "name": "hostname/disk-vda/disk_ops",
+        "name": "hostname/disk-vda/disk_ops",
+        "name": "hostname/disk-vda1/disk_ops",
+        "name": "hostname/disk-vda1/disk_ops",
+        "name": "hostname/disk-vda2/disk_ops",
+        "name": "hostname/disk-vda2/disk_ops",
 ```
 
 To configure plugin for those metric you need to add this configuration to your getdash.conf.js.
