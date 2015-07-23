@@ -33,6 +33,7 @@ redis
 memcache
 rabbitmq
 elasticsearch
+nginx
 ```
 ####Supported metric groups
 ```

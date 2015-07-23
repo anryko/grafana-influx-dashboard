@@ -30,7 +30,7 @@ define(function getDashConf () {
 
   // plugin groups configuration
   plugins.groups.system = [ 'cpu', 'memory', 'load', 'swap', 'interface', 'df', 'disk', 'processes' ];
-  plugins.groups.middleware = [ 'redis', 'memcache', 'rabbitmq', 'elasticsearch' ];
+  plugins.groups.middleware = [ 'redis', 'memcache', 'rabbitmq', 'elasticsearch', 'nginx' ];
   plugins.groups.database = [ 'elasticsearch' ];
 
 
@@ -890,6 +890,44 @@ define(function getDashConf () {
     },
       'panel': {
       'title': 'ElasticSearch Thread Pool Threads',
+    },
+  };
+
+
+  // collectd nginx plugin
+  plugins.nginx = new Plugin();
+
+  plugins.nginx.requests = {
+    'graph': {
+      'nginx_requests': { 'apply': 'derivative', 'alias': 'requests' },
+    },
+    'panel': {
+      'title': 'Nginx Requests',
+      'y_formats': [ 'short' ],
+    },
+  };
+
+  plugins.nginx.connections = {
+    'graph': {
+      'connections-accepted': { 'color': '#1F78C1', 'apply': 'derivative', 'alias': 'accepted' },
+      'connections-handled': { 'color': '#629E51', 'apply': 'derivative', 'alias': 'handled' },
+    },
+    'panel': {
+      'title': 'Nginx Connections',
+      'y_formats': [ 'short' ],
+    },
+  };
+
+  plugins.nginx.connStates = {
+    'graph': {
+      'nginx_connections-active': { 'alias': 'active' },
+      'nginx_connections-reading': { 'alias': 'reading' },
+      'nginx_connections-waiting': { 'alias': 'waiting' },
+      'nginx_connections-writing': { 'alias': 'writing' },
+    },
+    'panel': {
+      'title': 'Nginx Connections States',
+      'y_formats': [ 'short' ],
     },
   };
 
