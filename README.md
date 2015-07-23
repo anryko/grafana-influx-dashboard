@@ -29,6 +29,7 @@ interface
 df
 disk
 processes
+entropy
 redis
 memcache
 rabbitmq
