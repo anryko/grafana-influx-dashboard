@@ -22,7 +22,7 @@ return function scriptedDashboard (callback) {
 
     // sanitize :: String -> new String
     var sanitize = function sanitize (str) {
-      return str.replace(/[^\w\s-,]/gi, '');
+      return str.replace(/[^\w\s-,.]/gi, '');
     };
 
     if(!_.isUndefined(ARGS.host))
