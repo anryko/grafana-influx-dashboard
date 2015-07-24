@@ -123,6 +123,19 @@ define(function getDashConf () {
     },
   };
 
+  plugins.swap.swapIO = {
+    'graph': {
+      'swap_io-in': { 'apply': 'derivative', 'alias': 'in' },
+      'swap_io-out': { 'apply': 'derivative', 'column': 'value*-1', 'alias': 'out' },
+    },
+    'panel': {
+      'title': 'Swap IO',
+      'grid': { 'max': null, 'min': null, 'leftMin': null },
+      'y_formats': [ 'bytes' ],
+    },
+  };
+
+
   // collectd interface plugin configuration
   plugins.interface = new Plugin();
   plugins.interface.config.multi = true;
