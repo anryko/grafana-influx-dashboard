@@ -29,8 +29,25 @@ define(function getDashConf () {
   });
 
   // plugin groups configuration
-  plugins.groups.system = [ 'cpu', 'memory', 'load', 'swap', 'interface', 'df', 'disk', 'processes', 'entropy' ];
-  plugins.groups.middleware = [ 'redis', 'memcache', 'rabbitmq', 'elasticsearch', 'nginx' ];
+  plugins.groups.system = [
+    'cpu',
+    'memory',
+    'load',
+    'swap',
+    'interface',
+    'df',
+    'disk',
+    'processes',
+    'entropy',
+    'users'
+  ];
+  plugins.groups.middleware = [
+    'redis',
+    'memcache',
+    'rabbitmq',
+    'elasticsearch',
+    'nginx'
+  ];
   plugins.groups.database = [ 'elasticsearch' ];
 
 
@@ -295,6 +312,19 @@ define(function getDashConf () {
     'panel': {
       'title': 'Entropy',
       'y_formats': [ 'short' ],
+    },
+  };
+
+
+  // collectd users plugin configuration
+  plugins.users = new Plugin();
+
+  plugins.users.users = {
+    'graph': {
+      'users': { },
+    },
+    'panel': {
+      'title': 'Users',
     },
   };
 

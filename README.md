@@ -30,6 +30,7 @@ df
 disk
 processes
 entropy
+users
 redis
 memcache
 rabbitmq
