@@ -31,6 +31,7 @@ disk
 processes
 entropy
 users
+uptime
 redis
 memcache
 rabbitmq

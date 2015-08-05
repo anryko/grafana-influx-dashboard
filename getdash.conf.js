@@ -39,7 +39,8 @@ define(function getDashConf () {
     'disk',
     'processes',
     'entropy',
-    'users'
+    'users',
+    'uptime'
   ];
   plugins.groups.middleware = [
     'redis',
@@ -354,6 +355,18 @@ define(function getDashConf () {
     },
   };
 
+  // collectd uptime plugin configuration
+  plugins.uptime = new Plugin();
+
+  plugins.uptime.uptime = {
+    'graph': {
+      'uptime': { },
+    },
+    'panel': {
+      'title': 'System Uptime',
+      'y_formats': [ 's' ],
+    },
+  };
 
   // collectd redis plugin configuration: https://github.com/powdahound/redis-collectd-plugin
   plugins.redis = new Plugin({ 'alias': 'redis' });
