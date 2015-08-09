@@ -9,9 +9,11 @@ git clone --depth=1 https://github.com/anryko/grafana-influx-dashboard.git
 cd grafana-influx-dashboard
 ./install.sh GRAFANA_ROOT_DIR
 ```
+_In deb package default install it should be /usr/share/grafana_
 
 ## Usage examples
 ```
+http://grafanaIP/dashboard/script/getdash.js
 http://grafanaIP/dashboard/script/getdash.js?host=hostname
 http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=cpu,load
 http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=load,database
@@ -153,7 +155,7 @@ What we want is to get the info for two graphs (**write** and **read**).
 
 So lets summarise: We need data points from disk_ops metric with two different **dsname**s (**write** and **read**).
 
-Now lets describe this in the graph configuration. ``graph`` defines that we are configuring a graph :). ``ops`` describes the metric we want and must match the ending of the metric name **disk_ops** in our seriues **hostname/disk-vda/disk_ops**. Inside that series we have two graphs and to describe that we use an array with two configuration objects, each with different ``color``, ``alias`` (this will show up on the graph instead of full metric name) and **dsname** which we describe using ``where`` keyword. From the plugin column in curl query output we can see that data is u'derive',this means that to make graphs meaningful we have to apply Grafanas 'derivative(value)' function which we do with ``apply`` keyword. Another neat thing we want to do i to show disk reads as negative (upside-down) graph and to describe that we multiply the column value by -1 using ``column`` keyword.
+Now lets describe this in the graph configuration. ``graph`` defines that we are configuring a graph :). ``ops`` describes the metric we want and must match the ending of the metric name **disk_ops** in our seriues **hostname/disk-vda/disk_ops**. Inside that series we have two graphs and to describe that we use an array with two configuration objects, each with different ``color``, ``alias`` (this will show up on the graph instead of full metric name) and **dsname** which we describe using ``where`` keyword. From the plugin column in curl query output we can see that data is u'derive', this means that to make graphs meaningful we have to apply Grafanas 'derivative(value)' function which we do with ``apply`` keyword. Another neat thing we want to do i to show disk reads as negative (upside-down) graph and to describe that we multiply the column value by -1 using ``column`` keyword.
 ```javascript
 plugins.disk.diskIO = {
   'graph': {

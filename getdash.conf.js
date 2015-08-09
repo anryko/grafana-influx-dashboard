@@ -40,16 +40,18 @@ define(function getDashConf () {
     'processes',
     'entropy',
     'users',
-    'uptime'
+    'uptime',
   ];
   plugins.groups.middleware = [
     'redis',
     'memcache',
     'rabbitmq',
     'elasticsearch',
-    'nginx'
+    'nginx',
   ];
-  plugins.groups.database = [ 'elasticsearch' ];
+  plugins.groups.database = [
+    'elasticsearch',
+  ];
 
 
   // collectd cpu plugin configuration
@@ -355,18 +357,20 @@ define(function getDashConf () {
     },
   };
 
+
   // collectd uptime plugin configuration
   plugins.uptime = new Plugin();
 
   plugins.uptime.uptime = {
     'graph': {
-      'uptime': { },
+      'uptime': { 'alias': 'uptime-days', 'column': 'value/3600/24' },
     },
     'panel': {
       'title': 'System Uptime',
-      'y_formats': [ 's' ],
+      'y_formats': [ 'short' ],
     },
   };
+
 
   // collectd redis plugin configuration: https://github.com/powdahound/redis-collectd-plugin
   plugins.redis = new Plugin({ 'alias': 'redis' });

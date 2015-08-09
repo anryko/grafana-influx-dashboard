@@ -664,17 +664,17 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
       getSeries(interval, getQueriesForDDash(datasources, dashConf.defaultQueries))
         .then(function (series) {
           // TODO: implement multiple default queries support
-          callback(setupDefaultDashboard(series, dashboard, dashConf.defaultQueries[0]));
+          return callback(setupDefaultDashboard(series, dashboard, dashConf.defaultQueries[0]));
         });
       return;
     }
-    
+
     var dashPlugins = pickPlugins(plugins, dashConf.metric);
     var dashQueries = getQueries(dashConf.host, datasources, dashPlugins);
     getSeries(interval, dashQueries)
       .then(function (series) {
         dashboard.rows = getRows(dashPlugins, series);
-        callback(dashboard);
+        return callback(dashboard);
       });
   });
 
