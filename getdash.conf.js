@@ -8,7 +8,7 @@ define(function getDashConf () {
     'alias': undefined,
     //'prefix': 'collectd\\.',        // Special characters in prefix should be escaped by '\\'.
                                       // If you use no prefix set it to undefined or comment it out.
-    'separator': '/',                 // In backend query separator is automatically escaped by '\\'.
+    'separator': ',',                 // In backend query separator is automatically escaped by '\\'.
     //'datasources': [ 'graphite' ],  // You can add custom datasources per plugin.
                                       // If datasources is not set all grafana datasources will be used.
   };
@@ -17,7 +17,7 @@ define(function getDashConf () {
   function Plugin (config) {
     Object.defineProperty(this, 'config', {
       value: _.merge({}, pluginConfProto, config),
-      enumerable: false,
+      enumerable: false
     });
   }
 
@@ -25,7 +25,7 @@ define(function getDashConf () {
   var plugins = {};
   Object.defineProperty(plugins, 'groups', {
     value: {},
-    enumerable: false,
+    enumerable: false
   });
 
   // plugin groups configuration
@@ -40,17 +40,17 @@ define(function getDashConf () {
     'processes',
     'entropy',
     'users',
-    'uptime',
+    'uptime'
   ];
   plugins.groups.middleware = [
     'redis',
     'memcache',
     'rabbitmq',
     'elasticsearch',
-    'nginx',
+    'nginx'
   ];
   plugins.groups.database = [
-    'elasticsearch',
+    'elasticsearch'
   ];
 
 
@@ -66,7 +66,7 @@ define(function getDashConf () {
       'steal': { 'color': '#E24D42', 'alias': 'steal'},
       'nice': { 'color': '#9400D3', 'alias': 'nice' },
       'softirq': { 'color': '#E9967A', 'alias': 'softirq' },
-      'interrupt': { 'color': '#1E90FF', 'alias': 'interrupt' },
+      'interrupt': { 'color': '#1E90FF', 'alias': 'interrupt' }
     },
     'panel': {
       'title': 'CPU',
@@ -74,8 +74,8 @@ define(function getDashConf () {
       'lines': false,
       'bars': true,
       'stack': true,
-      'percentage': true,
-    },
+      'percentage': true
+    }
   };
 
 
@@ -87,26 +87,26 @@ define(function getDashConf () {
       'used': { 'color': '#1F78C1', 'alias': 'used' },
       'cached': { 'color': '#EF843C', 'alias': 'cached' },
       'buffered': { 'color': '#CCA300', 'alias': 'buffered' },
-      'free': { 'color': '#629E51', 'alias': 'free' },
+      'free': { 'color': '#629E51', 'alias': 'free' }
     },
     'panel': {
       'title': 'Memory',
       'y_formats': [ 'bytes' ],
-      'stack': true,
-    },
+      'stack': true
+    }
   };
 
 
   // collectd load plugin configuration
   plugins.load = new Plugin();
 
-  plugins.load.load = {
+  plugins.load.midterm = {
     'graph': {
-      'load': { 'color': '#7B68EE', 'where': "dsname='midterm'", 'alias': 'midterm' },
+      'load_midterm': { 'color': '#7B68EE', 'alias': 'midterm' }
     },
     'panel': {
-      'title': 'Load Average',
-    },
+      'title': 'Load Average'
+    }
   };
 
 
@@ -117,25 +117,25 @@ define(function getDashConf () {
     'graph': {
       'used': { 'color': '#1F78C1', 'alias': 'used' },
       'cached': { 'color': '#EAB839', 'alias': 'cached' },
-      'free': { 'color': '#508642', 'alias': 'free' },
+      'free': { 'color': '#508642', 'alias': 'free' }
     },
     'panel': {
       'title': 'Swap',
       'y_formats': [ 'bytes' ],
-      'stack': true,
-    },
+      'stack': true
+    }
   };
 
   plugins.swap.swapIO = {
     'graph': {
-      'swap_io-in': { 'apply': 'derivative', 'alias': 'in' },
-      'swap_io-out': { 'apply': 'derivative', 'column': 'value*-1', 'alias': 'out' },
+      'in': { 'apply': 'derivative' },
+      'out': { 'apply': 'derivative', 'column': 'value' }
     },
     'panel': {
       'title': 'Swap IO',
       'grid': { 'max': null, 'min': null, 'leftMin': null },
-      'y_formats': [ 'bytes' ],
-    },
+      'y_formats': [ 'bytes' ]
+    }
   };
 
 
@@ -145,51 +145,47 @@ define(function getDashConf () {
 
   plugins.interface.traffic = {
     'graph': {
-      'octets': [
-        {
-          'color': '#447EBC',
-          'where': "dsname='rx'",
-          'alias': 'octets-rx',
-          'apply': 'derivative',
-        },
-        {
-          'color': '#508642',
-          'where': "dsname='tx'",
-          'column': 'value*-1',
-          'alias': 'octets-tx',
-          'apply': 'derivative',
-        },
-      ],
+      'rx': {
+        'color': '#447EBC',
+        'alias': 'octets-rx',
+        'apply': 'derivative',
+        'type': 'if_octets'
+      },
+      'tx': {
+        'color': '#508642',
+        'column': 'value',
+        'alias': 'octets-tx',
+        'apply': 'derivative',
+        'type': 'if_octets'
+      }
     },
     'panel': {
       'title': 'Network Traffic on @metric',
       'y_formats': [ 'bytes' ],
-      'grid': { 'max': null, 'min': null, 'leftMin': null },
-    },
+      'grid': { 'max': null, 'min': null, 'leftMin': null }
+    }
   };
 
   plugins.interface.packets = {
     'graph': {
-      'packets': [
-        {
-          'color': '#447EBC',
-          'where': "dsname='rx'",
-          'alias': 'packets-rx',
-          'apply': 'derivative',
-        },
-        {
-          'color': '#508642',
-          'where': "dsname='tx'",
-          'column': 'value*-1',
-          'alias': 'packets-tx',
-          'apply': 'derivative',
-        },
-      ],
+      'rx': {
+        'color': '#447EBC',
+        'alias': 'octets-rx',
+        'apply': 'derivative',
+        'type': 'if_packets'
+      },
+      'tx': {
+        'color': '#508642',
+        'column': 'value',
+        'alias': 'octets-tx',
+        'apply': 'derivative',
+        'type': 'if_packets'
+      }
     },
     'panel': {
       'title': 'Network Packets on @metric',
-      'grid': { 'max': null, 'min': null, 'leftMin': null },
-    },
+      'grid': { 'max': null, 'min': null, 'leftMin': null }
+    }
   };
 
 
@@ -198,28 +194,28 @@ define(function getDashConf () {
 
   plugins.df.space = {
     'graph': {
-      'complex-used': { 'color': '#447EBC', 'alias': 'space-used' },
-      'complex-reserved': { 'color': '#EAB839', 'alias': 'space-reserved' },
-      'complex-free': { 'color': '#508642', 'alias': 'space-free' },
+      'used': { 'color': '#447EBC' },
+      'reserved': { 'color': '#EAB839' },
+      'free': { 'color': '#508642' }
     },
     'panel': {
       'title': 'Disk space for @metric',
       'y_formats': [ 'bytes' ],
-      'stack': true,
-    },
+      'stack': true
+    }
   };
 
   plugins.df.inode = {
     'graph': {
-      'inodes-used': { 'color': '#447EBC', 'alias': 'inodes-used' },
-      'inodes-reserved': { 'color': '#EAB839', 'alias': 'inodes-reserved' },
-      'inodes-free': { 'color': '#508642', 'alias': 'inodes-free' },
+      'used': { 'color': '#447EBC' },
+      'reserved': { 'color': '#EAB839' },
+      'free': { 'color': '#508642' }
     },
     'panel': {
       'title': 'Disk inodes for @metric',
       'y_formats': [ 'short' ],
-      'stack': true,
-    },
+      'stack': true
+    }
   };
 
 
@@ -230,75 +226,63 @@ define(function getDashConf () {
 
   plugins.disk.diskOps = {
     'graph': {
-      'ops': [
-        {
-          'color': '#447EBC',
-          'where': "dsname='write'",
-          'alias': 'write',
-          'apply': 'derivative',
-        },
-        {
-          'color': '#508642',
-          'where': "dsname='read'",
-          'alias': 'read',
-          'column': 'value*-1',
-          'apply': 'derivative',
-        },
-      ]
+      'read': {
+        'color': '#447EBC',
+        'apply': 'derivative',
+        'type': 'disk_ops'
+      },
+      'write': {
+        'color': '#508642',
+        'column': 'value',
+        'apply': 'derivative',
+        'type': 'disk_ops'
+      }
     },
     'panel': {
       'title': 'Disk Operations for @metric',
-      'grid': { 'max': null, 'min': null, 'leftMin': null },
-    },
+      'grid': { 'max': null, 'min': null, 'leftMin': null }
+    }
   };
 
   plugins.disk.diskOctets = {
     'graph': {
-      'octets': [
-        {
-          'color': '#447EBC',
-          'where': "dsname='write'",
-          'alias': 'write',
-          'apply': 'derivative',
-        },
-        {
-          'color': '#508642',
-          'where': "dsname='read'",
-          'alias': 'read',
-          'column': 'value*-1',
-          'apply': 'derivative',
-        },
-      ],
+      'read': {
+        'color': '#447EBC',
+        'apply': 'derivative',
+        'type': 'disk_octets'
+      },
+      'write': {
+        'color': '#508642',
+        'column': 'value',
+        'apply': 'derivative',
+        'type': 'disk_octets'
+      }
     },
     'panel': {
       'title': 'Disk Traffic for @metric',
       'grid': { 'max': null, 'min': null, 'leftMin': null },
-      'y_formats': [ 'bytes' ],
-    },
+      'y_formats': [ 'bytes' ]
+    }
   };
 
   plugins.disk.diskTime = {
     'graph': {
-      'time': [
-        {
-          'color': '#447EBC',
-          'where': "dsname='write'",
-          'alias': 'write',
-          'apply': 'derivative',
-        },
-        {
-          'color': '#508642',
-          'where': "dsname='read'",
-          'alias': 'read',
-          'column': 'value*-1',
-          'apply': 'derivative',
-        },
-      ],
+      'read': {
+        'color': '#447EBC',
+        'apply': 'derivative',
+        'type': 'disk_time'
+      },
+      'write': {
+        'color': '#508642',
+        'column': 'value',
+        'apply': 'derivative',
+        'type': 'disk_time'
+      }
     },
     'panel': {
       'title': 'Disk Wait for @metric',
-      'grid': { 'max': null, 'min': null, 'leftMin': null },
-    },
+      'grid': { 'max': null, 'min': null, 'leftMin': null }
+    }
   };
 
 
@@ -312,22 +296,22 @@ define(function getDashConf () {
       'stopped': { 'color': '#E9967A', 'alias': 'stopped' },
       'blocked': { 'color': '#890F02', 'alias': 'blocked' },
       'zombies': { 'color': '#E24D42', 'alias': 'zombies' },
-      'paging': { 'color': '#9400D3', 'alias': 'paging' },
+      'paging': { 'color': '#9400D3', 'alias': 'paging' }
     },
     'panel': {
       'title': 'Processes State',
-      'y_formats': [ 'short' ],
-    },
+      'y_formats': [ 'short' ]
+    }
   };
 
   plugins.processes.fork = {
     'graph': {
-      'fork_rate': { 'apply': 'derivative' },
+      'processes': { 'apply': 'derivative', type: 'fork_rate' }
     },
     'panel': {
       'title': 'Processes Fork Rate',
-      'y_formats': [ 'short' ],
-    },
+      'y_formats': [ 'short' ]
+    }
   };
 
 
@@ -336,12 +320,12 @@ define(function getDashConf () {
 
   plugins.entropy.entropy = {
     'graph': {
-      'entropy': { },
+      'entropy': { }
     },
     'panel': {
       'title': 'Entropy',
-      'y_formats': [ 'short' ],
-    },
+      'y_formats': [ 'short' ]
+    }
   };
 
 
@@ -350,11 +334,11 @@ define(function getDashConf () {
 
   plugins.users.users = {
     'graph': {
-      'users': { },
+      'users': { }
     },
     'panel': {
-      'title': 'Users',
-    },
+      'title': 'Users'
+    }
   };
 
 
@@ -363,12 +347,13 @@ define(function getDashConf () {
 
   plugins.uptime.uptime = {
     'graph': {
-      'uptime': { 'alias': 'uptime-days', 'column': 'value/3600/24' },
+      'uptime': { 'alias': 'uptime-days', 'column': 'value' }
+      //'uptime': { 'alias': 'uptime-days', 'column': 'value/3600/24' }
     },
     'panel': {
       'title': 'System Uptime',
-      'y_formats': [ 'short' ],
-    },
+      'y_formats': [ 'short' ]
+    }
   };
 
 

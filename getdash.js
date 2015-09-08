@@ -40,9 +40,9 @@ return function scriptedDashboard (callback) {
       metric: displayMetric,
       time: displayTime,
       title: 'Grafana - Scripted Dashboard for ' + displayHost,
-      // Queries used to get list of all hosts. Query must match series string between
-      // hostname and end of the series string.
-      defaultQueries: [ '/\\/load\\/load$/', ],
+      // Series used to get the list of all hosts
+      // (Some metric that is common for all hosts).
+      defaultQueries: [ 'load_midterm' ]
     };
 
     dash.get(dashConf, callback);
