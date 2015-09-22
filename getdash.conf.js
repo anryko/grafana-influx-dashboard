@@ -971,40 +971,44 @@ define(function getDashConf () {
 
   plugins.nginx.requests = {
     'graph': {
-      'nginx_requests': { 'apply': 'derivative', 'alias': 'requests' },
+      'nginx': {
+        'apply': 'derivative',
+        'alias': 'requests',
+        'type': 'nginx_requests'
+      }
     },
     'panel': {
       'title': 'Nginx Requests',
-      'y_formats': [ 'short' ],
-    },
+      'y_formats': [ 'short' ]
+    }
   };
 
   plugins.nginx.connections = {
     'graph': {
-      'connections-accepted': { 'color': '#1F78C1', 'apply': 'derivative', 'alias': 'accepted' },
-      'connections-handled': { 'color': '#629E51', 'apply': 'derivative', 'alias': 'handled' },
+      'accepted': { 'color': '#1F78C1', 'apply': 'derivative' },
+      'handled': { 'color': '#629E51', 'apply': 'derivative' }
     },
     'panel': {
       'title': 'Nginx Connections',
-      'y_formats': [ 'short' ],
-    },
+      'y_formats': [ 'short' ]
+    }
   };
 
   plugins.nginx.connStates = {
     'graph': {
-      'nginx_connections-active': { 'alias': 'active' },
-      'nginx_connections-reading': { 'alias': 'reading' },
-      'nginx_connections-waiting': { 'alias': 'waiting' },
-      'nginx_connections-writing': { 'alias': 'writing' },
+      'active': { },
+      'reading': { },
+      'waiting': { },
+      'writing': { }
     },
     'panel': {
       'title': 'Nginx Connections States',
-      'y_formats': [ 'short' ],
-    },
+      'y_formats': [ 'short' ]
+    }
   };
 
 
   return {
-    'plugins': plugins,
+    'plugins': plugins
   }; 
 });
