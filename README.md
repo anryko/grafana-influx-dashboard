@@ -5,7 +5,11 @@ Javascript dashboard auto-generation script to mimic comfortable Munin behaviour
 ## Installation
 There is a bash installation script included. Substitute GRAFANA_ROOT_DIR with a path to your Grafana installation (e.g. /opt/grafana).
 ```bash
+# for stable influxdb v0.8
 git clone --depth=1 https://github.com/anryko/grafana-influx-dashboard.git
+# for experimental influxdb v0.9
+git clone -b influxdb_v0.9 --depth=1 https://github.com/anryko/grafana-influx-dashboard.git
+
 cd grafana-influx-dashboard
 ./install.sh GRAFANA_ROOT_DIR
 ```

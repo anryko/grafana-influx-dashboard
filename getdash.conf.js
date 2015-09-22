@@ -701,35 +701,35 @@ define(function getDashConf () {
 
   plugins.elasticsearch.http = {
     'graph': {
-      'http.current_open': { 'alias': 'http-open' },
+      'http.current_open': { 'alias': 'http-open' }
     },
     'panel': {
-      'title': 'ElasticSearch HTTP Open',
-    },
+      'title': 'ElasticSearch HTTP Open'
+    }
   };
 
   plugins.elasticsearch.transportCount = {
     'graph': {
       'transport.rx.count': { 'apply': 'derivative', 'alias': 'transport.rx' },
-      'transport.tx.count': { 'apply': 'derivative', 'column': 'value*-1', 'alias': 'transport.tx' },
+      'transport.tx.count': { 'apply': 'derivative', 'column': 'value', 'alias': 'transport.tx' }
     },
     'panel': {
       'title': 'ElasticSearch Transport Counters',
       'grid': { 'max': null, 'min': null, 'leftMin': null },
-      'y_formats': [ 'short' ],
-    },
+      'y_formats': [ 'short' ]
+    }
   };
 
   plugins.elasticsearch.transportSize = {
     'graph': {
       'transport.rx.size': { 'alias': 'transport.rx' },
-      'transport.tx.size': { 'column': 'value*-1', 'alias': 'transport.tx' },
+      'transport.tx.size': { 'column': 'value', 'alias': 'transport.tx' }
     },
     'panel': {
       'title': 'ElasticSearch Transport Size',
       'grid': { 'max': null, 'min': null, 'leftMin': null },
-      'y_formats': [ 'bytes' ],
-    },
+      'y_formats': [ 'bytes' ]
+    }
   };
 
   plugins.elasticsearch.idxTimes = {
@@ -744,11 +744,11 @@ define(function getDashConf () {
       'indices.refresh.time': { },
       'indices.search.fetch-time': { },
       'indices.search.query-time': { },
-      'indices.store.throttle-time': { },
+      'indices.store.throttle-time': { }
     },
     'panel': {
-      'title': 'ElasticSearch Indices Times',
-    },
+      'title': 'ElasticSearch Indices Times'
+    }
   };
 
   plugins.elasticsearch.idxTotals = {
@@ -762,93 +762,93 @@ define(function getDashConf () {
       'indices.merges.total': { 'apply': 'derivative' },
       'indices.refresh.total': { 'apply': 'derivative' },
       'indices.search.fetch-total': { 'apply': 'derivative' },
-      'indices.search.query-total': { 'apply': 'derivative' },
+      'indices.search.query-total': { 'apply': 'derivative' }
     },
     'panel': {
-      'title': 'ElasticSearch Indices Totals',
-    },
+      'title': 'ElasticSearch Indices Totals'
+    }
   };
 
   plugins.elasticsearch.idxDocs = {
     'graph': {
       'indices.docs.count': { },
-      'indices.docs.deleted': { 'apply': 'derivative' },
+      'indices.docs.deleted': { 'apply': 'derivative' }
     },
     'panel': {
-      'title': 'ElasticSearch Indices Docs',
-    },
+      'title': 'ElasticSearch Indices Docs'
+    }
   };
 
   plugins.elasticsearch.idxCacheEvictions = {
     'graph': {
       'indices.cache.field.eviction': { 'apply': 'derivative' },
-      'indices.cache.filter.evictions': { 'apply': 'derivative' },
+      'indices.cache.filter.evictions': { 'apply': 'derivative' }
     },
     'panel': {
-      'title': 'ElasticSearch Indices Cache Evictions',
-    },
+      'title': 'ElasticSearch Indices Cache Evictions'
+    }
   };
 
   plugins.elasticsearch.jvmHeapPercent = {
     'graph': {
-      'jvm.mem.heap-used-percent': { 'alias': 'jvm-heap-used' },
+      'jvm.mem.heap-used-percent': { 'alias': 'jvm-heap-used' }
     },
     'panel': {
       'title': 'ElasticSearch JVM Heap Usage',
-      'y_formats': [ 'percent' ],
-    },
+      'y_formats': [ 'percent' ]
+    }
   };
 
   plugins.elasticsearch.jvmMemHeap = {
     'graph': {
       'jvm.mem.heap-committed': { 'color': '#508642', 'alias': 'jvm-heap-commited' },
-      'bytes-jvm.mem.heap-used': { 'color': '#447EBC', 'alias': 'jvm-heap-used' },
+      'bytes-jvm.mem.heap-used': { 'color': '#447EBC', 'alias': 'jvm-heap-used' }
     },
     'panel': {
       'title': 'ElasticSearch JVM Heap Memory Usage',
-      'y_formats': [ 'bytes' ],
-    },
+      'y_formats': [ 'bytes' ]
+    }
   };
 
   plugins.elasticsearch.jvmMemNonHeap = {
     'graph': {
       'bytes-jvm.mem.non-heap-committed': { 'color': '#508642', 'alias': 'jvm-non-heap-commited' },
-      'bytes-jvm.mem.non-heap-used': { 'color': '#447EBC', 'alias': 'jvm-non-heap-used' },
+      'bytes-jvm.mem.non-heap-used': { 'color': '#447EBC', 'alias': 'jvm-non-heap-used' }
     },
     'panel': {
       'title': 'ElasticSearch JVM Non Heap Memory Usage',
-      'y_formats': [ 'bytes' ],
-    },
+      'y_formats': [ 'bytes' ]
+    }
   };
 
   plugins.elasticsearch.jvmThreads = {
     'graph': {
       'jvm.threads.peak': { 'color': '#508642' },
-      'jvm.threads.count': { 'color': '#447EBC' },
+      'jvm.threads.count': { 'color': '#447EBC' }
     },
     'panel': {
-      'title': 'ElasticSearch JVM Threads',
-    },
+      'title': 'ElasticSearch JVM Threads'
+    }
   };
 
   plugins.elasticsearch.jvmGCCount = {
     'graph': {
       'jvm.gc.old-count': { 'apply': 'derivative' },
-      'jvm.gc.count': { 'apply': 'derivative' },
+      'jvm.gc.count': { 'apply': 'derivative' }
     },
     'panel': {
-      'title': 'ElasticSearch JVM GC Count',
-    },
+      'title': 'ElasticSearch JVM GC Count'
+    }
   };
 
   plugins.elasticsearch.jvmGCTime = {
     'graph': {
       'jvm.gc.old-time': { 'apply': 'derivative' },
-      'jvm.gc.time': { 'apply': 'derivative' },
+      'jvm.gc.time': { 'apply': 'derivative' }
     },
     'panel': {
-      'title': 'ElasticSearch JVM GC Time',
-    },
+      'title': 'ElasticSearch JVM GC Time'
+    }
   };
 
   plugins.elasticsearch.threadPoolCompleted = {
@@ -863,11 +863,11 @@ define(function getDashConf () {
       'thread_pool.refres._completed': { 'apply': 'derivative' },
       'thread_pool.search.completed': { 'apply': 'derivative' },
       'thread_pool.snapshot.completed': { 'apply': 'derivative' },
-      'thread_pool.warmer.completed': { 'apply': 'derivative' },
+      'thread_pool.warmer.completed': { 'apply': 'derivative' }
     },
     'panel': {
-      'title': 'ElasticSearch Thread Pool Completed',
-    },
+      'title': 'ElasticSearch Thread Pool Completed'
+    }
   };
 
   plugins.elasticsearch.threadPoolRejected = {
@@ -882,11 +882,11 @@ define(function getDashConf () {
       'thread_pool.refresh.rejected': { 'apply': 'derivative' },
       'thread_pool.search.rejected': { 'apply': 'derivative' },
       'thread_pool.snapshot.rejected': { 'apply': 'derivative' },
-      'thread_pool.warmer.rejected': { 'apply': 'derivative' },
+      'thread_pool.warmer.rejected': { 'apply': 'derivative' }
     },
     'panel': {
-      'title': 'ElasticSearch Thread Pool Rejected',
-    },
+      'title': 'ElasticSearch Thread Pool Rejected'
+    }
   };
 
   plugins.elasticsearch.threadPoolAcrive = {
@@ -901,11 +901,11 @@ define(function getDashConf () {
       'thread_pool.refresh.active': { 'apply': 'derivative' },
       'thread_pool.search.active': { 'apply': 'derivative' },
       'thread_pool.snapshot.active': { 'apply': 'derivative' },
-      'thread_pool.warmer.active': { 'apply': 'derivative' },
+      'thread_pool.warmer.active': { 'apply': 'derivative' }
     },
       'panel': {
-      'title': 'ElasticSearch Thread Pool Active',
-    },
+      'title': 'ElasticSearch Thread Pool Active'
+    }
   };
 
   plugins.elasticsearch.threadPoolLargest = {
@@ -920,11 +920,11 @@ define(function getDashConf () {
       'thread_pool.refresh.largest': { },
       'thread_pool.search.largest': { },
       'thread_pool.snapshot.largest': { },
-      'thread_pool.warmer.largest': { },
+      'thread_pool.warmer.largest': { }
     },
       'panel': {
-      'title': 'ElasticSearch Thread Pool Largest',
-    },
+      'title': 'ElasticSearch Thread Pool Largest'
+    }
   };
 
   plugins.elasticsearch.threadPoolQueue = {
@@ -939,11 +939,11 @@ define(function getDashConf () {
       'thread_pool.refresh.queue': { },
       'thread_pool.search.queue': { },
       'thread_pool.snapshot.queue': { },
-      'thread_pool.warmer.queue': { },
+      'thread_pool.warmer.queue': { }
     },
       'panel': {
-      'title': 'ElasticSearch Thread Pool Queue',
-    },
+      'title': 'ElasticSearch Thread Pool Queue'
+    }
   };
 
   plugins.elasticsearch.threadPoolThread = {
@@ -958,11 +958,11 @@ define(function getDashConf () {
       'thread_pool.refresh.threads': { },
       'thread_pool.search.threads': { },
       'thread_pool.snapshot.threads': { },
-      'thread_pool.warmer.threads': { },
+      'thread_pool.warmer.threads': { }
     },
       'panel': {
-      'title': 'ElasticSearch Thread Pool Threads',
-    },
+      'title': 'ElasticSearch Thread Pool Threads'
+    }
   };
 
 
