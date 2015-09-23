@@ -362,7 +362,10 @@ define(function getDashConf () {
 
   plugins.redis.memory = {
     'graph': {
-      'used_memory': { 'color': '#447EBC', 'alias': 'memory-used' }
+      'used_memory': {
+        'color': '#447EBC',
+        'alias': 'memory-used'
+      }
     },
     'panel': {
       'title': 'Redis Memomy',
@@ -608,87 +611,111 @@ define(function getDashConf () {
     'graph': {
       'ack_rate': { 'alias': 'rate-ack' },
       'deliver_rate': { 'alias': 'rate-deliver' },
-      'publish_rate': { 'alias': 'rate-publish' },
+      'publish_rate': { 'alias': 'rate-publish' }
     },
     'panel': {
-      'title': 'RabbitMQ Rates',
-    },
+      'title': 'RabbitMQ Rates'
+    }
   };
 
   plugins.rabbitmq.channels = {
     'graph': {
       'channels': { 'alias': 'channels' },
-      'queues': { 'alias': 'queues' },
+      'queues': { 'alias': 'queues' }
     },
     'panel': {
-      'title': 'RabbitMQ Channels and Queues',
-    },
+      'title': 'RabbitMQ Channels and Queues'
+    }
   };
 
   plugins.rabbitmq.connections = {
     'graph': {
       'connections': { 'alias': 'connections' },
       'consumers': { 'alias': 'consumers' },
-      'exchanges': { 'alias': 'exchanges' },
+      'exchanges': { 'alias': 'exchanges' }
     },
     'panel': {
-      'title': 'RabbitMQ Connections',
-    },
+      'title': 'RabbitMQ Connections'
+    }
   };
 
   plugins.rabbitmq.messages = {
     'graph': {
       'messages_total': { 'alias': 'messages-total' },
       'messages_unack': { 'alias': 'messages-unack' },
-      'messages_ready': { 'alias': 'messages-ready' },
+      'messages_ready': { 'alias': 'messages-ready' }
     },
     'panel': {
       'title': 'RabbitMQ Messages',
-      'y_formats': [ 'short' ],
-    },
+      'y_formats': [ 'short' ]
+    }
   };
 
   plugins.rabbitmq.fd = {
     'graph': {
-      'fd_total': { 'color': '#508642', 'alias': 'fd-total' },
-      'fd_used': { 'color': '#447EBC', 'alias': 'fd-used' },
+      'fd_total': {
+        'color': '#508642',
+        'alias': 'fd-total'
+      },
+      'fd_used': {
+        'color': '#447EBC',
+        'alias': 'fd-used'
+      }
     },
     'panel': {
-      'title': 'RabbitMQ File Descriptors',
-    },
+      'title': 'RabbitMQ File Descriptors'
+    }
   };
 
   plugins.rabbitmq.memory = {
     'graph': {
-      'mem_limit': { 'color': '#508642', 'alias': 'mem-limit' },
-      'mem_used': { 'color': '#447EBC', 'alias': 'mem-used' },
+      'mem_limit': {
+        'color': '#508642',
+        'alias': 'mem-limit'
+      },
+      'mem_used': {
+        'color': '#447EBC',
+        'alias': 'mem-used'
+      }
     },
     'panel': {
       'title': 'RabbitMQ Memory',
-      'y_formats': [ 'bytes' ],
-    },
+      'y_formats': [ 'bytes' ]
+    }
   };
 
   plugins.rabbitmq.proc = {
     'graph': {
-      'proc_total': { 'color': '#508642', 'alias': 'proc-total' },
-      'proc_used': { 'color': '#447EBC', 'alias': 'proc-used' },
+      'proc_total': {
+        'color': '#508642',
+        'alias': 'proc-total'
+      },
+      'proc_used': {
+        'color': '#447EBC',
+        'alias': 'proc-used'
+      }
     },
     'panel': {
       'title': 'RabbitMQ Proc',
-      'y_formats': [ 'short' ],
-    },
+      'y_formats': [ 'short' ]
+    }
   };
 
   plugins.rabbitmq.sockets = {
     'graph': {
-      'sockets_total': { 'color': '#508642', 'alias': 'sockets-total' },
-      'sockets_used': { 'color': '#447EBC', 'alias': 'sockets-used' },
+      'sockets_total': {
+        'color': '#508642',
+        'alias': 'sockets-total'
+      },
+      'sockets_used': {
+        'color': '#447EBC',
+        'alias': 'sockets-used'
+      }
     },
     'panel': {
       'title': 'RabbitMQ Sockets',
-      'y_formats': [ 'short' ],
-    },
+      'y_formats': [ 'short' ]
+    }
   };
 
 
@@ -706,8 +733,15 @@ define(function getDashConf () {
 
   plugins.elasticsearch.transportCount = {
     'graph': {
-      'transport.rx.count': { 'apply': 'derivative', 'alias': 'transport.rx' },
-      'transport.tx.count': { 'apply': 'derivative', 'column': 'value', 'alias': 'transport.tx' }
+      'transport.rx.count': {
+        'apply': 'derivative',
+        'alias': 'transport.rx'
+      },
+      'transport.tx.count': {
+        'apply': 'derivative',
+        'column': 'value',
+        'alias': 'transport.tx'
+      }
     },
     'panel': {
       'title': 'ElasticSearch Transport Counters',
@@ -797,8 +831,14 @@ define(function getDashConf () {
 
   plugins.elasticsearch.jvmMemHeap = {
     'graph': {
-      'jvm.mem.heap-committed': { 'color': '#508642', 'alias': 'jvm-heap-commited' },
-      'bytes-jvm.mem.heap-used': { 'color': '#447EBC', 'alias': 'jvm-heap-used' }
+      'jvm.mem.heap-committed': {
+        'color': '#508642',
+        'alias': 'jvm-heap-commited'
+      },
+      'bytes-jvm.mem.heap-used': {
+        'color': '#447EBC',
+        'alias': 'jvm-heap-used'
+      }
     },
     'panel': {
       'title': 'ElasticSearch JVM Heap Memory Usage',
@@ -808,8 +848,14 @@ define(function getDashConf () {
 
   plugins.elasticsearch.jvmMemNonHeap = {
     'graph': {
-      'bytes-jvm.mem.non-heap-committed': { 'color': '#508642', 'alias': 'jvm-non-heap-commited' },
-      'bytes-jvm.mem.non-heap-used': { 'color': '#447EBC', 'alias': 'jvm-non-heap-used' }
+      'bytes-jvm.mem.non-heap-committed': {
+        'color': '#508642',
+        'alias': 'jvm-non-heap-commited'
+      },
+      'bytes-jvm.mem.non-heap-used': {
+        'color': '#447EBC',
+        'alias': 'jvm-non-heap-used'
+      }
     },
     'panel': {
       'title': 'ElasticSearch JVM Non Heap Memory Usage',
@@ -981,8 +1027,14 @@ define(function getDashConf () {
 
   plugins.nginx.connections = {
     'graph': {
-      'accepted': { 'color': '#1F78C1', 'apply': 'derivative' },
-      'handled': { 'color': '#629E51', 'apply': 'derivative' }
+      'accepted': {
+        'color': '#1F78C1',
+        'apply': 'derivative'
+      },
+      'handled': {
+        'color': '#629E51',
+        'apply': 'derivative'
+      }
     },
     'panel': {
       'title': 'Nginx Connections',
