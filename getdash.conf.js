@@ -362,98 +362,119 @@ define(function getDashConf () {
 
   plugins.redis.memory = {
     'graph': {
-      'used_memory': { 'color': '#447EBC', 'alias': 'memory-used' },
+      'used_memory': { 'color': '#447EBC', 'alias': 'memory-used' }
     },
     'panel': {
       'title': 'Redis Memomy',
-      'y_formats': [ 'bytes' ],
-    },
+      'y_formats': [ 'bytes' ]
+    }
   };
 
   plugins.redis.commands = {
     'graph': {
-      'commands_processed': { 'color': '#447EBC', 'alias': 'commands-processed', 'apply': 'derivative' },
+      'commands_processed': {
+        'alias': 'commands-processed',
+        'apply': 'derivative' }
     },
     'panel': {
-      'title': 'Redis Commands',
-    },
+      'title': 'Redis Commands'
+    }
   };
 
   plugins.redis.connections = {
     'graph': {
-      'connections_received': { 'color': '#447EBC', 'apply': 'derivative', 'alias': 'connections' },
-      'blocked_clients': { 'color': '#E24D42', 'apply': 'derivative', 'alias': 'clients-blocked' },
-      'connected_clients': { 'color': '#508642', 'apply': 'derivative', 'alias': 'clients-connected' },
+      'connections_received': {
+        'color': '#447EBC',
+        'apply': 'derivative',
+        'alias': 'connections'
+      },
+      'blocked_clients': {
+        'color': '#E24D42',
+        'apply': 'derivative',
+        'alias': 'clients-blocked'
+      },
+      'connected_clients': {
+        'color': '#508642',
+        'apply': 'derivative',
+        'alias': 'clients-connected'
+      }
     },
     'panel': {
-      'title': 'Redis Connections',
-    },
+      'title': 'Redis Connections'
+    }
   };
 
   plugins.redis.unsaved = {
     'graph': {
-      'changes_since_last_save': { 'color': '#E24D42', 'alias': 'changes-unsaved' },
+      'changes_since_last_save': {
+        'color': '#E24D42',
+        'alias': 'changes-unsaved' }
     },
     'panel': {
-      'title': 'Redis Unsaved Changes',
-    },
+      'title': 'Redis Unsaved Changes'
+    }
   };
 
   plugins.redis.slaves = {
     'graph': {
-      'connected_slaves': { 'color': '#508642', 'alias': 'slaves-connected' },
+      'connected_slaves': {
+        'color': '#508642',
+        'alias': 'slaves-connected' }
     },
     'panel': {
-      'title': 'Redis Connected Slaves',
-    },
+      'title': 'Redis Connected Slaves'
+    }
   };
 
   plugins.redis.keys = {
     'graph': {
-      'keys': { },
+      'keys': { }
     },
     'panel': {
-      'title': 'Redis DB Keys',
-    },
+      'title': 'Redis DB Keys'
+    }
   };
 
   plugins.redis.replMaster = {
     'graph': {
-      'master_repl_offset': { 'alias': 'master-repl-offset' },
+      'master_repl_offset': { 'alias': 'master-repl-offset' }
     },
     'panel': {
-      'title': 'Redis Replication Master',
-    },
+      'title': 'Redis Replication Master'
+    }
   };
 
   plugins.redis.replBacklogCounters = {
     'graph': {
       'repl_backlog_active': { 'alias': 'backlog' },
-      'repl_backlog_histlen': { 'alias': 'history'},
+      'repl_backlog_histlen': { 'alias': 'history'}
     },
     'panel': {
-      'title': 'Redis Replication Backlog Counters',
-    },
+      'title': 'Redis Replication Backlog Counters'
+    }
   };
 
   plugins.redis.replBacklogSize = {
     'graph': {
       'backlog_first_byte_offset': { 'alias': 'offset' },
-      'repl_backlog_size': { 'alias': 'backlog-size' },
+      'repl_backlog_size': { 'alias': 'backlog-size' }
     },
     'panel': {
       'title': 'Redis Replication Backlog Size',
-      'y_formats': [ 'bytes' ],
-    },
+      'y_formats': [ 'bytes' ]
+    }
   };
 
   plugins.redis.uptime = {
     'graph': {
-      'uptime_in_seconds': { 'color': '#508642', 'alias': 'uptime-hours', 'column': 'value/3600' },
+      'uptime_in_seconds': {
+        'color': '#508642',
+        'alias': 'uptime-seconds',
+        'column': 'value' }
     },
     'panel': {
-      'title': 'Redis Uptime',
-    },
+      'title': 'Redis Uptime'
+    }
   };
 
 
