@@ -854,7 +854,7 @@ define(function getDashConf () {
         'color': '#508642',
         'alias': 'jvm-heap-commited'
       },
-      'bytes-jvm.mem.heap-used': {
+      'jvm.mem.heap-used': {
         'color': '#447EBC',
         'alias': 'jvm-heap-used'
       }
@@ -867,11 +867,11 @@ define(function getDashConf () {
 
   plugins.elasticsearch.jvmMemNonHeap = {
     'graph': {
-      'bytes-jvm.mem.non-heap-committed': {
+      'jvm.mem.non-heap-committed': {
         'color': '#508642',
         'alias': 'jvm-non-heap-commited'
       },
-      'bytes-jvm.mem.non-heap-used': {
+      'jvm.mem.non-heap-used': {
         'color': '#447EBC',
         'alias': 'jvm-non-heap-used'
       }
