@@ -191,12 +191,22 @@ define(function getDashConf () {
 
   // collectd df plugin configuration
   plugins.df = new Plugin();
+  plugins.df.config.multi = true;
 
   plugins.df.space = {
     'graph': {
-      'used': { 'color': '#447EBC' },
-      'reserved': { 'color': '#EAB839' },
-      'free': { 'color': '#508642' }
+      'used': {
+        'color': '#447EBC',
+        'type': 'df_complex'
+      },
+      'reserved': {
+        'color': '#EAB839',
+        'type': 'df_complex'
+      },
+      'free': {
+        'color': '#508642',
+        'type': 'df_complex'
+      }
     },
     'panel': {
       'title': 'Disk space for @metric',
@@ -207,9 +217,18 @@ define(function getDashConf () {
 
   plugins.df.inode = {
     'graph': {
-      'used': { 'color': '#447EBC' },
-      'reserved': { 'color': '#EAB839' },
-      'free': { 'color': '#508642' }
+      'used': {
+        'color': '#447EBC',
+        'type': 'df_inodes'
+      },
+      'reserved': {
+        'color': '#EAB839',
+        'type': 'df_inodes'
+      },
+      'free': {
+        'color': '#508642',
+        'type': 'df_inodes'
+      }
     },
     'panel': {
       'title': 'Disk inodes for @metric',
