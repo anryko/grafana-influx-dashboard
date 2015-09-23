@@ -37,6 +37,12 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   };
 
 
+  // startsOrEndsWith :: Str, targetStr -> Bool
+  var startsOrEndsWith = function (string, target) {
+    return startsWith(string, target) || endsWith(string, target);
+  };
+
+
   // Variables
   var plugins = getdashConf.plugins;
   var datasourcesAll = grafanaConf.datasources;
@@ -123,11 +129,11 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
 
   // seriesFilter :: metricConfObj, metricNameObj, seriesObj -> Bool
   var seriesFilter = _.curry(function seriesFilter (metricConf, metricName, series) {
-    var name = (_.isUndefined(series.type_instance) || _.isEmpty(series.type_instance))
-        ? series.name
+    var type_instance = (_.isUndefined(series.type_instance) || _.isEmpty(series.type_instance))
+        ? 'UNDEFINED'
         : series.type_instance;
-    return startsWith(series.name, metricConf.plugin) && (startsWith(name, metricName) ||
-        endsWith(name, metricName)) && (_.isUndefined(metricConf.regexp) ||
+    return startsWith(series.name, metricConf.plugin) && (startsOrEndsWith(series.name, metricName) ||
+        startsOrEndsWith(type_instance, metricName)) && (_.isUndefined(metricConf.regexp) ||
         metricConf.regexp.test(series.instance));
   });
 

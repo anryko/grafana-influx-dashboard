@@ -462,148 +462,123 @@ define(function getDashConf () {
 
   plugins.memcache.memory = {
     'graph': {
-      'cache': [
-        {
-          'color': '#447EBC',
-          'alias': 'memory-used',
-          'where': "dsname='used'",
-        },
-        {
-          'color': '#508642',
-          'alias': 'momory-free',
-          'where': "dsname='free'"
-        },
-      ],
+      'used': {
+        'color': '#447EBC',
+        'alias': 'used'
+      },
+      'free': {
+        'color': '#508642',
+        'alias': 'free'
+      }
     },
     'panel': {
       'title': 'Memcached Memomy',
       'y_formats': [ 'bytes' ],
-      'stack': true,
-    },
+      'stack': true
+    }
   };
 
   plugins.memcache.connections = {
     'graph': {
-      'connections-current': { 'alias': 'connections' },
+      'current': { 'type': 'memcached_connections' }
     },
     'panel': {
-      'title': 'Memcached Connections',
-    },
+      'title': 'Memcached Connections'
+    }
   };
 
   plugins.memcache.items = {
     'graph': {
-      'items-current': { 'alias': 'items' },
+      'current': { 'type': 'memcached_items' }
     },
     'panel': {
-      'title': 'Memcached Items',
-    },
+      'title': 'Memcached Items'
+    }
   };
 
   plugins.memcache.commands = {
     'graph': {
-      'command-flush': { 'apply': 'derivative', 'alias': 'command-flush' },
-      'command-get': { 'apply': 'derivative', 'alias': 'command-get' },
-      'command-set': { 'apply': 'derivative', 'alias': 'command-set' },
-      'command-touch': { 'apply': 'derivative', 'alias': 'command-touch' },
+      'flush': { 'apply': 'derivative' },
+      'get': { 'apply': 'derivative' },
+      'set': { 'apply': 'derivative' },
+      'touch': { 'apply': 'derivative' }
     },
     'panel': {
-      'title': 'Memcached Commands',
-    },
+      'title': 'Memcached Commands'
+    }
   };
 
   plugins.memcache.octets = {
     'graph': {
-      'octets': [
-        {
-          'color': '#447EBC',
-          'where': "dsname='tx'",
-          'alias': 'octets-tx',
-          'apply': 'derivative',
-        },
-        {
-          'color': '#508642',
-          'where': "dsname='rx'",
-          'alias': 'octets-rx',
-          'column': 'value*-1',
-          'apply': 'derivative',
-        },
-      ],
+      'tx': {
+        'color': '#447EBC',
+        'apply': 'derivative'
+      },
+      'rx': {
+        'color': '#508642',
+        'column': 'value',
+        'apply': 'derivative'
+      }
     },
     'panel': {
       'title': 'Memcached Traffic',
       'y_formats': [ 'bytes' ],
-      'grid': { 'max': null, 'min': null, 'leftMin': null },
-    },
+      'grid': { 'max': null, 'min': null, 'leftMin': null }
+    }
   };
 
   plugins.memcache.operations = {
     'graph': {
-      'ops-hits': { 'apply': 'derivative', 'alias': 'hits' },
-      'ops-misses': { 'apply': 'derivative', 'alias': 'misses' },
-      'ops-evictions': { 'apply': 'derivative', 'alias': 'evictions' },
-      'ops-incr_hits': { 'apply': 'derivative', 'alias': 'incr-hits' },
-      'ops-decr_hits': { 'apply': 'derivative', 'alias': 'decr-hits' },
-      'ops-incr_misses': { 'apply': 'derivative', 'alias': 'incr-misses' },
-      'ops-decr_misses': { 'apply': 'derivative', 'alias': 'decr-misses' },
-
+      'hits': { 'apply': 'derivative' },
+      'misses': { 'apply': 'derivative' },
+      'evictions': { 'apply': 'derivative' },
+      'incr_hits': { 'apply': 'derivative' },
+      'decr_hits': { 'apply': 'derivative' },
+      'incr_misses': { 'apply': 'derivative' },
+      'decr_misses': { 'apply': 'derivative' }
     },
     'panel': {
-      'title': 'Memcached Operations',
-    },
+      'title': 'Memcached Operations'
+    }
   };
 
   plugins.memcache.hits = {
     'graph': {
-      'percent-hitratio': { 'alias': 'hitratio' },
+      'hitratio': { }
     },
     'panel': {
       'title': 'Memcached Hitratio',
-      'y_formats': [ 'percent' ],
-    },
+      'y_formats': [ 'percent' ]
+    }
   };
 
   plugins.memcache.ps = {
     'graph': {
-      'ps_count': [
-        {
-          'alias': 'processes',
-          'where': "dsname='processes'",
-        },
-        {
-          'alias': 'threads',
-          'where': "dsname='threads'",
-        },
-      ],
+      'processes': { },
+      'threads': { }
     },
     'panel': {
-      'title': 'Memcached Process Stats',
-    },
+      'title': 'Memcached Process Stats'
+    }
   };
+
 
   plugins.memcache.cpu = {
     'graph': {
-      'ps_cputime': [
-        {
-          'color': '#EAB839',
-          'alias': 'system',
-          'where': "dsname='syst'",
-          'apply': 'derivative',
-        },
-        {
-          'color': '#508642',
-          'alias': 'user',
-          'where': "dsname='user'",
-          'apply': 'derivative',
-        },
-      ],
+      'syst': {
+        'color': '#EAB839',
+        'apply': 'derivative'
+      },
+      'user': {
+        'color': '#508642',
+        'apply': 'derivative'
+      }
     },
     'panel': {
       'title': 'Memcached CPU Time',
-      'stack': true,
-    },
+      'stack': true
+    }
   };
-
 
   // collectd rabbitmq plugin configuration: https://github.com/kozdincer/rabbitmq_collectd_plugin
   plugins.rabbitmq = new Plugin({ 'alias': 'rabbitmq' });
