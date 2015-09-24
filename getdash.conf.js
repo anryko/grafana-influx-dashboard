@@ -56,6 +56,7 @@ define(function getDashConf () {
 
   // collectd cpu plugin configuration
   plugins.cpu = new Plugin();
+  plugins.cpu.config.merge = [ 'instance' ];
 
   plugins.cpu.cpu = {
     'graph': {

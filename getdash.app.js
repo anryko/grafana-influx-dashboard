@@ -162,24 +162,69 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   };
 
 
+  // mergeSeries :: [Str], [seriesObj] -> mod [seriesObj]
+  var mergeSeries = function (series, delKeys) {
+    return _.uniq(_.map(series, function (s) {
+      _.map(delKeys, function (k) {
+        if (_.isUndefined(s[k]))
+          return s;
+
+        delete(s[k]);
+        return s;
+      });
+      return s;
+    }), JSON.stringify);
+  };
+  //console.assert(_.isEqual(
+  //   mergeSeries([{
+  //       source: 'ops',
+  //       name: 'cpu_value',
+  //       instance: '0',
+  //       interval: '1m',
+  //       host: 'vagrant-ubuntu-trusty-64',
+  //       type: 'cpu',
+  //       type_instance: 'system'
+  //     }, {
+  //       source: 'ops',
+  //       name: 'cpu_value',
+  //       instance: '1',
+  //       interval: '1m',
+  //       host: 'vagrant-ubuntu-trusty-64',
+  //       type: 'cpu',
+  //       type_instance: 'system'
+  //     }], [ 'instance', 'type' ]),
+  //   [{
+  //     source: 'ops',
+  //     name: 'cpu_value',
+  //     interval: '1m',
+  //     host: 'vagrant-ubuntu-trusty-64',
+  //     type_instance: 'system'
+  //   }]
+  // ), "mergeSeries is broken.");
+
+
   // addSeriesToMetricGraphs :: seriesObj, metricConfObj -> new metricConfObj
   var addSeriesToMetricGraphs = _.curry(function addSeriesToMetricGraphs (series, metricConf) {
     // seriesThisFilter :: graphNameStr -> [seriesObj]
     var seriesThisFilter = seriesFilter(metricConf);
     var graphSeries = _.reduce(metricConf.graph, function (newConf, graphConf, graphName) {
       var matchedSeries = _.filter(series, seriesThisFilter(graphName));
-      if (_.isEmpty(matchedSeries))
+      var readySeries = (_.isUndefined(metricConf.merge))
+          ? matchedSeries
+          : mergeSeries(matchedSeries, metricConf.merge);
+
+      if (_.isEmpty(readySeries))
         return newConf;
 
       if (_.isArray(graphConf))
         newConf.graph[graphName] = _.map(_.range(graphConf.length), function () {
           return {
-            series: matchedSeries
+            series: readySeries
           };
         });
       else
         newConf.graph[graphName] = {
-          series: matchedSeries
+          series: readySeries
         };
 
       return newConf;
@@ -222,6 +267,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
                      addInstancesToMetric,
                      addSourcesToMetric,
                      addSeriesToMetricGraphs(series),
+                     addProperty('merge', plugin.config.merge),
                      addProperty('regexp', plugin.config.regexp),
                      addProperty('separator', plugin.config.separator),
                      addProperty('pluginAlias', plugin.config.alias),
@@ -365,7 +411,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
       return panel;
 
     var p = _.merge({}, panelProto, panel);
-    delete p.config; // no need in config after panel complected.
+    delete p.config;  // no need in config after panel complected.
     return p;
   };
 
@@ -397,7 +443,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
     var errors = _.filter(panels, isError);
     if (!_.isEmpty(errors))
       _.map(errors, function (e) {
-        console.error(e.toString());
+        console.warn(e.toString());
       });
     return _.reject(panels, isError);
   };
@@ -762,7 +808,6 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
         return _.map(kk, function (k) {
           var series = {
             source: ds,
-            key: k,
             interval: interval
           };
           return _.merge({}, getSeries(k), series);
