@@ -1,19 +1,18 @@
 # Grafana InfluxDB scripted dashboard
 
-Javascript dashboard auto-generation script to mimic comfortable Munin behaviour in Grafana. Main project goal is to be able to see all the stats for the added machine in one dashboard (to have possibility to add auto-generated URL to the existing monitoring system alarm notification for faster incident investigation). Project is written and tested with CollectD->InfluxDB+(input_plugins.collectd) as a system stats collector but with minor configuration changes should be collector independent. For Grafana+InfluxDB setup I recommend to look in to [docker-influxdb](https://github.com/StackPointCloud/docker-influxdb).
+Javascript dashboard auto-generation script to mimic comfortable Munin behaviour in Grafana. Main project goal is to be able to see all the stats for the added machine in one dashboard (to have possibility to add auto-generated URL to the existing monitoring system alarm notification for faster incident investigation). Project is written and tested with CollectD->InfluxDB+(input_plugins.collectd) as a system stats collector but with minor configuration changes should be collector independent.
 
 ## Installation
-There is a bash installation script included. Substitute GRAFANA_ROOT_DIR with a path to your Grafana installation (e.g. /opt/grafana).
+There is a bash installation script included. Substitute GRAFANA_ROOT_DIR with a path to your Grafana installation (e.g. /usr/share/grafana).
 ```bash
-# for stable influxdb v0.8
+# for influxdb v0.8
+git clone -b influxdb_v0.8 --depth=1 https://github.com/anryko/grafana-influx-dashboard.git
+# for influxdb v0.9
 git clone --depth=1 https://github.com/anryko/grafana-influx-dashboard.git
-# for experimental influxdb v0.9
-git clone -b influxdb_v0.9 --depth=1 https://github.com/anryko/grafana-influx-dashboard.git
 
 cd grafana-influx-dashboard
 ./install.sh GRAFANA_ROOT_DIR
 ```
-_In deb package default install it should be /usr/share/grafana_
 
 ## Usage examples
 ```
@@ -63,37 +62,26 @@ This HOWTO will guide you through initial script configuration and example of ad
 #### Initial getdash.js script configuration
 Grafana datasource configuration is used for InfluxDB backend requests.
 
-#### Plugin/metric configuration
-If you don't use CollectD or your series prefix is not 'collectd.' you will have to change ``prefix`` in Plugin Config Prototype object in getdash.conf.js file. Other two options you should pay attention to are ``separator`` and ``datasources``. CollectD default separator is ``/``, however if you use write_graphite plugin for CpllectD your separator might be a ``.``. By default getdash will use all datasources configured in Grafana, however in some circumstances you might want to use only specific datasource(s) for your dashboard and ``datasources`` is the property to configure that.
-```javascript
-  var pluginConfProto = {
-    'alias': undefined,
-    //'prefix': 'collectd.',
-    'separator': '/',
-    //'datasources': [ 'collectd' ],
-  };
-```
-_In my case I don't use prefix at all and do use all of the Grafana datasources so ``prefix`` and ``datasources`` are commented out_).
-
 #### New plugin configuration
-Lets assume you have some metric in your InfluxDB and you want it to be displayed. Before starting plugin configuration you will need *hostname* and *metricname*. For this demonstration I will use *\<hostname\>* and *disk* accordingly.
-First you get metric names if you don't already know them.
+Lets assume you have some metric in your InfluxDB and you want it to be displayed. Before starting plugin configuration you will need *hostname*, *series* and *type_instance*. For this demonstration I will use *\<hostname\>*, *disk_read*/*disk_write* and *disk_ops* accordingly. If you are not sure about *series* you can list all host series by querying your InfluxDB:
 ```bash
-curl -sG "http://<influxIP>:8086/db/<DBname>/series?u=root&p=root" --data-urlencode "q=select * from /<hostname>\/disk/ limit 1" | python -m json.tool | grep name | grep ops
+curl -sG 'http://<influxIP>:8086/query' --data-urlencode "db=collectd" --data-urlencode "q=show series where host = '<hostname>';" | python -m json.tool | grep "\"name\":"
+                    "name": "cpu_value",
+                    "name": "df_value",
+                    "name": "disk_read",
+                    "name": "disk_write",
+                    ...
 ```
-<sub>_This example is for InfluxDB v0.8. In v0.9 query syntax will differ._</sub>
-
-Output will be something like this.
-```json
-        "name": "hostname/disk-vda/disk_ops",
-        "name": "hostname/disk-vda/disk_ops",
-        "name": "hostname/disk-vda1/disk_ops",
-        "name": "hostname/disk-vda1/disk_ops",
-        "name": "hostname/disk-vda2/disk_ops",
-        "name": "hostname/disk-vda2/disk_ops",
+And get other available parameters:
+```bash
+curl -sG 'http://<influxIP>:8086/query' --data-urlencode "db=collectd" --data-urlencode "q=show series from /disk_.*/ where host = '<hostname>';" | python -m json.tool | grep "host="
+                            "disk_read,host=<hostname>,instance=sda,type=disk_merged",
+                            "disk_read,host=<hostname>,instance=sda,type=disk_octets",
+                            "disk_read,host=<hostname>,instance=sda,type=disk_ops",
+                            ...
 ```
 
-To configure plugin for those metric you need to add this configuration to your getdash.conf.js.
+To configure plugin for selected metrics you need to add following configuration to your getdash.conf.js.
 ```javascript
 // collectd disk plugin configuration
 plugins.disk = new Plugin();
@@ -102,26 +90,22 @@ plugins.disk.config.regexp = /\d$/;
 
 plugins.disk.diskOps = {
   'graph': {
-    'ops': [
-      {
-        'color': '#447EBC',
-        'where': "dsname='write'",
-        'alias': 'write'
-        'apply': 'derivative',
-      },
-      {
-        'color': '#508642',
-        'where': "dsname='read'",
-        'alias': 'read',
-        'column': 'value*-1',
-        'apply': 'derivative',
-      },
-    ]
+    'read': {
+      'color': '#447EBC',
+      'apply': 'derivative',
+      'type': 'disk_ops'
+    },
+    'write': {
+      'color': '#508642',
+      'column': 'value',
+      'apply': 'derivative',
+      'type': 'disk_ops'
+    }
   },
   'panel': {
     'title': 'Disk Operations for @metric',
-    'grid': { 'max': null, 'min': null, 'leftMin': null },
-  },
+    'grid': { 'max': null, 'min': null, 'leftMin': null }
+  }
 };
 ```
 
@@ -130,63 +114,43 @@ OK. So let's go line by line and I'll explain what was done here. Firs you creat
 plugins.disk = new Plugin();
 ```
 
-Next you define that this plugin can have multiple metrics because there are probably multiple disks/partitions on your system. In this example we have disk-vda, disk-vda1 and disk-vda2.
+Next you define that this plugin have multiple metrics split in separate graphs. There are probably multiple disks/partitions on your system. In this example I have sda, sda1 and sda2.
 ```javascript
 plugins.disk.config.multi = true;
 ```
 <sub>_For something like memory, where you have just one metric per host you wouldn't need to setup that._</sub>
 
-Because we actually want to see only disk-vda1, disk-vda2 on our graphs (disk-vda and disk-vda1 are identical in my case) we apply a regular expression to match the metric. In this case I want to see only metrics with the digit at the end.
+Because we actually want to see only sda1, sda2 on our graphs (sda and sda1 are identical in my case) we apply a regular expression to match the metric. In this case I want to see only metrics with digit at the end.
 ```javascript
 plugins.disk.config.regexp = /\d$/;
 ```
 
-Next we configure "Disk IO" graph itself. We want to see **ops.write** and **ops.read**. To do that we need to understand how data is actually contained in our InfluxDB table. Essentially there are columns and points:
-```bash
-curl -sG "http://<influxIP>:8086/db/<DBname>/series?u=root&p=root" --data-urlencode "q=select * from /<hostname>\/disk.*\/disk_ops/ limit 1" | python -c 'import sys, json; print json.load(sys.stdin)[0]["columns"]'
-```
-```javascript
-[u'time', u'sequence_number', u'plugin', u'plugin_instance', u'type', u'type_instance', u'dsname', u'dstype', u'value', u'host']
-```
-```bash
-curl -sG "http://<influxIP>:8086/db/<DBname>/series?u=root&p=root" --data-urlencode "q=select * from /<hostname>\/disk.*\/disk_ops/ limit 1" | python -c 'import sys, json; print json.load(sys.stdin)[0]["points"]'
-```
-```javascript
-[[1438332413000, 10554650500001, u'derive', 36404719.0, u'lab3', u'disk', u'vda', u'disk_ops', u'', u'write']]
-```
-Column name matches the point data.
-What we want is to get the info for two graphs (**write** and **read**).
+Next we configure "Disk IO" graph itself. We want to see **disk_read** and **disk_write** for **type=disk_ops**.
 
-So lets summarise: We need data points from disk_ops metric with two different **dsname**s (**write** and **read**).
-
-Now lets describe this in the graph configuration. ``graph`` defines that we are configuring a graph :). ``ops`` describes the metric we want and must match the ending of the metric name **disk_ops** in our seriues **hostname/disk-vda/disk_ops**. Inside that series we have two graphs and to describe that we use an array with two configuration objects, each with different ``color``, ``alias`` (this will show up on the graph instead of full metric name) and **dsname** which we describe using ``where`` keyword. From the plugin column in curl query output we can see that data is u'derive', this means that to make graphs meaningful we have to apply Grafanas 'derivative(value)' function which we do with ``apply`` keyword. Another neat thing we want to do i to show disk reads as negative (upside-down) graph and to describe that we multiply the column value by -1 using ``column`` keyword.
-```javascript
-plugins.disk.diskIO = {
+Now lets describe this in the graph configuration. ``graph`` defines that we are configuring a graph :). ``read`` and ``write`` objects describe the series we want to graph. Those should match begining/ending of the series name or type_instance. Inside those graph configurations we define ``type`` to distinguish particular type of disk_read/write series we want to graph. Then we add ``color`` we want and InfluxDB function on the stored value with the ``apply`` keyword.
+```bash
+plugins.disk.diskOps = {
   'graph': {
-    'ops': [
-      {
-        'color': '#447EBC',
-        'where': "dsname='write'",
-        'alias': 'write'
-        'apply': 'derivative',
-      },
-      {
-        'color': '#508642',
-        'where': "dsname='read'",
-        'alias': 'read',
-        'column': 'value*-1',
-        'apply': 'derivative',
-      },
-    ]
+    'read': {
+      'color': '#447EBC',
+      'apply': 'derivative',
+      'type': 'disk_ops'
+    },
+    'write': {
+      'color': '#508642',
+      'column': 'value',
+      'apply': 'derivative',
+      'type': 'disk_ops'
+    }
   },
 ```
 Supported configuration keys are:
 
  * *color* - if not defined color will be random
- * *alias* - to change metric name on the graph
- * *column* - used to manipulate the graph (in this case we want to make it upside-down so we multiply values by -1)
- * *apply* - used to apply InfluxDB SQL value function (e.g. max, min, cont, etc.)
- * *where* - used in case when you have multiple graphs per series
+ * *alias* - used to change metric name on the graph
+ * *column* - used to define requested column
+ * *apply* - used to apply InfluxDB SQL value function (e.g. max, min, count, etc.)
+ * *type* - used in case when you have multiple graphs per series
 
 Next we define Panel title and grid.
 ```javascript
@@ -195,33 +159,34 @@ Next we define Panel title and grid.
     'grid': { 'max': null, 'min': null, 'leftMin': null },
   },
 };
-
 ```
-*@metric* is a special keyword which will be substituted with disk-vda1 and disk-vda2 dinamically.
+*@metric* is a special keyword which will be substituted with sda1 and sda2 dynamically.
 
 This should be sufficient introduction to start adding your own metrics as needed. It was one of the most feature reach examples. Usually configuration is much more straightforward. Like this config for memcached.
 ```javascript
 // collectd memcached plugin configuration
 plugins.memcache = new Plugin();
 
-plugins.memcache.items = {
+plugins.memcache.hits = {
   'graph': {
-    'items-current': { 'color': '#447EBC', 'alias': 'items' },
+    'hitratio': { }
   },
   'panel': {
-    'title': 'Memcached Items',
-  },
+    'title': 'Memcached Hitratio',
+    'y_formats': [ 'percent' ]
+  }
 };
 
 plugins.memcache.commands = {
-  'graph': {
-    'command-flush': { },
-    'command-get': { },
-    'command-set': { },
-    'command-touch': { },
+'graph': {
+    'flush': { 'apply': 'derivative' },
+    'get': { 'apply': 'derivative' },
+    'set': { 'apply': 'derivative' },
+    'touch': { 'apply': 'derivative' }
   },
   'panel': {
-    'title': 'Memcached Commands',
-  },
+    'title': 'Memcached Commands'
+  }
 };
 ```
+If you understand your data and how it is structured inside database you should be able to describe it as a plugin configuration with current feature set. If you are having any troubles with that feel free to register an Issue and I'll try to help.
