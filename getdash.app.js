@@ -773,6 +773,18 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   };
 
 
+  // parseResp :: [jsonObj] -> [Str]
+  var parseResp = function parseResp (resp) {
+    return _.map(resp, function (res) {
+      var series = res.results[0].series;
+      if (_.isUndefined(series))
+        return;
+
+      return _.pluck(series, 'values');
+    });
+  };
+
+
   // getDashboard :: [datasources], pluginsObj, dashConfObj,
   //                 grafanaCallbackFunc -> grafanaCallbackFunc(dashboardObj)
   var getDashboard = _.curry(function getDashboard (datasources, plugins, dashConf, callback) {
@@ -784,8 +796,9 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
 
     if (!dashConf.host) {
       var queriesForDDash = getQueriesForDDash(datasources, dashConf.defaultQueries);
-      getDBData(queriesForDDash).then(function (json) {
-        var hosts = _.flatten(json[0].results[0].series[0].values);
+      getDBData(queriesForDDash).then(function (resp) {
+        var hosts = _.uniq(_.flatten(_.compact(parseResp(resp))));
+
         return callback(setupDefaultDashboard(hosts, dashboard));
       });
       return;
@@ -794,15 +807,21 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
     var dashPlugins = pickPlugins(plugins, dashConf.metric);
     var dashQueries = getQueries(dashConf.host, datasources, dashPlugins);
 
-    getDBData(dashQueries).then(function (json) {
+    getDBData(dashQueries).then(function (resp) {
       var datasources = _.pluck(dashQueries, 'datasource');
-      var series = json[0].results[0].series;
-      var values = _.pluck(series, 'values');
-      var keys = [ _.flatten(_.map(values, function (v) {
-        return _.map(v, _.first);
-      })) ];
+      var values = parseResp(resp);
+
+      var keys = _.map(values, function (val) {
+        if (_.isUndefined(val))
+            return;
+
+        return _.flatten(_.map(val, function (v) {
+          return _.map(v, _.first);
+        }));
+      });
+
       var dsKeys = _.zip(datasources, keys);
-      var r = _.flatten(_.map(dsKeys, function (dsKey) {
+      var series = _.flatten(_.map(dsKeys, function (dsKey) {
         var ds = dsKey[0];
         var kk = dsKey[1];
         return _.map(kk, function (k) {
@@ -813,7 +832,8 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
           return _.merge({}, getSeries(k), series);
         });
       }));
-      dashboard.rows = getRows(dashPlugins, r);
+
+      dashboard.rows = getRows(dashPlugins, series);
       return callback(dashboard);
     });
   });
