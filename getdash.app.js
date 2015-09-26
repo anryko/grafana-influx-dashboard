@@ -545,7 +545,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
     var hostsLinks = _.reduce(hostsAll, function (string, host) {
       return string + '\n\t\t\t<li>\n\t\t\t\t<a href="' +
         window.location.href + '?host=' + host +
-        '" onclick="window.location=this.href;window.location.reload();">' +
+        '" onclick="window.location.href=this.href;">' +
         host + '</a>\n\t\t\t</li>';
     }, '');
 
