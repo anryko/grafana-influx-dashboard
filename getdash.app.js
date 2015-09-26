@@ -152,16 +152,6 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   });
 
 
-  // addInstanceToSeries :: seriesObj, separatorStr, nameStr -> new seriesObj
-  var addInstanceToSeries = function addInstanceToSeries (series, separator, name) {
-    var instancePositionRight = name.split(separator).length + 1;
-    return _.map(series, function (obj) {
-      obj.instance = obj.name.split(separator).slice(-instancePositionRight)[0];
-      return obj;
-    });
-  };
-
-
   // mergeSeries :: [Str], [seriesObj] -> mod [seriesObj]
   var mergeSeries = function (series, delKeys) {
     return _.uniq(_.map(series, function (s) {
@@ -530,6 +520,12 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   var getQueriesForDDash = _.curry(function getQueriesForDDash (datasources, queries) {
     return _.flatten(_.map(datasources, function (ds) {
       return _.map(queries, function (query) {
+        if (_.isUndefined(ds.database))
+          return {
+            datasource: ds.name,
+            url: ds.url + '/query?q=' + encodeURIComponent('SHOW TAG VALUES WITH KEY = host;')
+          };
+
         return {
           datasource: ds.name,
           url: ds.url + '/query?db=' + ds.database + '&u=' + ds.username + '&p=' + ds.password +
@@ -695,6 +691,13 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   var getDSQueryArr = _.curry(function getDSQueryArr (hostName, queryConfigs) {
     return _.flatten(_.map(queryConfigs, function (qConf) {
       return _.map(qConf.datasources, function (ds) {
+        if (_.isUndefined(ds.database))
+          return {
+            datasource: ds.name,
+            url: ds.url + '/query?q=' + fixedEncodeURIComponent('SHOW SERIES FROM /' +
+                qConf.regexp + '.*/ ' + 'WHERE host = \'' + hostName + '\';')
+          };
+
         return {
           datasource: ds.name,
           url: ds.url + '/query?db=' + ds.database + '&u=' + ds.username +
