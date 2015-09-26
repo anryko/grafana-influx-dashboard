@@ -39,7 +39,7 @@ return function scriptedDashboard (callback) {
       host: displayHost,
       metric: displayMetric,
       time: displayTime,
-      title: 'Grafana - Scripted Dashboard for ' + displayHost,
+      title: 'Scripted Dashboard for ' + displayHost,
       // Series used to get the list of all hosts
       // (Some metric that is common for all hosts).
       defaultQueries: [ 'load_midterm' ]

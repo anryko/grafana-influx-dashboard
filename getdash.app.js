@@ -577,7 +577,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
       ]
     });
 
-    dashboard.title = 'Grafana - Scripted Dashboard';
+    dashboard.title = 'Scripted Dashboard';
     dashboard.rows = [ rowDocs, rowHosts ];
     return dashboard;
   };
