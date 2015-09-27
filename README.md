@@ -66,9 +66,9 @@ This HOWTO will guide you through initial script configuration and example of ad
 Grafana datasource configuration is used for InfluxDB backend requests.
 
 #### New plugin configuration
-Lets assume you have some metric in your InfluxDB and you want it to be displayed. Before starting plugin configuration you will need *hostname*, *series* and *type_instance*. For this demonstration I will use *\<hostname\>*, *disk_read*/*disk_write* and *disk_ops* accordingly. If you are not sure about *series* you can list all host series by querying your InfluxDB:
+Lets assume you have some metric in your InfluxDB and you want it to be displayed. Before starting plugin configuration you will need *hostname*, *series* and *type*. For this demonstration I will use *\<hostname\>*, *disk_read*/*disk_write* and *disk_ops* accordingly. If you are not sure about *series* you can list all host series by querying your InfluxDB:
 ```bash
-curl -sG 'http://<influxIP>:8086/query' --data-urlencode "db=collectd" --data-urlencode "q=show series where host = '<hostname>';" | python -m json.tool | grep "\"name\":"
+curl -sG 'http://<influxIP>:8086/query?pretty=true' --data-urlencode "db=collectd" --data-urlencode "q=SHOW SERIES WHERE host = '<hostname>';" | grep "\"name\":"
                     "name": "cpu_value",
                     "name": "df_value",
                     "name": "disk_read",
@@ -77,7 +77,7 @@ curl -sG 'http://<influxIP>:8086/query' --data-urlencode "db=collectd" --data-ur
 ```
 And get other available parameters:
 ```bash
-curl -sG 'http://<influxIP>:8086/query' --data-urlencode "db=collectd" --data-urlencode "q=show series from /disk_.*/ where host = '<hostname>';" | python -m json.tool | grep "host="
+curl -sG 'http://<influxIP>:8086/query?pretty=true' --data-urlencode "db=collectd" --data-urlencode "q=SHOW SERIES FROM /disk_.*/ WHERE host = '<hostname>';" | grep "host="
                             "disk_read,host=<hostname>,instance=sda,type=disk_merged",
                             "disk_read,host=<hostname>,instance=sda,type=disk_octets",
                             "disk_read,host=<hostname>,instance=sda,type=disk_ops",
