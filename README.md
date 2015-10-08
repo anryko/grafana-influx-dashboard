@@ -28,30 +28,28 @@ http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=load&time=7d
 
 ## Features
 #### Supported metrics
-```
-cpu
-load
-memory
-swap
-interface
-df
-disk
-processes
-entropy
-users
-uptime
-redis
-memcache
-rabbitmq
-elasticsearch
-nginx
-```
+* [cpu](https://collectd.org/wiki/index.php/Plugin:CPU)
+* [load](https://collectd.org/wiki/index.php/Plugin:Load)
+* [memory](https://collectd.org/wiki/index.php/Plugin:Memory)
+* [swap](https://collectd.org/wiki/index.php/Plugin:Swap)
+* [interface](https://collectd.org/wiki/index.php/Plugin:Interface)
+* [df](https://collectd.org/wiki/index.php/Plugin:DF)
+* [disk](https://collectd.org/wiki/index.php/Plugin:Disk)
+* [processes](https://collectd.org/wiki/index.php/Plugin:Processes)
+* [entropy](https://collectd.org/wiki/index.php/Plugin:Entropy)
+* [users](https://collectd.org/wiki/index.php/Plugin:Users)
+* [uptime](https://collectd.org/wiki/index.php/Plugin:Uptime)
+* [redis](https://github.com/powdahound/redis-collectd-plugin)
+* [memcache](https://collectd.org/wiki/index.php/Plugin:memcached)
+* [rabbitmq](https://github.com/kozdincer/rabbitmq_collectd_plugin)
+* [elasticsearch](https://github.com/phobos182/collectd-elasticsearch)
+* [nginx](https://collectd.org/wiki/index.php/Plugin:nginx)
+
 #### Supported metric groups
-```
-system
-middleware
-database
-```
+* system
+* middleware
+* database
+
 #### Supported time format
 ```
 /(\d+)(m|h|d)/
