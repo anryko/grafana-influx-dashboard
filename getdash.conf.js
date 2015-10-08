@@ -40,7 +40,8 @@ define(function getDashConf () {
     'processes',
     'entropy',
     'users',
-    'uptime'
+    'uptime',
+    'connstate'
   ];
   plugins.groups.middleware = [
     'redis',
@@ -1071,6 +1072,31 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Nginx Connections States',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+
+  // collectd connstate plugin configuration: https://github.com/anryko/connstate-collectd-plugin
+  plugins.connstate = new Plugin({ 'alias': 'connstate' });
+  plugins.connstate.config.merge = [ 'instance' ];
+
+  plugins.connstate.connStates = {
+    'graph': {
+      'syn_sent': { 'apply': 'sum' },
+      'syn_recv': { 'apply': 'sum' },
+      'established': { 'apply': 'sum' },
+      'time_wait': { 'apply': 'sum' },
+      'close': { 'apply': 'sum' },
+      'fin_wait1': { 'apply': 'sum' },
+      'fin_wait2': { 'apply': 'sum' },
+      'close_wait': { 'apply': 'sum' },
+      'last_ack': { 'apply': 'sum' },
+      'closing': { 'apply': 'sum' },
+      'listen': { 'apply': 'sum' }
+    },
+    'panel': {
+      'title': 'Network Connections States',
       'y_formats': [ 'short' ]
     }
   };

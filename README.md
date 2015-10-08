@@ -46,6 +46,7 @@ http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=load&time=7d
 * [rabbitmq](https://github.com/kozdincer/rabbitmq_collectd_plugin)
 * [elasticsearch](https://github.com/phobos182/collectd-elasticsearch)
 * [nginx](https://collectd.org/wiki/index.php/Plugin:nginx)
+* [connstate](https://github.com/anryko/connstate-collectd-plugin)
 
 #### Supported metric groups
 * system
