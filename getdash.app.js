@@ -547,7 +547,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
 
     var rowProto = {
       'title': 'Default',
-      'height': '90px',
+      'height': '30px',
       'panels': [
         {
           'title': '',
@@ -563,7 +563,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
       'title': 'Docs',
       'panels': [
         {
-          'content': '<div class="row-fluid">\n\t<div class="span12">\n\t\t<h4>Grafana InfluxDB Scripted Dashboard Documentation</h4>\n\t\t<ul>\n\t\t\t<li>\n\t\t\t\t<a href="https://github.com/anryko/grafana-influx-dashboard">GitHub</a>\n\t\t\t</li>\n\t</div>\n</div>'
+          'content': '<div class="row-fluid">\n\t<div class="span12">\n\t\t<a href="https://github.com/anryko/grafana-influx-dashboard"><h4>Grafana InfluxDB Scripted Dashboard Documentation</h4></a>\n\t</div>\n</div>'
         }
       ]
     });
@@ -578,7 +578,10 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
     });
 
     dashboard.title = 'Scripted Dashboard';
-    dashboard.rows = [ rowDocs, rowHosts ];
+    dashboard.rows = [
+      rowHosts,
+      rowDocs
+    ];
     return dashboard;
   };
 
