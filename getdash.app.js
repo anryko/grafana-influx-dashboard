@@ -277,10 +277,12 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
     });
     var tags = _.map(tagObjs, function (v, k) {
       return {
+        condition: "AND",
         key: k,
         value: v
       };
     });
+    delete tags[0].condition;
     var target = {
       alias: (metricConf.pluginAlias || series.type || series.name) +
         (series.instance ? '.' + series.instance : '') + '.' +
