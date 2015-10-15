@@ -86,10 +86,22 @@ define(function getDashConf () {
 
   plugins.memory.memory = {
     'graph': {
-      'used': { 'color': '#1F78C1', 'alias': 'used' },
-      'cached': { 'color': '#EF843C', 'alias': 'cached' },
-      'buffered': { 'color': '#CCA300', 'alias': 'buffered' },
-      'free': { 'color': '#629E51', 'alias': 'free' }
+      'used': {
+        'color': '#1F78C1',
+        'alias': 'used'
+      },
+      'cached': {
+        'color': '#EF843C',
+        'alias': 'cached'
+      },
+      'buffered': {
+        'color': '#CCA300',
+        'alias': 'buffered'
+      },
+      'free': {
+        'color': '#629E51',
+        'alias': 'free'
+      }
     },
     'panel': {
       'title': 'Memory',
@@ -104,7 +116,10 @@ define(function getDashConf () {
 
   plugins.load.midterm = {
     'graph': {
-      'load_midterm': { 'color': '#7B68EE', 'alias': 'midterm' }
+      'load_midterm': {
+        'color': '#7B68EE',
+        'alias': 'midterm'
+      }
     },
     'panel': {
       'title': 'Load Average'
@@ -117,9 +132,18 @@ define(function getDashConf () {
 
   plugins.swap.swap = {
     'graph': {
-      'used': { 'color': '#1F78C1', 'alias': 'used' },
-      'cached': { 'color': '#EAB839', 'alias': 'cached' },
-      'free': { 'color': '#508642', 'alias': 'free' }
+      'used': {
+        'color': '#1F78C1',
+        'alias': 'used'
+      },
+      'cached': {
+        'color': '#EAB839',
+        'alias': 'cached'
+      },
+      'free': {
+        'color': '#508642',
+        'alias': 'free'
+      }
     },
     'panel': {
       'title': 'Swap',
@@ -130,8 +154,15 @@ define(function getDashConf () {
 
   plugins.swap.swapIO = {
     'graph': {
-      'in': { 'apply': 'derivative' },
-      'out': { 'apply': 'derivative', 'column': 'value' }
+      'in': {
+        'color': '#447EBC',
+        'apply': 'derivative'
+      },
+      'out': {
+        'color': '#508642',
+        'apply': 'derivative',
+        'column': 'value'
+      }
     },
     'panel': {
       'title': 'Swap IO',
@@ -383,7 +414,7 @@ define(function getDashConf () {
 
   plugins.uptime.uptime = {
     'graph': {
-      'uptime': { 'alias': 'uptime-days', 'column': 'value' }
+      'uptime': { 'alias': 'uptime', 'column': 'value' }
       //'uptime': { 'alias': 'uptime-days', 'column': 'value/3600/24' }
     },
     'panel': {
