@@ -55,26 +55,25 @@ define(function getDashConf () {
   ];
 
 
-  // collectd cpu plugin configuration
-  plugins.cpu = new Plugin();
+  // collectd cpu plugin configuration: https://github.com/anryko/cpu-collectd-plugin
+  plugins.cpu = new Plugin({ 'alias': 'cpu' });
   plugins.cpu.config.merge = [ 'instance' ];
 
   plugins.cpu.cpu = {
     'graph': {
-      'system': { 'color': '#EAB839', 'alias': 'system' },
-      'user': { 'color': '#508642', 'alias': 'user' },
-      'idle': { 'color': '#303030', 'alias': 'idle' },
-      'wait': { 'color': '#890F02', 'alias': 'wait' },
-      'steal': { 'color': '#E24D42', 'alias': 'steal'},
-      'nice': { 'color': '#9400D3', 'alias': 'nice' },
-      'softirq': { 'color': '#E9967A', 'alias': 'softirq' },
-      'interrupt': { 'color': '#1E90FF', 'alias': 'interrupt' }
+      'system': { 'color': '#EAB839' },
+      'user': { 'color': '#508642' },
+      'idle': { 'color': '#303030' },
+      'wait': { 'color': '#890F02' },
+      'steal': { 'color': '#E24D42' },
+      'nice': { 'color': '#9400D3' },
+      'softirq': { 'color': '#E9967A' },
+      'interrupt': { 'color': '#1E90FF' }
     },
     'panel': {
       'title': 'CPU',
       'y_formats': [ 'percent' ],
-      'lines': false,
-      'bars': true,
+      'fill': 7,
       'stack': true,
       'percentage': true
     }

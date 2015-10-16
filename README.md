@@ -30,7 +30,7 @@ http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=load&time=7d
 
 ## Features
 #### Supported metrics
-* [cpu](https://collectd.org/wiki/index.php/Plugin:CPU)
+* [cpu](https://github.com/anryko/cpu-collectd-plugin)
 * [load](https://collectd.org/wiki/index.php/Plugin:Load)
 * [memory](https://collectd.org/wiki/index.php/Plugin:Memory)
 * [swap](https://collectd.org/wiki/index.php/Plugin:Swap)
