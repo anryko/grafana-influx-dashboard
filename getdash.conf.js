@@ -41,7 +41,8 @@ define(function getDashConf () {
     'entropy',
     'users',
     'uptime',
-    'connstate'
+    'connstate',
+    'ping'
   ];
   plugins.groups.middleware = [
     'redis',
@@ -217,6 +218,21 @@ define(function getDashConf () {
     'panel': {
       'title': 'Network Packets on @metric',
       'grid': { 'max': null, 'min': null, 'leftMin': null }
+    }
+  };
+
+
+  // collectd ping plugin configuration
+  plugins.ping = new Plugin();
+
+  plugins.ping.ping = {
+    'graph': {
+      'ping_value': { }
+    },
+    'panel': {
+      'title': 'Ping',
+      "linewidth": 2,
+      'y_formats': [ 'ms' ]
     }
   };
 
