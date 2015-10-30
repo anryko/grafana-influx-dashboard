@@ -1,6 +1,11 @@
 // Getdash application
 
-define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, getdashConf) {
+define([
+      'config',
+      'app/getdash/getdash.conf',
+      'app/plugins/datasource/influxdb/query_builder.js'
+    ],
+    function getDashApp (grafanaConf, getdashConf, InfluxQueryBuilder) {
   'use strict';
 
   // Helper Functions
@@ -96,7 +101,13 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
     fields: [],  // [fieldProto]
     tags: [],  // [tagProto]
     interval: '1m',
-    query: ''
+    query: '',
+    groupBy: [
+      {
+        type: 'time',
+        interval: 'auto'
+      }
+    ]
   };
 
   var panelProto = {
@@ -272,14 +283,19 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
       name: graphConf.column || 'value',
       func: graphConf.apply || 'mean'
     };
+
+    if (graphConf.math)
+        field.mathExpr = graphConf.math;
+
     var tagObjs = _.omit(series, function (v, n) {
       return _.indexOf([ 'name', 'source', 'interval', 'key' ], n) !== -1;
     });
     var tags = _.map(tagObjs, function (v, k) {
       return {
-        condition: "AND",
+        condition: 'AND',
         key: k,
-        value: v
+        value: v,
+        operator: '='
       };
     });
     delete tags[0].condition;
@@ -293,7 +309,26 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
       tags: tags,
       interval: graphConf.interval
     };
-    return _.merge({}, targetProto, { 'interval': series.interval }, target);
+    var readyTarget = _.merge({}, targetProto, { 'interval': series.interval }, target);
+
+    // FIXME: I hate to do this… but sometimes you have to do what you have to do
+    // in order to get what you want… and I really want my Grafana >=2.5.0 dash
+    // to work with Influxdb version >=0.9.4. I promise to make it nice after
+    // https://github.com/grafana/grafana/issues/2802 is fixed.
+    if (graphConf.apply == 'derivative') {
+        if (graphConf.math) {
+            delete readyTarget.fields[0].mathExpr;
+        }
+        var queryBuilder = InfluxQueryBuilder.prototype;
+        queryBuilder.target = readyTarget;
+        var rawQuery = queryBuilder._buildQuery();
+        var rawQueryArr = rawQuery.split(' ');
+        rawQueryArr[1] = 'derivative(last(\"value\"))' + (graphConf.math || '');
+        rawQuery = rawQueryArr.join(' ');
+        readyTarget.query = rawQuery;
+        readyTarget.rawQuery = 'true';
+    }
+    return readyTarget;
   });
 
 

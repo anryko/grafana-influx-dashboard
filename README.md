@@ -2,7 +2,7 @@
 
 Javascript dashboard auto-generation script to mimic comfortable Munin behaviour in Grafana. Main project goal is to be able to see all the stats for the added machine in one dashboard (to have possibility to add auto-generated URL to the existing monitoring system alarm notification for faster incident investigation). Project is written and tested with CollectD->InfluxDB+(input_plugins.collectd) as a system stats collector but with minor configuration changes should be collector independent.
 
-:white_check_mark: Tested for **Grafana 2.1.3** and **InfluxDB v0.9.3**
+:white_check_mark: Tested for **Grafana 2.5.0** and **InfluxDB v0.9.4.2**
 
 ## Demonstration
 ![](https://media.giphy.com/media/3oEdvcYi3a3KVvtuHS/giphy.gif)
@@ -102,7 +102,7 @@ plugins.disk.diskOps = {
     },
     'write': {
       'color': '#508642',
-      'column': 'value',
+      'math': '* -1',
       'apply': 'derivative',
       'type': 'disk_ops'
     }
@@ -143,7 +143,7 @@ plugins.disk.diskOps = {
     },
     'write': {
       'color': '#508642',
-      'column': 'value',
+      'math': '* -1',
       'apply': 'derivative',
       'type': 'disk_ops'
     }
@@ -154,6 +154,7 @@ Supported configuration keys are:
  * *color* - if not defined color will be random
  * *alias* - used to change metric name on the graph
  * *column* - used to define requested column
+ * *math* - used to define mathematical expression which will be applied to the *column* value
  * *apply* - used to apply InfluxDB SQL value function (e.g. max, min, count, etc.)
  * *type* - used in case when you have multiple graphs per series
 

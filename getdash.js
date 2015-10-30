@@ -13,7 +13,7 @@ var window, document, ARGS, $, jQuery, moment, kbn;
 return function scriptedDashboard (callback) {
   'use strict';
 
-  require(['getdash/getdash.app'], function getDahs (dash) {
+  require(['app/getdash/getdash.app'], function getDahs (dash) {
 
     // GET variables
     var displayHost = '';

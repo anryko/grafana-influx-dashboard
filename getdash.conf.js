@@ -35,14 +35,14 @@ define(function getDashConf () {
     'load',
     'swap',
     'interface',
+    'ping',
+    'connstate',
     'df',
     'disk',
     'processes',
     'entropy',
     'users',
-    'uptime',
-    'connstate',
-    'ping'
+    'uptime'
   ];
   plugins.groups.middleware = [
     'redis',
@@ -161,7 +161,7 @@ define(function getDashConf () {
       'out': {
         'color': '#508642',
         'apply': 'derivative',
-        'column': 'value'
+        'math': '* -1'
       }
     },
     'panel': {
@@ -186,7 +186,7 @@ define(function getDashConf () {
       },
       'tx': {
         'color': '#508642',
-        'column': 'value',
+        'math': '* -1',
         'alias': 'octets-tx',
         'apply': 'derivative',
         'type': 'if_octets'
@@ -209,7 +209,7 @@ define(function getDashConf () {
       },
       'tx': {
         'color': '#508642',
-        'column': 'value',
+        'math': '* -1',
         'alias': 'octets-tx',
         'apply': 'derivative',
         'type': 'if_packets'
@@ -315,7 +315,7 @@ define(function getDashConf () {
       },
       'write': {
         'color': '#508642',
-        'column': 'value',
+        'math': '* -1',
         'apply': 'derivative',
         'type': 'disk_ops'
       }
@@ -335,7 +335,7 @@ define(function getDashConf () {
       },
       'write': {
         'color': '#508642',
-        'column': 'value',
+        'math': '* -1',
         'apply': 'derivative',
         'type': 'disk_octets'
       }
@@ -356,7 +356,7 @@ define(function getDashConf () {
       },
       'write': {
         'color': '#508642',
-        'column': 'value',
+        'math': '* -1',
         'apply': 'derivative',
         'type': 'disk_time'
       }
@@ -429,8 +429,10 @@ define(function getDashConf () {
 
   plugins.uptime.uptime = {
     'graph': {
-      'uptime': { 'alias': 'uptime', 'column': 'value' }
-      //'uptime': { 'alias': 'uptime-days', 'column': 'value/3600/24' }
+      'uptime': {
+        'alias': 'uptime-days',
+        'math': '/ 3600 / 24'
+      }
     },
     'panel': {
       'title': 'System Uptime',
@@ -554,8 +556,9 @@ define(function getDashConf () {
     'graph': {
       'uptime_in_seconds': {
         'color': '#508642',
-        'alias': 'uptime-seconds',
-        'column': 'value' }
+        'alias': 'uptime-days',
+        'math': '/ 3600 / 24'
+      }
     },
     'panel': {
       'title': 'Redis Uptime'
@@ -622,7 +625,7 @@ define(function getDashConf () {
       },
       'rx': {
         'color': '#508642',
-        'column': 'value',
+        'math': '* -1',
         'apply': 'derivative'
       }
     },
@@ -668,7 +671,6 @@ define(function getDashConf () {
     }
   };
 
-
   plugins.memcache.cpu = {
     'graph': {
       'syst': {
@@ -685,6 +687,7 @@ define(function getDashConf () {
       'stack': true
     }
   };
+
 
   // collectd rabbitmq plugin configuration: https://github.com/kozdincer/rabbitmq_collectd_plugin
   plugins.rabbitmq = new Plugin({ 'alias': 'rabbitmq' });
@@ -821,7 +824,7 @@ define(function getDashConf () {
       },
       'transport.tx.count': {
         'apply': 'derivative',
-        'column': 'value',
+        'math': '* -1',
         'alias': 'transport.tx'
       }
     },
@@ -835,7 +838,7 @@ define(function getDashConf () {
   plugins.elasticsearch.transportSize = {
     'graph': {
       'transport.rx.size': { 'alias': 'transport.rx' },
-      'transport.tx.size': { 'column': 'value', 'alias': 'transport.tx' }
+      'transport.tx.size': { 'math': '* -1', 'alias': 'transport.tx' }
     },
     'panel': {
       'title': 'ElasticSearch Transport Size',
