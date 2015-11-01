@@ -25,7 +25,7 @@ define([
 
   // genRandomColor :: -> colorStr
   var genRandomColor = function genRandomColor () {
-    return '#' + ((1 << 24) * Math.random() | 0).toString(16);
+    return '#' + ('00' + (Math.random() * 4096 << 0).toString(16)).substr(-3);
   };
 
 

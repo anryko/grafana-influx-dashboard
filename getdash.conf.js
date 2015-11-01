@@ -231,7 +231,6 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Ping',
-      "linewidth": 2,
       'y_formats': [ 'ms' ]
     }
   };
