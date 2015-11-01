@@ -316,9 +316,10 @@ define([
     // to work with Influxdb version >=0.9.4. I promise to make it nice after
     // https://github.com/grafana/grafana/issues/2802 is fixed.
     if (graphConf.apply == 'derivative') {
-        if (graphConf.math) {
+        if (graphConf.math)
             delete readyTarget.fields[0].mathExpr;
-        }
+
+        readyTarget.fill = 'none';
         var queryBuilder = InfluxQueryBuilder.prototype;
         queryBuilder.target = readyTarget;
         var rawQuery = queryBuilder._buildQuery();
@@ -328,6 +329,7 @@ define([
         readyTarget.query = rawQuery;
         readyTarget.rawQuery = 'true';
     }
+
     return readyTarget;
   });
 
