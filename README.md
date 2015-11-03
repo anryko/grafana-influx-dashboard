@@ -196,3 +196,16 @@ plugins.memcache.commands = {
 };
 ```
 If you understand your data and how it is structured inside database you should be able to describe it as a plugin configuration with current feature set. If you are having any troubles with that feel free to register an Issue and I'll try to help.
+
+## Notes
+
+#### Adding GetDash link to Grafana side menu.
+This is direct minified javascript patching approach. Be sure you understand what is done here and don't forget to backup first.
+```bash
+cd GRAFANA_ROOT_DIR
+# backup
+ls public/app/app.*.js | xargs -i{} cp {} {}.bak
+# apply change
+sed -i 's|\({text:"Dashboards",icon:"fa fa-fw fa-th-large",href:a.getUrl("/")}\)|\1,{text:"GetDash",icon:"fa fa-fw fa-th-large",href:a.getUrl("/dashboard/script/getdash.js")}|' public/app/app.*.js
+```
+<sub>_Substitute GRAFANA_ROOT_DIR with a path to your Grafana installation (e.g. /usr/share/grafana)._</sub>
