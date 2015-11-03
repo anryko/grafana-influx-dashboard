@@ -324,7 +324,7 @@ define([
         queryBuilder.target = readyTarget;
         var rawQuery = queryBuilder._buildQuery();
         var rawQueryArr = rawQuery.split(' ');
-        rawQueryArr[1] = 'derivative(last(\"value\"))' + (graphConf.math || '');
+        rawQueryArr[1] = 'derivative(mean(\"value\"))' + (graphConf.math || '');
         rawQuery = rawQueryArr.join(' ');
         readyTarget.query = rawQuery;
         readyTarget.rawQuery = 'true';
