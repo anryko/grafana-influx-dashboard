@@ -182,11 +182,11 @@ define(function getDashConf () {
         'color': '#447EBC',
         'alias': 'octets-rx',
         'apply': 'derivative',
+        'math': '* -1',
         'type': 'if_octets'
       },
       'tx': {
         'color': '#508642',
-        'math': '* -1',
         'alias': 'octets-tx',
         'apply': 'derivative',
         'type': 'if_octets'
@@ -194,7 +194,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Network Traffic on @metric',
-      'y_formats': [ 'bytes' ],
+      'y_formats': [ 'Bps' ],
       'grid': { 'max': null, 'min': null, 'leftMin': null }
     }
   };
@@ -203,20 +203,21 @@ define(function getDashConf () {
     'graph': {
       'rx': {
         'color': '#447EBC',
-        'alias': 'octets-rx',
+        'alias': 'packets-rx',
         'apply': 'derivative',
+        'math': '* -1',
         'type': 'if_packets'
       },
       'tx': {
         'color': '#508642',
-        'math': '* -1',
-        'alias': 'octets-tx',
+        'alias': 'packets-tx',
         'apply': 'derivative',
         'type': 'if_packets'
       }
     },
     'panel': {
       'title': 'Network Packets on @metric',
+      'y_formats': [ 'pps' ],
       'grid': { 'max': null, 'min': null, 'leftMin': null }
     }
   };
