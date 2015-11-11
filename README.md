@@ -48,6 +48,7 @@ http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=load&time=7d
 * [nginx](https://collectd.org/wiki/index.php/Plugin:nginx)
 * [connstate](https://github.com/anryko/connstate-collectd-plugin)
 * [ping](https://collectd.org/wiki/index.php/Plugin:Ping)
+* [posgresql](https://collectd.org/wiki/index.php/Plugin:PostgreSQL)
 
 #### Supported metric groups
 * system

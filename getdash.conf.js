@@ -52,7 +52,8 @@ define(function getDashConf () {
     'nginx'
   ];
   plugins.groups.database = [
-    'elasticsearch'
+    'elasticsearch',
+    'postgresql'
   ];
 
 
@@ -1136,6 +1137,81 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Nginx Connections States',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+
+  // collectd postgresql plugin configuration
+  plugins.postgresql = new Plugin({ 'alias': 'psql' });
+  plugins.postgresql.config.multi = true;
+
+  plugins.postgresql.numBackends = {
+    'graph': {
+      'postgresql': { 'type': 'pg_numbackends' }
+    },
+    'panel': {
+      'title': 'PostgreSQL Connected backends for @metric',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  plugins.postgresql.commitRollback = {
+    'graph': {
+      'postgresql': { 'type': 'pg_xact', 'apply': 'derivative' }
+    },
+    'panel': {
+      'title': 'PostgreSQL Transactions for @metric',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  plugins.postgresql.ops = {
+    'graph': {
+      'postgresql': { 'type': 'pg_n_tup_c', 'apply': 'derivative' }
+    },
+    'panel': {
+      'title': 'PostgreSQL Operations for @metric',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  plugins.postgresql.rows = {
+    'graph': {
+      'postgresql': { 'type': 'pg_n_tup_g', 'apply': 'derivative' }
+    },
+    'panel': {
+      'title': 'PostgreSQL Rows for @metric',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  plugins.postgresql.idx = {
+    'graph': {
+      'idx': { 'type': 'pg_blks', 'apply': 'derivative' }
+    },
+    'panel': {
+      'title': 'PostgreSQL Disk and Buffer Index Stats for @metric',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  plugins.postgresql.tidx = {
+    'graph': {
+      'tidx': { 'type': 'pg_blks', 'apply': 'derivative' }
+    },
+    'panel': {
+      'title': 'PostgreSQL Disk and Buffer Stats for @metric',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  plugins.postgresql.dbSize = {
+    'graph': {
+      'postgresql': { 'type': 'pg_db_size', 'alias': 'size' }
+    },
+    'panel': {
+      'title': 'PostgreSQL DB Size for @metric',
       'y_formats': [ 'short' ]
     }
   };
