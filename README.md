@@ -26,6 +26,7 @@ http://grafanaIP/dashboard/script/getdash.js?host=hostname
 http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=cpu,load
 http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=load,database
 http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=load&time=7d
+http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=disk&time=12h&span=6
 ```
 
 ## Features

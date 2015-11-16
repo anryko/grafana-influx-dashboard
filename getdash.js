@@ -19,6 +19,7 @@ return function scriptedDashboard (callback) {
     var displayHost = '';
     var displayMetric = '';
     var displayTime;
+    var displaySpan = 12;
 
     // sanitize :: String -> new String
     var sanitize = function sanitize (str) {
@@ -34,11 +35,15 @@ return function scriptedDashboard (callback) {
     if(!_.isUndefined(ARGS.time))
       displayTime = sanitize(ARGS.time);
 
+    if(!_.isUndefined(ARGS.span))
+      displaySpan = sanitize(ARGS.span);
+
     // Dashboard configuration
     var dashConf = {
       host: displayHost,
       metric: displayMetric,
       time: displayTime,
+      span: displaySpan,
       title: 'Scripted Dashboard for ' + displayHost,
       // Series used to get the list of all hosts
       // (Some metric that is common for all hosts).

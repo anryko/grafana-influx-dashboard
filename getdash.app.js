@@ -71,8 +71,7 @@ define([
 
   var seriesProto = {
     source: '',
-    name: '',
-    interval: ''
+    name: ''
   };
 
   var metricProto = {
@@ -288,7 +287,7 @@ define([
         field.mathExpr = graphConf.math;
 
     var tagObjs = _.omit(series, function (v, n) {
-      return _.indexOf([ 'name', 'source', 'interval', 'key' ], n) !== -1;
+      return _.indexOf([ 'name', 'source', 'key' ], n) !== -1;
     });
     var tags = _.map(tagObjs, function (v, k) {
       return {
@@ -309,7 +308,7 @@ define([
       tags: tags,
       interval: graphConf.interval
     };
-    var readyTarget = _.merge({}, targetProto, { 'interval': series.interval }, target);
+    var readyTarget = _.merge({}, targetProto, target);
 
     // FIXME: I hate to do this… but sometimes you have to do what you have to do
     // in order to get what you want… and I really want my Grafana >=2.5.0 dash
@@ -833,7 +832,6 @@ define([
   // getDashboard :: [datasources], pluginsObj, dashConfObj,
   //                 grafanaCallbackFunc -> grafanaCallbackFunc(dashboardObj)
   var getDashboard = _.curry(function getDashboard (datasources, plugins, dashConf, callback) {
-    var interval = getInterval(dashConf.time);
     var dashboard = {
       title: dashConf.title,
       time: getDashboardTime(dashConf.time)
@@ -871,12 +869,15 @@ define([
         var kk = dsKey[1];
         return _.map(kk, function (k) {
           var series = {
-            source: ds,
-            interval: interval
+            source: ds
           };
           return _.merge({}, getSeries(k), series);
         });
       }));
+
+      // Object prototypes setup
+      targetProto.interval = getInterval(dashConf.time);
+      panelProto.span = dashConf.span;
 
       dashboard.rows = getRows(dashPlugins, series);
       return callback(dashboard);
