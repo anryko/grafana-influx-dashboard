@@ -568,7 +568,7 @@ define(function getDashConf () {
 
 
   // collectd memcached plugin configuration
-  plugins.memcache = new Plugin();
+  plugins.memcache = new Plugin({ 'alias': 'mc' });
 
   plugins.memcache.memory = {
     'graph': {
@@ -691,7 +691,7 @@ define(function getDashConf () {
 
 
   // collectd rabbitmq plugin configuration: https://github.com/kozdincer/rabbitmq_collectd_plugin
-  plugins.rabbitmq = new Plugin({ 'alias': 'rabbitmq' });
+  plugins.rabbitmq = new Plugin({ 'alias': 'rmq' });
 
   plugins.rabbitmq.rates = {
     'graph': {
@@ -806,7 +806,7 @@ define(function getDashConf () {
 
 
   // collectd elasticsearch plugin configuration: https://github.com/phobos182/collectd-elasticsearch
-  plugins.elasticsearch = new Plugin({ 'alias': 'elasticsearch' });
+  plugins.elasticsearch = new Plugin({ 'alias': 'es' });
 
   plugins.elasticsearch.http = {
     'graph': {
@@ -1212,6 +1212,122 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'PostgreSQL DB Size for @metric',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+
+  // collectd zookeeper plugin configuration: https://github.com/signalfx/collectd-zookeeper
+  plugins.zookeeper = new Plugin({ 'alias': 'zk' });
+  plugins.zookeeper.config.multi = true;
+
+  plugins.zookeeper.followers = {
+    'graph': {
+      'followers': { }
+    },
+    'panel': {
+      'title': 'Zookeeper followers for @metric',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  plugins.zookeeper.conn = {
+    'graph': {
+      'connections': { }
+    },
+    'panel': {
+      'title': 'Zookeeper connections for @metric',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  plugins.zookeeper.req = {
+    'graph': {
+      'requests': { 'apply': 'max' },
+      'syncs': { 'apply': 'max' }
+    },
+    'panel': {
+      'title': 'Zookeeper requests and syncs for @metric',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  plugins.zookeeper.watch = {
+    'graph': {
+      'watch_count': { 'apply': 'max' }
+    },
+    'panel': {
+      'title': 'Zookeeper watches for @metric',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  plugins.zookeeper.leader = {
+    'graph': {
+      'is_leader': { 'apply': 'max' }
+    },
+    'panel': {
+      'title': 'Zookeeper leader for @metric',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  plugins.zookeeper.nodes = {
+    'graph': {
+      'znode_count': { 'apply': 'max' },
+      'ephemerals_count': { 'apply': 'max' }
+    },
+    'panel': {
+      'title': 'Zookeeper nodes for @metric',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  plugins.zookeeper.data = {
+    'graph': {
+      'data_size': { }
+    },
+    'panel': {
+      'title': 'Zookeeper data for @metric',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  plugins.zookeeper.files = {
+    'graph': {
+      'file_descriptor_count': { }
+    },
+    'panel': {
+      'title': 'Zookeeper files for @metric',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  plugins.zookeeper.packets = {
+    'graph': {
+      'packets_sent': {
+        'color': '#447EBC',
+        'apply': 'derivative',
+        'math': '* -1'
+      },
+      'packets_received': {
+        'color': '#508642',
+        'apply': 'derivative'
+      }
+    },
+    'panel': {
+      'title': 'Zookeeper nodes for @metric',
+      'y_formats': [ 'pps' ],
+      'grid': { 'max': null, 'min': null, 'leftMin': null }
+    }
+  };
+
+  plugins.zookeeper.latency = {
+    'graph': {
+      'latency': { }
+    },
+    'panel': {
+      'title': 'Zookeeper latency for @metric',
       'y_formats': [ 'short' ]
     }
   };
