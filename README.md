@@ -50,6 +50,7 @@ http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=disk&time=12h&
 * [connstate](https://github.com/anryko/connstate-collectd-plugin)
 * [ping](https://collectd.org/wiki/index.php/Plugin:Ping)
 * [posgresql](https://collectd.org/wiki/index.php/Plugin:PostgreSQL)
+* [zookeeper](https://github.com/signalfx/collectd-zookeeper)
 
 #### Supported metric groups
 * system

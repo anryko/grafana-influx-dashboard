@@ -49,7 +49,8 @@ define(function getDashConf () {
     'memcache',
     'rabbitmq',
     'elasticsearch',
-    'nginx'
+    'nginx',
+    'zookeeper'
   ];
   plugins.groups.database = [
     'elasticsearch',
