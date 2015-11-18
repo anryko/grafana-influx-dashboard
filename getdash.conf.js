@@ -50,7 +50,8 @@ define(function getDashConf () {
     'rabbitmq',
     'elasticsearch',
     'nginx',
-    'zookeeper'
+    'zookeeper',
+    'mesos'
   ];
   plugins.groups.database = [
     'elasticsearch',
@@ -1329,6 +1330,197 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Zookeeper latency for @metric',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+
+  // collectd mesos plugin configuration: https://github.com/rayrod2030/collectd-mesos
+  plugins.mesos = new Plugin({ 'alias': 'mo' });
+
+  plugins.mesos.slaveCpus = {
+    'graph': {
+      'slave_cpus_total': { 'color': '#508642' },
+      'slave_cpus_used': { 'color': '#447EBC' }
+    },
+    'panel': {
+      'title': 'Mesos Slave CPUs',
+      'y_formats': [ 'short' ],
+      'fill': 5
+    }
+  };
+
+  plugins.mesos.slaveCpusPercent = {
+    'graph': {
+      'slave_cpus_percent': { }
+    },
+    'panel': {
+      'title': 'Mesos Slave CPUs percent',
+      'y_formats': [ 'percent' ],
+      'fill': 5,
+      'percentage': true
+    }
+  };
+
+  plugins.mesos.load = {
+    'graph': {
+      'system_load': { }
+    },
+    'panel': {
+      'title': 'Mesos System Load',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  plugins.mesos.slaveMem = {
+    'graph': {
+      'slave_mem_total': { 'color': '#508642' },
+      'slave_mem_used': { 'color': '#447EBC' }
+    },
+    'panel': {
+      'title': 'Mesos Slave Memory',
+      'y_formats': [ 'bytes' ],
+      'fill': 5
+    }
+  };
+
+  plugins.mesos.slaveMemPercent = {
+    'graph': {
+      'slave_mem_percent': { }
+    },
+    'panel': {
+      'title': 'Mesos Slave Memory percent',
+      'y_formats': [ 'percent' ],
+      'fill': 5,
+      'percentage': true
+    }
+  };
+
+  plugins.mesos.systemMem = {
+    'graph': {
+      'system_mem_total': { 'color': '#f08080' },
+      'system_mem_free': { 'color': '#32cd32' }
+    },
+    'panel': {
+      'title': 'Mesos System Memory',
+      'y_formats': [ 'bytes' ],
+      'fill': 5
+    }
+  };
+
+  plugins.mesos.slaveDisk = {
+    'graph': {
+      'slave_disk_total': { 'color': '#508642' },
+      'slave_disk_used': { 'color': '#447EBC' }
+    },
+    'panel': {
+      'title': 'Mesos Slave Disk',
+      'y_formats': [ 'bytes' ],
+      'fill': 5
+    }
+  };
+
+  plugins.mesos.slaveDiskPercent = {
+    'graph': {
+      'slave_disk_percent': { }
+    },
+    'panel': {
+      'title': 'Mesos Slave Disk percent',
+      'y_formats': [ 'percent' ],
+      'fill': 5,
+      'percentage': true
+    }
+  };
+
+  plugins.mesos.uptime = {
+    'graph': {
+      'slave_uptime_secs': {
+        'color': '#508642',
+        'alias': 'uptime-days',
+        'math': '/ 3600 / 24' }
+    },
+    'panel': {
+      'title': 'Mesos Slave Uptime',
+      'fill': 5
+    }
+  };
+
+  plugins.mesos.registered = {
+    'graph': {
+      'slave_registered': { }
+    },
+    'panel': {
+      'title': 'Mesos Slave registered',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  plugins.mesos.recoveryErrors = {
+    'graph': {
+      'slave_recovery_errors': { 'apply': 'derivative' }
+    },
+    'panel': {
+      'title': 'Mesos Slave recovery errors per second',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  plugins.mesos.tasksGauge = {
+    'graph': {
+      'slave_tasks': { 'type': 'gauge'}
+    },
+    'panel': {
+      'title': 'Mesos Slave tasks states',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  plugins.mesos.tasksCounter = {
+    'graph': {
+      'slave_tasks': { 'type': 'counter', 'apply': 'derivative' }
+    },
+    'panel': {
+      'title': 'Mesos Slave tasks results per second',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  plugins.mesos.statusUpdates = {
+    'graph': {
+      'status_updates': { 'apply': 'derivative' }
+    },
+    'panel': {
+      'title': 'Mesos status updates per second',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  plugins.mesos.executors = {
+    'graph': {
+      'slave_executors': { 'type': 'gauge' }
+    },
+    'panel': {
+      'title': 'Mesos Slave executors states',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  plugins.mesos.frameworks = {
+    'graph': {
+      'frameworks_active': { 'apply': 'max' }
+    },
+    'panel': {
+      'title': 'Mesos frameworks active',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  plugins.mesos.frameworkMsg = {
+    'graph': {
+      'framework_messages': { 'apply': 'derivative' }
+    },
+    'panel': {
+      'title': 'Mesos framework messages per second',
       'y_formats': [ 'short' ]
     }
   };

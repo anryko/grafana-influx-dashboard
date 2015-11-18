@@ -51,6 +51,7 @@ http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=disk&time=12h&
 * [ping](https://collectd.org/wiki/index.php/Plugin:Ping)
 * [posgresql](https://collectd.org/wiki/index.php/Plugin:PostgreSQL)
 * [zookeeper](https://github.com/signalfx/collectd-zookeeper)
+* [mesos](https://github.com/rayrod2030/collectd-mesos)
 
 #### Supported metric groups
 * system
@@ -207,7 +208,7 @@ This is direct minified javascript patching approach. Be sure you understand wha
 ```bash
 cd GRAFANA_ROOT_DIR
 # backup
-ls public/app/app.*.js | xargs -i{} cp {} {}.bak
+ls public/app/app.*.js | xargs -I{} cp {} {}.bak
 # apply change
 sed -i 's|\({text:"Dashboards",icon:"fa fa-fw fa-th-large",href:a.getUrl("/")}\)|\1,{text:"GetDash",icon:"fa fa-fw fa-th-large",href:a.getUrl("/dashboard/script/getdash.js")}|' public/app/app.*.js
 ```
