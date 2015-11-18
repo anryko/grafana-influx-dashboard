@@ -1290,7 +1290,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Zookeeper data for @metric',
-      'y_formats': [ 'short' ]
+      'y_formats': [ 'bytes' ]
     }
   };
 
@@ -1317,7 +1317,7 @@ define(function getDashConf () {
       }
     },
     'panel': {
-      'title': 'Zookeeper nodes for @metric',
+      'title': 'Zookeeper packets for @metric',
       'y_formats': [ 'pps' ],
       'grid': { 'max': null, 'min': null, 'leftMin': null }
     }
