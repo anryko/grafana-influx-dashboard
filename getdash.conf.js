@@ -1379,14 +1379,14 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Mesos Slave Memory',
-      'y_formats': [ 'bytes' ],
+      'y_formats': [ 'mbytes' ],
       'fill': 5
     }
   };
 
   plugins.mesos.slaveMemPercent = {
     'graph': {
-      'slave_mem_percent': { }
+      'slave_mem_percent': { 'math': '* 100' }
     },
     'panel': {
       'title': 'Mesos Slave Memory percent',
@@ -1415,14 +1415,14 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Mesos Slave Disk',
-      'y_formats': [ 'bytes' ],
+      'y_formats': [ 'mbytes' ],
       'fill': 5
     }
   };
 
   plugins.mesos.slaveDiskPercent = {
     'graph': {
-      'slave_disk_percent': { }
+      'slave_disk_percent': { 'math': '* 100' }
     },
     'panel': {
       'title': 'Mesos Slave Disk percent',
