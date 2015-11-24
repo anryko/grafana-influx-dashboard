@@ -323,7 +323,7 @@ define([
         queryBuilder.target = readyTarget;
         var rawQuery = queryBuilder._buildQuery();
         var rawQueryArr = rawQuery.split(' ');
-        rawQueryArr[1] = 'derivative(mean(\"value\", 1s))' + (graphConf.math || '');
+        rawQueryArr[1] = 'derivative(mean(\"value\"), 1s)' + (graphConf.math || '');
         rawQuery = rawQueryArr.join(' ');
         readyTarget.query = rawQuery;
         readyTarget.rawQuery = 'true';
@@ -344,8 +344,8 @@ define([
   var setupAlias = transformObj('alias', 'color');
 
 
-  // initPanel :: metricConfObj, datasourceStr, instanceStr -> panelObj
-  var initPanel = _.curry(function initPanel (metricConf, datasource, instance) {
+  // initPanel :: metricConfObj, datasourceStr, instanceStr, hostnameStr -> panelObj
+  var initPanel = _.curry(function initPanel (metricConf, datasource, instance, host) {
     if (_.isUndefined(datasource) || _.isUndefined(metricConf)) {
       return new Error('undefined argument in initPanel function.');
     }
@@ -353,9 +353,11 @@ define([
       datasource: datasource,
       config: {
         instance: instance,
+        host: host,
         metric: metricConf
       }
     };
+
     return _.merge({}, panel, metricConf.panel);
   });
 
@@ -363,7 +365,8 @@ define([
   // getTargetsForPanel :: panelObj, graphConfObj -> [targetObj]
   var getTargetsForPanel = _.curry(function getTargetsForPanel (panel, graphConf) {
     var grepBy = {
-      source: panel.datasource
+      source: panel.datasource,
+      host: panel.config.host
     };
     if (!_.isUndefined(panel.config.instance)) {
       grepBy['instance'] = panel.config.instance;
@@ -371,6 +374,7 @@ define([
     if (!_.isUndefined(graphConf.type)) {
       grepBy['type'] = graphConf.type;
     }
+
     var graphSeries = _.where(graphConf.series, grepBy);
     if (_.isEmpty(graphSeries))
       return [];
@@ -421,7 +425,8 @@ define([
     if (isError(panel))
       return panel;
 
-    if (('title' in panel) && (panel.title.match('@metric'))) {
+    panel.title = panel.config.host + ': ' + panel.title;
+    if (panel.title.match('@metric')) {
       var metric = (_.isUndefined(panel.config.instance))
           ? panel.config.metric.instances[0]
           : panel.config.instance;
@@ -444,7 +449,7 @@ define([
   };
 
 
-  // getPanel :: metricConfigObj, datasourceStr, instanceStr -> panelObj
+  // getPanel :: metricConfigObj, datasourceStr, instanceStr, hostnameStr -> panelObj
   var getPanel = _.compose(setupPanel,
                            addTitleToPanel,
                            addAliasColorsToPanel,
@@ -502,13 +507,18 @@ define([
   // getPanelsForMetric :: metricConfObj, [datasourceStr], [instanceStr] -> [panelObj]
   var getPanelsForMetric = _.curry(function getPanelsForMetric (pluginConf, metricConf) {
     var datasources = getDatasourcesForPanel(pluginConf, metricConf);
+    var hosts = metricConf.hosts;
+
     if (_.isEmpty(datasources))
       return new Error('Datasources for ' + metricConf.plugin + '.' +
           metricConf.name + ' are empty.');
+
     var instances = getInstancesForPanel(pluginConf, metricConf);
-    return _.flatten(_.map(datasources, function (source) {
-      return _.map(instances, function (instance) {
-        return getPanel(metricConf, source, instance);
+    return _.flatten(_.map(hosts, function (host) {
+      return _.map(datasources, function (source) {
+        return _.map(instances, function (instance) {
+          return getPanel(metricConf, source, instance, host);
+        });
       });
     }));
   });
@@ -730,20 +740,24 @@ define([
 
   // getDSQueryArr :: hostNameStr, [queryConfigObj] -> [urlDatasourceObj]
   var getDSQueryArr = _.curry(function getDSQueryArr (hostName, queryConfigs) {
+    var hostQuery = (!hostName)
+                    ? ''
+                    : 'WHERE host = \'' + hostName + '\'';
+
     return _.flatten(_.map(queryConfigs, function (qConf) {
       return _.map(qConf.datasources, function (ds) {
         if (_.isUndefined(ds.database))
           return {
             datasource: ds.name,
             url: ds.url + '/query?q=' + fixedEncodeURIComponent('SHOW SERIES FROM /' +
-                qConf.regexp + '.*/ ' + 'WHERE host = \'' + hostName + '\';')
+                qConf.regexp + '.*/ ' + hostQuery + ';')
           };
 
         return {
           datasource: ds.name,
           url: ds.url + '/query?db=' + ds.database + '&u=' + ds.username +
             '&p=' + ds.password + '&q=' + fixedEncodeURIComponent('SHOW SERIES FROM /' +
-              qConf.regexp + '.*/ ' + 'WHERE host = \'' + hostName + '\';')
+              qConf.regexp + '.*/ ' + hostQuery + ';')
         };
       });
     }));
@@ -837,7 +851,7 @@ define([
       time: getDashboardTime(dashConf.time)
     };
 
-    if (!dashConf.host) {
+    if (!dashConf.host && !dashConf.metric) {
       var queriesForDDash = getQueriesForDDash(datasources, dashConf.defaultQueries);
       getDBData(queriesForDDash).then(function (resp) {
         var hosts = _.uniq(_.flatten(_.compact(parseResp(resp))));
