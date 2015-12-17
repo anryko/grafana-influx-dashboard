@@ -1,11 +1,10 @@
 // Getdash application
 
 define([
-      'config',
-      'app/getdash/getdash.conf',
-      'app/plugins/datasource/influxdb/query_builder.js'
+      'app/core/config',
+      'app/getdash/getdash.conf'
     ],
-    function getDashApp (grafanaConf, getdashConf, InfluxQueryBuilder) {
+    function getDashApp (grafanaConf, getdashConf) {
   'use strict';
 
   // Helper Functions
@@ -90,15 +89,18 @@ define([
     metrics: []  // [metricProto]
   };
 
-  var fieldProto = {};
-
   var tagProto = {};
+
+  var selectProto = {
+    type: '',
+    params: []
+  };
 
   var targetProto = {
     measurement: '',
     alias: '',
-    fields: [],  // [fieldProto]
     tags: [],  // [tagProto]
+    select: [],  // [selectProto]
     interval: '1m',
     query: '',
     groupBy: [
@@ -276,15 +278,74 @@ define([
   });
 
 
-  // setupTarget :: metricConfObj, graphConfObj, metricStr, seriesObj -> targetObj
-  var setupTarget = _.curry(function setupTarget (metricConf, graphConf, series) {
-    var field = {
-      name: graphConf.column || 'value',
-      func: graphConf.apply || 'mean'
-    };
+  // getSelect :: graphConfObj -> [selectObj]
+  var getSelect = function getSelect (graphConf) {
+    // Simple parser function to form targets select array from 'apply' string.
+    // Intended to handle inputs like max, count, derivative, derivative(10s),
+    // derivative(last), derivative(max(), 1s), derivative(min(value), 10s).
+    var select = [
+      {
+        type: 'field',
+        params: (graphConf.column)
+            ? graphConf.column.split(',')
+            : [ 'value' ]
+      }
+    ];
+
+    if (graphConf.apply) {
+      var fn = _.without(_.filter(graphConf.apply.split(/[(), ]/)), graphConf.column, 'value');
+      if (fn[0] === 'derivative') {
+        if (isNaN(parseInt(fn[1]))) {
+          select.push({
+            type: fn[1] || 'mean',
+            params: []
+          });
+          select.push({
+            type: fn[0],
+            params: (fn[2])
+                ? [ fn[2] ]
+                : [ '1s' ]
+          });
+        } else {
+          select.push({
+            type: 'mean',
+            params: []
+          });
+          select.push({
+            type: fn[0],
+            params: (fn[1])
+                ? [ fn[1] ]
+                : [ '1s' ]
+          });
+        }
+      } else {
+        select.push({
+          type: fn[0],
+          params: (fn[1])
+              ? [ fn[1] ]
+              : []
+        });
+      }
+    } else {
+      select.push({
+        type: 'mean',
+        params: []
+      });
+    }
 
     if (graphConf.math)
-        field.mathExpr = graphConf.math;
+      select.push({
+        type: 'math',
+        params: [ graphConf.math ]
+      });
+
+   return select;
+  };
+
+
+  // setupTarget :: metricConfObj, graphConfObj, seriesObj -> targetObj
+  var setupTarget = _.curry(function setupTarget (metricConf, graphConf, series) {
+    var select = getSelect(graphConf);
 
     var tagObjs = _.omit(series, function (v, n) {
       return _.indexOf([ 'name', 'source', 'key' ], n) !== -1;
@@ -304,32 +365,12 @@ define([
         (graphConf.alias || series.type_instance || series.name || series.type),
       color: graphConf.color || genRandomColor(),
       measurement: series.name,
-      fields: [ field ],
+      select: [ select ],
       tags: tags,
       interval: graphConf.interval
     };
-    var readyTarget = _.merge({}, targetProto, target);
 
-    // FIXME: I hate to do this… but sometimes you have to do what you have to do
-    // in order to get what you want… and I really want my Grafana >=2.5.0 dash
-    // to work with Influxdb version >=0.9.4. I promise to make it nice after
-    // https://github.com/grafana/grafana/issues/2802 is fixed.
-    if (graphConf.apply == 'derivative') {
-        if (graphConf.math)
-            delete readyTarget.fields[0].mathExpr;
-
-        readyTarget.fill = 'none';
-        var queryBuilder = InfluxQueryBuilder.prototype;
-        queryBuilder.target = readyTarget;
-        var rawQuery = queryBuilder._buildQuery();
-        var rawQueryArr = rawQuery.split(' ');
-        rawQueryArr[1] = 'derivative(mean(\"value\"), 1s)' + (graphConf.math || '');
-        rawQuery = rawQueryArr.join(' ');
-        readyTarget.query = rawQuery;
-        readyTarget.rawQuery = 'true';
-    }
-
-    return readyTarget;
+    return _.merge({}, targetProto, target);
   });
 
 
@@ -554,13 +595,27 @@ define([
   });
 
 
-  // getDBData :: [datasourcePointsObj] -> Promise -> [queryResultObj]
+  // getDBData :: [datasourcePointsObj] -> Promise([queryResultObj])
   var getDBData = function getDBData (dsQueries) {
     var gettingDBData = _.map(dsQueries, function (query) {
       return $.getJSON(query.url);
     });
 
     return Promise.all(gettingDBData);
+  };
+
+
+  // getDBDataSync :: [datasourcePointsObj] -> [queryResultObj]
+  var getDBDataSync = function getDBDataSync (dsQueries) {
+    $.ajaxSetup({
+      async: false
+    });
+
+    var gettingDBData = _.map(dsQueries, function (query) {
+      return $.getJSON(query.url).responseJSON;
+    });
+
+    return gettingDBData;
   };
 
 
@@ -740,9 +795,9 @@ define([
 
   // getDSQueryArr :: hostNameStr, [queryConfigObj] -> [urlDatasourceObj]
   var getDSQueryArr = _.curry(function getDSQueryArr (hostName, queryConfigs) {
-    var hostQuery = (!hostName)
-                    ? ''
-                    : 'WHERE host = \'' + hostName + '\'';
+    var hostQuery = (hostName)
+        ? 'WHERE host = \'' + hostName + '\''
+        : '';
 
     return _.flatten(_.map(queryConfigs, function (qConf) {
       return _.map(qConf.datasources, function (ds) {
@@ -843,6 +898,32 @@ define([
   };
 
 
+  // genSeries :: dashConfObj, seriesRespObj, [datasourceObj] -> dashboardObj
+  var genSeries = function genSeries (dashConf, seriesResp, datasources) {
+    var keys = _.map(seriesResp, function (val) {
+      if (_.isUndefined(val))
+        return;
+
+      return _.flatten(_.map(val, function (v) {
+        return _.map(v, _.first);
+      }));
+    });
+
+    var dsKeys = _.zip(datasources, keys);
+
+    return  _.flatten(_.map(dsKeys, function (dsKey) {
+      var ds = dsKey[0];
+      var kk = dsKey[1];
+      return _.map(kk, function (k) {
+        var series = {
+          source: ds
+        };
+        return _.merge({}, getSeries(k), series);
+      });
+    }));
+  };
+
+
   // getDashboard :: [datasources], pluginsObj, dashConfObj,
   //                 grafanaCallbackFunc -> grafanaCallbackFunc(dashboardObj)
   var getDashboard = _.curry(function getDashboard (datasources, plugins, dashConf, callback) {
@@ -851,11 +932,19 @@ define([
       time: getDashboardTime(dashConf.time)
     };
 
+    var isAsync = dashConf.async;
+
     if (!dashConf.host && !dashConf.metric) {
       var queriesForDDash = getQueriesForDDash(datasources, dashConf.defaultQueries);
+
+      if (!isAsync) {
+        var resp = getDBDataSync(queriesForDDash);
+        var hosts = _.uniq(_.flatten(_.compact(parseResp(resp))));
+        return callback(setupDefaultDashboard(hosts, dashboard));
+      }
+
       getDBData(queriesForDDash).then(function (resp) {
         var hosts = _.uniq(_.flatten(_.compact(parseResp(resp))));
-
         return callback(setupDefaultDashboard(hosts, dashboard));
       });
       return;
@@ -863,31 +952,24 @@ define([
 
     var dashPlugins = pickPlugins(plugins, dashConf.metric);
     var dashQueries = getQueries(dashConf.host, datasources, dashPlugins);
+    var datasources = _.pluck(dashQueries, 'datasource');
+
+    if (!isAsync) {
+      var resp = getDBDataSync(dashQueries);
+      var seriesResp = parseResp(resp);
+      var series = genSeries(dashConf, seriesResp, datasources);
+
+      // Object prototypes setup
+      targetProto.interval = getInterval(dashConf.time);
+      panelProto.span = dashConf.span;
+
+      dashboard.rows = getRows(dashPlugins, series);
+      return callback(dashboard);
+    }
 
     getDBData(dashQueries).then(function (resp) {
-      var datasources = _.pluck(dashQueries, 'datasource');
-      var values = parseResp(resp);
-
-      var keys = _.map(values, function (val) {
-        if (_.isUndefined(val))
-            return;
-
-        return _.flatten(_.map(val, function (v) {
-          return _.map(v, _.first);
-        }));
-      });
-
-      var dsKeys = _.zip(datasources, keys);
-      var series = _.flatten(_.map(dsKeys, function (dsKey) {
-        var ds = dsKey[0];
-        var kk = dsKey[1];
-        return _.map(kk, function (k) {
-          var series = {
-            source: ds
-          };
-          return _.merge({}, getSeries(k), series);
-        });
-      }));
+      var seriesResp = parseResp(resp);
+      var series = genSeries(dashConf, seriesResp, datasources);
 
       // Object prototypes setup
       targetProto.interval = getInterval(dashConf.time);

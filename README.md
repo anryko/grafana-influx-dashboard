@@ -2,7 +2,7 @@
 
 Javascript dashboard auto-generation script to mimic comfortable Munin behaviour in Grafana. Main project goal is to be able to see all the stats for the added machine in one dashboard (to have possibility to add auto-generated URL to the existing monitoring system alarm notification for faster incident investigation). Project is written and tested with CollectD->InfluxDB+(input_plugins.collectd) as a system stats collector but with minor configuration changes should be collector independent.
 
-:white_check_mark: Tested for **Grafana 2.5.0** and **InfluxDB v0.9.4.2**
+:white_check_mark: Tested for **Grafana 2.6.0** and **InfluxDB v0.9.6.0**
 
 ## Demonstration
 ![](https://media.giphy.com/media/3oEdvcYi3a3KVvtuHS/giphy.gif)
@@ -118,6 +118,7 @@ plugins.disk.diskOps = {
   }
 };
 ```
+_Applying 'derivative' will use derivative(mean(value), 1s) by default. However, more extensive derivative syntax is supported. Examples: derivative(10s), derivative(last), derivative(max, 1s), derivative(min(value), 10s)._
 
 OK. So let's go line by line and I'll explain what was done here. Firs you create new Plugin and the name of plugin have to match the beginning of the series for that plugin. In this case it have to be **disk**.
 ```javascript
@@ -214,3 +215,9 @@ ls public/app/app.*.js | xargs -I{} cp {} {}.bak
 sed -i 's|\({text:"Dashboards",icon:"fa fa-fw fa-th-large",href:a.getUrl("/")}\)|\1,{text:"GetDash",icon:"fa fa-fw fa-th-large",href:a.getUrl("/dashboard/script/getdash.js")}|' public/app/app.*.js
 ```
 <sub>_Substitute GRAFANA_ROOT_DIR with a path to your Grafana installation (e.g. /usr/share/grafana)._</sub>
+
+#### Fetching server side generated graph images.
+```
+http://grafanaIP/render/dashboard-solo/script/getdash.js?host=hostname&metric=cpu&panelId=1&time=6h&async=false
+```
+<sub>_async=false has to be used in this case to disable return of Promise to PhantomJS renderer._</sub>

@@ -79,6 +79,7 @@ define(function getDashConf () {
       'y_formats': [ 'percent' ],
       'fill': 7,
       'stack': true,
+      'tooltip': { 'value_type': 'individual' },
       'percentage': true
     }
   };
@@ -109,7 +110,8 @@ define(function getDashConf () {
     'panel': {
       'title': 'Memory',
       'y_formats': [ 'bytes' ],
-      'stack': true
+      'stack': true,
+      'tooltip': { 'value_type': 'individual' }
     }
   };
 
@@ -151,7 +153,8 @@ define(function getDashConf () {
     'panel': {
       'title': 'Swap',
       'y_formats': [ 'bytes' ],
-      'stack': true
+      'stack': true,
+      'tooltip': { 'value_type': 'individual' }
     }
   };
 
@@ -277,7 +280,8 @@ define(function getDashConf () {
     'panel': {
       'title': 'Disk space for @metric',
       'y_formats': [ 'bytes' ],
-      'stack': true
+      'stack': true,
+      'tooltip': { 'value_type': 'individual' }
     }
   };
 
@@ -299,7 +303,8 @@ define(function getDashConf () {
     'panel': {
       'title': 'Disk inodes for @metric',
       'y_formats': [ 'short' ],
-      'stack': true
+      'stack': true,
+      'tooltip': { 'value_type': 'individual' }
     }
   };
 
@@ -586,7 +591,8 @@ define(function getDashConf () {
     'panel': {
       'title': 'Memcached Memomy',
       'y_formats': [ 'bytes' ],
-      'stack': true
+      'stack': true,
+      'tooltip': { 'value_type': 'individual' }
     }
   };
 
@@ -687,7 +693,8 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Memcached CPU Time',
-      'stack': true
+      'stack': true,
+      'tooltip': { 'value_type': 'individual' }
     }
   };
 
