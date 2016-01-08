@@ -53,6 +53,7 @@ http://grafanaIP/dashboard/script/getdash.js?metric=redis&span=4
 * [posgresql](https://collectd.org/wiki/index.php/Plugin:PostgreSQL)
 * [zookeeper](https://github.com/signalfx/collectd-zookeeper)
 * [mesos](https://github.com/rayrod2030/collectd-mesos)
+* [apache](https://collectd.org/wiki/index.php/Plugin:Apache)
 
 #### Supported metric groups
 * system
