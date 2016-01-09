@@ -51,7 +51,8 @@ define(function getDashConf () {
     'elasticsearch',
     'nginx',
     'zookeeper',
-    'mesos'
+    'mesos',
+    'apache'
   ];
   plugins.groups.database = [
     'elasticsearch',
@@ -1150,6 +1151,89 @@ define(function getDashConf () {
     }
   };
 
+  // collectd apache plugin
+  plugins.apache = new Plugin({ 'alias': 'apache' });
+
+  plugins.apache.bytes = {
+    'graph': {
+      'apache_value': {
+        'type': 'apache_bytes',
+        'color': '#CCFF66',
+        'alias': 'bytes',
+        'apply': 'derivative'
+      }
+    },
+    'panel': {
+      'title': 'Apache Bytes',
+      'y_formats': [ 'bytes' ]
+    }
+  };
+
+  plugins.apache.connections = {
+    'graph': {
+      'apache_value': {
+        'type': 'apache_connections',
+        'color': '#00FF99',
+        'alias': 'connections',
+        'apply': 'max'
+      }
+    },
+    'panel': {
+      'title': 'Apache Connections',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  plugins.apache.idle_workers = {
+    'graph': {
+      'apache_value': {
+        'type': 'apache_idle_workers',
+        'color': '#3636FF',
+        'alias': 'idle_workers',
+        'apply': 'max'
+      }
+    },
+    'panel': {
+      'title': 'Apache Idle Workers',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  plugins.apache.requests = {
+    'graph': {
+      'apache_value': {
+        'type': 'apache_requests',
+        'color': '#73E3EB',
+        'alias': 'requests',
+        'apply': 'derivative'
+      }
+    },
+    'panel': {
+      'title': 'Apache Requests',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  plugins.apache.apache_scoreboard = {
+    'graph': {
+      'open': { 'color': '#FCE94F' },
+      'starting': { 'color': '#FCAF3E' },
+      'reading': { 'color': '#8AE234' },
+      'keepalive': { 'color': '#729FCF' },
+      'dnslookup': { 'color': '#AD7FA8' },
+      'logging': { 'color': '#EF2929' },
+      'finishing': { 'color': '#D3D7CF' },
+      'idle_cleanup': { 'color': '2E3436' },
+      'waiting': { 'color': '#4E9A06' },
+      'closing': { 'color': '#CE5C00' },
+      'sending': { 'color': '#C4A000' }
+    },
+    'panel': {
+      'title': 'Apache Scoreboard',
+      'y_formats': [ 'short' ],
+      'tooltip': { 'value_type': 'individual' },
+    }
+  };
 
   // collectd postgresql plugin configuration
   plugins.postgresql = new Plugin({ 'alias': 'psql' });
