@@ -16,7 +16,7 @@ git clone -b influxdb_v0.8 --depth=1 https://github.com/anryko/grafana-influx-da
 git clone --depth=1 https://github.com/anryko/grafana-influx-dashboard.git
 
 cd grafana-influx-dashboard
-./install.sh GRAFANA_ROOT_DIR
+sudo ./install.sh GRAFANA_ROOT_DIR
 ```
 
 ## Usage examples
@@ -54,6 +54,7 @@ http://grafanaIP/dashboard/script/getdash.js?metric=redis&span=4
 * [zookeeper](https://github.com/signalfx/collectd-zookeeper)
 * [mesos](https://github.com/rayrod2030/collectd-mesos)
 * [apache](https://collectd.org/wiki/index.php/Plugin:Apache)
+* [nfs](https://collectd.org/wiki/index.php/Plugin:NFS)
 
 #### Supported metric groups
 * system
@@ -190,18 +191,21 @@ plugins.memcache.hits = {
   }
 };
 
-plugins.memcache.commands = {
-'graph': {
-    'flush': { 'apply': 'derivative' },
-    'get': { 'apply': 'derivative' },
-    'set': { 'apply': 'derivative' },
-    'touch': { 'apply': 'derivative' }
+// collectd nfs plugin configuration
+plugins.nfs = new Plugin({ 'alias': 'nfs' });
+
+plugins.nfs.nfs = {
+  'graph': {
+    '/.*/': { 'apply': 'derivative' }
   },
   'panel': {
-    'title': 'Memcached Commands'
+    'title': 'NFS for @metric',
+    'y_formats': [ 'pps' ]
   }
 };
 ```
+You can also describe metric using JS regular expressions syntax as it is done in the nfs plugin example above.
+
 If you understand your data and how it is structured inside database you should be able to describe it as a plugin configuration with current feature set. If you are having any troubles with that feel free to register an Issue and I'll try to help.
 
 ## Notes

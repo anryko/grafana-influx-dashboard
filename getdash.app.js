@@ -42,10 +42,16 @@ define([
 
 
   // startsOrEndsWith :: Str, targetStr -> Bool
-  var startsOrEndsWith = function (string, target) {
+  var startsOrEndsWith = function startsOrEndsWith (string, target) {
     return startsWith(string, target) || endsWith(string, target);
   };
 
+
+  // testIfRegexp :: Str, targetStr -> Bool
+  var testIfRegexp = function testIfRegexp (string, target) {
+    return (target[0] === '/' && target[target.length - 1] === '/') &&
+        (RegExp(target.substr(1, target.length - 2)).test(string));
+  };
 
   // Variables
   var plugins = getdashConf.plugins;
@@ -145,7 +151,8 @@ define([
         ? 'UNDEFINED'
         : series.type_instance;
     return startsWith(series.name, metricConf.plugin) && (startsOrEndsWith(series.name, metricName) ||
-        startsOrEndsWith(type_instance, metricName)) && (_.isUndefined(metricConf.regexp) ||
+        testIfRegexp(series.name, metricName) || startsOrEndsWith(type_instance, metricName) ||
+        testIfRegexp(type_instance, metricName)) && (_.isUndefined(metricConf.regexp) ||
         metricConf.regexp.test(series.instance));
   });
 

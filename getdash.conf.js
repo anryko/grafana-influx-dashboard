@@ -42,7 +42,8 @@ define(function getDashConf () {
     'processes',
     'entropy',
     'users',
-    'uptime'
+    'uptime',
+    'nfs'
   ];
   plugins.groups.middleware = [
     'redis',
@@ -122,10 +123,7 @@ define(function getDashConf () {
 
   plugins.load.midterm = {
     'graph': {
-      'load_midterm': {
-        'color': '#7B68EE',
-        'alias': 'midterm'
-      }
+      'load': { }
     },
     'panel': {
       'title': 'Load Average'
@@ -244,6 +242,20 @@ define(function getDashConf () {
   };
 
 
+  // collectd nfs plugin configuration
+  plugins.nfs = new Plugin({ 'alias': 'nfs' });
+
+  plugins.nfs.nfs = {
+    'graph': {
+      '/.*/': { 'apply': 'derivative' }
+    },
+    'panel': {
+      'title': 'NFS for @metric',
+      'y_formats': [ 'pps' ]
+    }
+  };
+
+
   // collectd connstate plugin configuration: https://github.com/anryko/connstate-collectd-plugin
   plugins.connstate = new Plugin({ 'alias': 'connstate' });
   plugins.connstate.config.merge = [ 'instance' ];
@@ -331,7 +343,8 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Disk Operations for @metric',
-      'grid': { 'max': null, 'min': null, 'leftMin': null }
+      'grid': { 'max': null, 'min': null, 'leftMin': null },
+      'y_formats': [ 'iops' ]
     }
   };
 
@@ -372,7 +385,8 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Disk Wait for @metric',
-      'grid': { 'max': null, 'min': null, 'leftMin': null }
+      'grid': { 'max': null, 'min': null, 'leftMin': null },
+      'y_formats': [ 'ms' ]
     }
   };
 
@@ -397,11 +411,15 @@ define(function getDashConf () {
 
   plugins.processes.fork = {
     'graph': {
-      'processes': { 'apply': 'derivative', type: 'fork_rate' }
+      'processes': {
+        'alias': 'processes',
+        'apply': 'derivative',
+        'type': 'fork_rate'
+      }
     },
     'panel': {
       'title': 'Processes Fork Rate',
-      'y_formats': [ 'short' ]
+      'y_formats': [ 'pps' ]
     }
   };
 
@@ -425,7 +443,10 @@ define(function getDashConf () {
 
   plugins.users.users = {
     'graph': {
-      'users': { }
+      'users': {
+        'alias': 'count',
+        'apply': 'max'
+      }
     },
     'panel': {
       'title': 'Users'
@@ -438,14 +459,11 @@ define(function getDashConf () {
 
   plugins.uptime.uptime = {
     'graph': {
-      'uptime': {
-        'alias': 'uptime-days',
-        'math': '/ 3600 / 24'
-      }
+      'uptime': { }
     },
     'panel': {
       'title': 'System Uptime',
-      'y_formats': [ 'short' ]
+      'y_formats': [ 's' ]
     }
   };
 
@@ -468,12 +486,11 @@ define(function getDashConf () {
 
   plugins.redis.commands = {
     'graph': {
-      'commands_processed': {
-        'alias': 'commands-processed',
-        'apply': 'derivative' }
+      'commands_processed': { 'apply': 'derivative' }
     },
     'panel': {
-      'title': 'Redis Commands'
+      'title': 'Redis Commands',
+      'y_formats': [ 'ops' ]
     }
   };
 
@@ -481,22 +498,20 @@ define(function getDashConf () {
     'graph': {
       'connections_received': {
         'color': '#447EBC',
-        'apply': 'derivative',
-        'alias': 'connections'
+        'apply': 'derivative'
       },
       'blocked_clients': {
         'color': '#E24D42',
-        'apply': 'derivative',
-        'alias': 'clients-blocked'
+        'apply': 'derivative'
       },
       'connected_clients': {
         'color': '#508642',
-        'apply': 'derivative',
-        'alias': 'clients-connected'
+        'apply': 'derivative'
       }
     },
     'panel': {
-      'title': 'Redis Connections'
+      'title': 'Redis Connections',
+      'y_formats': [ 'ops' ]
     }
   };
 
@@ -504,18 +519,18 @@ define(function getDashConf () {
     'graph': {
       'changes_since_last_save': {
         'color': '#E24D42',
-        'alias': 'changes-unsaved' }
+        'alias': 'changes_unsaved'
+      }
     },
     'panel': {
-      'title': 'Redis Unsaved Changes'
+      'title': 'Redis Unsaved Changes',
+      'y_formats': [ 'short' ]
     }
   };
 
   plugins.redis.slaves = {
     'graph': {
-      'connected_slaves': {
-        'color': '#508642',
-        'alias': 'slaves-connected' }
+      'connected_slaves': { 'color': '#508642' }
     },
     'panel': {
       'title': 'Redis Connected Slaves'
@@ -527,33 +542,36 @@ define(function getDashConf () {
       'keys': { }
     },
     'panel': {
-      'title': 'Redis DB Keys'
+      'title': 'Redis DB Keys',
+      'y_formats': [ 'short' ]
     }
   };
 
   plugins.redis.replMaster = {
     'graph': {
-      'master_repl_offset': { 'alias': 'master-repl-offset' }
+      'master_repl_offset': { }
     },
     'panel': {
-      'title': 'Redis Replication Master'
+      'title': 'Redis Replication Master',
+      'y_formats': [ 'short' ]
     }
   };
 
   plugins.redis.replBacklogCounters = {
     'graph': {
       'repl_backlog_active': { 'alias': 'backlog' },
-      'repl_backlog_histlen': { 'alias': 'history'}
+      'repl_backlog_histlen': { 'alias': 'history' }
     },
     'panel': {
-      'title': 'Redis Replication Backlog Counters'
+      'title': 'Redis Replication Backlog Counters',
+      'y_formats': [ 'short' ]
     }
   };
 
   plugins.redis.replBacklogSize = {
     'graph': {
       'backlog_first_byte_offset': { 'alias': 'offset' },
-      'repl_backlog_size': { 'alias': 'backlog-size' }
+      'repl_backlog_size': { 'alias': 'backlog_size' }
     },
     'panel': {
       'title': 'Redis Replication Backlog Size',
@@ -563,14 +581,11 @@ define(function getDashConf () {
 
   plugins.redis.uptime = {
     'graph': {
-      'uptime_in_seconds': {
-        'color': '#508642',
-        'alias': 'uptime-days',
-        'math': '/ 3600 / 24'
-      }
+      'uptime_in_seconds': { }
     },
     'panel': {
-      'title': 'Redis Uptime'
+      'title': 'Redis Uptime',
+      'y_formats': [ 's' ]
     }
   };
 
@@ -602,7 +617,8 @@ define(function getDashConf () {
       'current': { 'type': 'memcached_connections' }
     },
     'panel': {
-      'title': 'Memcached Connections'
+      'title': 'Memcached Connections',
+      'y_formats': [ 'bytes' ]
     }
   };
 
@@ -611,7 +627,8 @@ define(function getDashConf () {
       'current': { 'type': 'memcached_items' }
     },
     'panel': {
-      'title': 'Memcached Items'
+      'title': 'Memcached Items',
+      'y_formats': [ 'bytes' ]
     }
   };
 
@@ -623,7 +640,8 @@ define(function getDashConf () {
       'touch': { 'apply': 'derivative' }
     },
     'panel': {
-      'title': 'Memcached Commands'
+      'title': 'Memcached Commands',
+      'y_formats': [ 'ops' ]
     }
   };
 
@@ -641,8 +659,8 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Memcached Traffic',
-      'y_formats': [ 'bytes' ],
-      'grid': { 'max': null, 'min': null, 'leftMin': null }
+      'grid': { 'max': null, 'min': null, 'leftMin': null },
+      'y_formats': [ 'bps' ]
     }
   };
 
@@ -657,7 +675,8 @@ define(function getDashConf () {
       'decr_misses': { 'apply': 'derivative' }
     },
     'panel': {
-      'title': 'Memcached Operations'
+      'title': 'Memcached Operations',
+      'y_formats': [ 'ops' ]
     }
   };
 
@@ -677,7 +696,8 @@ define(function getDashConf () {
       'threads': { }
     },
     'panel': {
-      'title': 'Memcached Process Stats'
+      'title': 'Memcached Process Stats',
+      'y_formats': [ 'short' ]
     }
   };
 
@@ -699,7 +719,6 @@ define(function getDashConf () {
     }
   };
 
-
   // collectd rabbitmq plugin configuration: https://github.com/kozdincer/rabbitmq_collectd_plugin
   plugins.rabbitmq = new Plugin({ 'alias': 'rmq' });
 
@@ -720,7 +739,8 @@ define(function getDashConf () {
       'queues': { 'alias': 'queues' }
     },
     'panel': {
-      'title': 'RabbitMQ Channels and Queues'
+      'title': 'RabbitMQ Channels and Queues',
+      'y_formats': [ 'short' ]
     }
   };
 
@@ -731,7 +751,8 @@ define(function getDashConf () {
       'exchanges': { 'alias': 'exchanges' }
     },
     'panel': {
-      'title': 'RabbitMQ Connections'
+      'title': 'RabbitMQ Connections',
+      'y_formats': [ 'short' ]
     }
   };
 
@@ -759,7 +780,8 @@ define(function getDashConf () {
       }
     },
     'panel': {
-      'title': 'RabbitMQ File Descriptors'
+      'title': 'RabbitMQ File Descriptors',
+      'y_formats': [ 'short' ]
     }
   };
 
@@ -823,7 +845,8 @@ define(function getDashConf () {
       'http.current_open': { 'alias': 'http-open' }
     },
     'panel': {
-      'title': 'ElasticSearch HTTP Open'
+      'title': 'ElasticSearch HTTP Open',
+      'y_formats': [ 'short' ]
     }
   };
 
@@ -831,87 +854,77 @@ define(function getDashConf () {
     'graph': {
       'transport.rx.count': {
         'apply': 'derivative',
-        'alias': 'transport.rx'
+        'alias': 'transport-rx'
       },
       'transport.tx.count': {
         'apply': 'derivative',
         'math': '* -1',
-        'alias': 'transport.tx'
+        'alias': 'transport-tx'
       }
     },
     'panel': {
       'title': 'ElasticSearch Transport Counters',
       'grid': { 'max': null, 'min': null, 'leftMin': null },
-      'y_formats': [ 'short' ]
+      'y_formats': [ 'pps' ]
     }
   };
 
   plugins.elasticsearch.transportSize = {
     'graph': {
-      'transport.rx.size': { 'alias': 'transport.rx' },
-      'transport.tx.size': { 'math': '* -1', 'alias': 'transport.tx' }
+      'transport.rx.size': {
+        'alias': 'transport-rx',
+        'apply': 'derivative'
+      },
+      'transport.tx.size': {
+        'alias': 'transport-tx',
+        'math': '* -1',
+        'apply': 'derivative'
+      }
     },
     'panel': {
       'title': 'ElasticSearch Transport Size',
       'grid': { 'max': null, 'min': null, 'leftMin': null },
-      'y_formats': [ 'bytes' ]
+      'y_formats': [ 'bps' ]
     }
   };
 
   plugins.elasticsearch.idxTimes = {
     'graph': {
-      'indices.flush.time': { },
-      'indices.get.exists-time': { },
-      'indices.get.missing-time': { },
-      'indices.get.time': { },
-      'indices.indexing.delete-time': { },
-      'indices.indexing.index-time': { },
-      'indices.merges.time': { },
-      'indices.refresh.time': { },
-      'indices.search.fetch-time': { },
-      'indices.search.query-time': { },
-      'indices.store.throttle-time': { }
+      '/^indices\\..*time$/': { 'apply': 'derivative' }
     },
     'panel': {
-      'title': 'ElasticSearch Indices Times'
+      'title': 'ElasticSearch Indices Times',
+      'y_formats': [ 'ms' ]
     }
   };
 
   plugins.elasticsearch.idxTotals = {
     'graph': {
-      'indices.flush.total': { 'apply': 'derivative' },
-      'indices.get.exists-total': { 'apply': 'derivative' },
-      'indices.get.missing-total': { 'apply': 'derivative' },
-      'indices.get.total': { 'apply': 'derivative' },
-      'indices.indexing.delete-total': { 'apply': 'derivative' },
-      'indices.indexing.index-total': { 'apply': 'derivative' },
-      'indices.merges.total': { 'apply': 'derivative' },
-      'indices.refresh.total': { 'apply': 'derivative' },
-      'indices.search.fetch-total': { 'apply': 'derivative' },
-      'indices.search.query-total': { 'apply': 'derivative' }
+      '/^indices\\..*total$/': { 'apply': 'derivative' }
     },
     'panel': {
-      'title': 'ElasticSearch Indices Totals'
+      'title': 'ElasticSearch Indices Totals',
+      'y_formats': [ 'short' ]
     }
   };
 
   plugins.elasticsearch.idxDocs = {
     'graph': {
-      'indices.docs.count': { },
-      'indices.docs.deleted': { 'apply': 'derivative' }
+      '/^indices\\.docs\\./': { 'apply': 'derivative' }
     },
     'panel': {
-      'title': 'ElasticSearch Indices Docs'
+      'title': 'ElasticSearch Indices Docs',
+      'y_formats': [ 'short' ]
     }
   };
 
   plugins.elasticsearch.idxCacheEvictions = {
     'graph': {
-      'indices.cache.field.eviction': { 'apply': 'derivative' },
-      'indices.cache.filter.evictions': { 'apply': 'derivative' }
+      '/^indices\\.cache\\..*\\.eviction(s)?$/': { 'apply': 'derivative' }
     },
     'panel': {
-      'title': 'ElasticSearch Indices Cache Evictions'
+      'title': 'ElasticSearch Indices Cache Evictions',
+      'y_formats': [ 'ops' ]
     }
   };
 
@@ -965,7 +978,8 @@ define(function getDashConf () {
       'jvm.threads.count': { 'color': '#447EBC' }
     },
     'panel': {
-      'title': 'ElasticSearch JVM Threads'
+      'title': 'ElasticSearch JVM Threads',
+      'y_formats': [ 'short' ]
     }
   };
 
@@ -975,7 +989,8 @@ define(function getDashConf () {
       'jvm.gc.count': { 'apply': 'derivative' }
     },
     'panel': {
-      'title': 'ElasticSearch JVM GC Count'
+      'title': 'ElasticSearch JVM GC Count',
+      'y_formats': [ 'ops' ]
     }
   };
 
@@ -985,121 +1000,68 @@ define(function getDashConf () {
       'jvm.gc.time': { 'apply': 'derivative' }
     },
     'panel': {
-      'title': 'ElasticSearch JVM GC Time'
+      'title': 'ElasticSearch JVM GC Time',
+      'y_formats': [ 'ms' ]
     }
   };
 
   plugins.elasticsearch.threadPoolCompleted = {
     'graph': {
-      'thread_pool.bulk.completed': { 'apply': 'derivative' },
-      'thread_pool.flush.completed': { 'apply': 'derivative' },
-      'thread_pool.generic.completed': { 'apply': 'derivative' },
-      'thread_pool.get.completed': { 'apply': 'derivative' },
-      'thread_pool.index.completed': { 'apply': 'derivative' },
-      'thread_pool.merge.completed': { 'apply': 'derivative' },
-      'thread_pool.optimize.completed': { 'apply': 'derivative' },
-      'thread_pool.refres._completed': { 'apply': 'derivative' },
-      'thread_pool.search.completed': { 'apply': 'derivative' },
-      'thread_pool.snapshot.completed': { 'apply': 'derivative' },
-      'thread_pool.warmer.completed': { 'apply': 'derivative' }
+      '/^thread_pool\\..*completed$/': { 'apply': 'derivative' }
     },
     'panel': {
-      'title': 'ElasticSearch Thread Pool Completed'
+      'title': 'ElasticSearch Thread Pool Completed',
+      'y_formats': [ 'ops' ]
     }
   };
 
   plugins.elasticsearch.threadPoolRejected = {
     'graph': {
-      'thread_pool.bulk.rejected': { 'apply': 'derivative' },
-      'thread_pool.flush.rejected': { 'apply': 'derivative' },
-      'thread_pool.generic.rejected': { 'apply': 'derivative' },
-      'thread_pool.get.rejected': { 'apply': 'derivative' },
-      'thread_pool.index.rejected': { 'apply': 'derivative' },
-      'thread_pool.merge.rejected': { 'apply': 'derivative' },
-      'thread_pool.optimize.rejected': { 'apply': 'derivative' },
-      'thread_pool.refresh.rejected': { 'apply': 'derivative' },
-      'thread_pool.search.rejected': { 'apply': 'derivative' },
-      'thread_pool.snapshot.rejected': { 'apply': 'derivative' },
-      'thread_pool.warmer.rejected': { 'apply': 'derivative' }
+      '/^thread_pool\\..*rejected$/': { 'apply': 'derivative' }
     },
     'panel': {
-      'title': 'ElasticSearch Thread Pool Rejected'
+      'title': 'ElasticSearch Thread Pool Rejected',
+      'y_formats': [ 'ops' ]
     }
   };
 
   plugins.elasticsearch.threadPoolAcrive = {
     'graph': {
-      'thread_pool.bulk.active': { 'apply': 'derivative' },
-      'thread_pool.flush.active': { 'apply': 'derivative' },
-      'thread_pool.generic.active': { 'apply': 'derivative' },
-      'thread_pool.get.active': { 'apply': 'derivative' },
-      'thread_pool.index.active': { 'apply': 'derivative' },
-      'thread_pool.merge.active': { 'apply': 'derivative' },
-      'thread_pool.optimize.active': { 'apply': 'derivative' },
-      'thread_pool.refresh.active': { 'apply': 'derivative' },
-      'thread_pool.search.active': { 'apply': 'derivative' },
-      'thread_pool.snapshot.active': { 'apply': 'derivative' },
-      'thread_pool.warmer.active': { 'apply': 'derivative' }
+      '/^thread_pool\\..*active$/': { 'apply': 'derivative' }
     },
-      'panel': {
-      'title': 'ElasticSearch Thread Pool Active'
+    'panel': {
+      'title': 'ElasticSearch Thread Pool Active',
+      'y_formats': [ 'ops' ]
     }
   };
 
   plugins.elasticsearch.threadPoolLargest = {
     'graph': {
-      'thread_pool.bulk.largest': { },
-      'thread_pool.flush.largest': { },
-      'thread_pool.generic.largest': { },
-      'thread_pool.get.largest': { },
-      'thread_pool.index.largest': { },
-      'thread_pool.merge.largest': { },
-      'thread_pool.optimize.largest': { },
-      'thread_pool.refresh.largest': { },
-      'thread_pool.search.largest': { },
-      'thread_pool.snapshot.largest': { },
-      'thread_pool.warmer.largest': { }
+      '/^thread_pool\\..*largest$/': { }
     },
-      'panel': {
-      'title': 'ElasticSearch Thread Pool Largest'
+    'panel': {
+      'title': 'ElasticSearch Thread Pool Largest',
+      'y_formats': [ 'short' ]
     }
   };
 
   plugins.elasticsearch.threadPoolQueue = {
     'graph': {
-      'thread_pool.bulk.queue': { },
-      'thread_pool.flush.queue': { },
-      'thread_pool.generic.queue': { },
-      'thread_pool.get.queue': { },
-      'thread_pool.index.queue': { },
-      'thread_pool.merge.queue': { },
-      'thread_pool.optimize.queue': { },
-      'thread_pool.refresh.queue': { },
-      'thread_pool.search.queue': { },
-      'thread_pool.snapshot.queue': { },
-      'thread_pool.warmer.queue': { }
+      '/^thread_pool\\..*queue$/': { }
     },
-      'panel': {
-      'title': 'ElasticSearch Thread Pool Queue'
+    'panel': {
+      'title': 'ElasticSearch Thread Pool Queue',
+      'y_formats': [ 'short' ]
     }
   };
 
   plugins.elasticsearch.threadPoolThread = {
     'graph': {
-      'thread_pool.bulk.threads': { },
-      'thread_pool.flush.threads': { },
-      'thread_pool.generic.threads': { },
-      'thread_pool.get.threads': { },
-      'thread_pool.index.threads': { },
-      'thread_pool.merge.threads': { },
-      'thread_pool.optimize.threads': { },
-      'thread_pool.refresh.threads': { },
-      'thread_pool.search.threads': { },
-      'thread_pool.snapshot.threads': { },
-      'thread_pool.warmer.threads': { }
+      '/^thread_pool\\..*threads$/': { }
     },
-      'panel': {
-      'title': 'ElasticSearch Thread Pool Threads'
+    'panel': {
+      'title': 'ElasticSearch Thread Pool Threads',
+      'y_formats': [ 'short' ]
     }
   };
 
@@ -1117,7 +1079,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Nginx Requests',
-      'y_formats': [ 'short' ]
+      'y_formats': [ 'ops' ]
     }
   };
 
@@ -1134,7 +1096,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Nginx Connections',
-      'y_formats': [ 'short' ]
+      'y_formats': [ 'ops' ]
     }
   };
 
@@ -1151,6 +1113,7 @@ define(function getDashConf () {
     }
   };
 
+
   // collectd apache plugin
   plugins.apache = new Plugin({ 'alias': 'apache' });
 
@@ -1165,7 +1128,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Apache Bytes',
-      'y_formats': [ 'bytes' ]
+      'y_formats': [ 'bps' ]
     }
   };
 
@@ -1184,7 +1147,7 @@ define(function getDashConf () {
     }
   };
 
-  plugins.apache.idle_workers = {
+  plugins.apache.idleWorkers = {
     'graph': {
       'apache_value': {
         'type': 'apache_idle_workers',
@@ -1214,7 +1177,7 @@ define(function getDashConf () {
     }
   };
 
-  plugins.apache.apache_scoreboard = {
+  plugins.apache.apacheScoreboard = {
     'graph': {
       'open': { 'color': '#FCE94F' },
       'starting': { 'color': '#FCAF3E' },
@@ -1231,9 +1194,10 @@ define(function getDashConf () {
     'panel': {
       'title': 'Apache Scoreboard',
       'y_formats': [ 'short' ],
-      'tooltip': { 'value_type': 'individual' },
+      'tooltip': { 'value_type': 'individual' }
     }
   };
+
 
   // collectd postgresql plugin configuration
   plugins.postgresql = new Plugin({ 'alias': 'psql' });
@@ -1410,8 +1374,8 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Zookeeper packets for @metric',
-      'y_formats': [ 'pps' ],
-      'grid': { 'max': null, 'min': null, 'leftMin': null }
+      'grid': { 'max': null, 'min': null, 'leftMin': null },
+      'y_formats': [ 'pps' ]
     }
   };
 
@@ -1421,7 +1385,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Zookeeper latency for @metric',
-      'y_formats': [ 'short' ]
+      'y_formats': [ 'ms' ]
     }
   };
 
@@ -1431,8 +1395,8 @@ define(function getDashConf () {
 
   plugins.mesos.cpus = {
     'graph': {
-      'cpus_total': { 'color': '#508642' },
-      'cpus_used': { 'color': '#447EBC' }
+      '/(master|slave)_cpus_total/': { 'color': '#508642' },
+      '/(master|slave)_cpus_used/': { 'color': '#447EBC' }
     },
     'panel': {
       'title': 'Mesos CPUs',
@@ -1525,13 +1489,11 @@ define(function getDashConf () {
 
   plugins.mesos.uptime = {
     'graph': {
-      'uptime_secs': {
-        'color': '#508642',
-        'alias': 'uptime-days',
-        'math': '/ 3600 / 24' }
+      'uptime_secs': { }
     },
     'panel': {
       'title': 'Mesos Uptime',
+      'y_formats': [ 's' ],
       'fill': 5
     }
   };
@@ -1562,7 +1524,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Mesos Slave recovery errors/sec',
-      'y_formats': [ 'short' ]
+      'y_formats': [ 'ops' ]
     }
   };
 
@@ -1584,7 +1546,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Mesos status updates/sec',
-      'y_formats': [ 'short' ]
+      'y_formats': [ 'ops' ]
     }
   };
 
@@ -1598,7 +1560,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Mesos tasks results/sec',
-      'y_formats': [ 'short' ]
+      'y_formats': [ 'ops' ]
     }
   };
 
@@ -1631,7 +1593,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Mesos framework messages/sec',
-      'y_formats': [ 'short' ]
+      'y_formats': [ 'ops' ]
     }
   };
 
@@ -1643,7 +1605,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Mesos framework executor messages/sec',
-      'y_formats': [ 'short' ]
+      'y_formats': [ 'ops' ]
     }
   };
 
@@ -1656,7 +1618,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Mesos framework messages/sec',
-      'y_formats': [ 'short' ]
+      'y_formats': [ 'ops' ]
     }
   };
 
@@ -1674,7 +1636,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Mesos operation messages/sec',
-      'y_formats': [ 'short' ]
+      'y_formats': [ 'ops' ]
     }
   };
 
@@ -1686,7 +1648,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Mesos slave messages/sec',
-      'y_formats': [ 'short' ]
+      'y_formats': [ 'ops' ]
     }
   };
 
@@ -1698,7 +1660,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Mesos offer messages/sec',
-      'y_formats': [ 'short' ]
+      'y_formats': [ 'ops' ]
     }
   };
 
@@ -1710,7 +1672,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Mesos task messages/sec',
-      'y_formats': [ 'short' ]
+      'y_formats': [ 'ops' ]
     }
   };
 
@@ -1721,7 +1683,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Mesos slave operations/sec',
-      'y_formats': [ 'short' ]
+      'y_formats': [ 'ops' ]
     }
   };
 
@@ -1788,5 +1750,5 @@ define(function getDashConf () {
 
   return {
     'plugins': plugins
-  }; 
+  };
 });
