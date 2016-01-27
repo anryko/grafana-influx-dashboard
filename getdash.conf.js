@@ -233,7 +233,9 @@ define(function getDashConf () {
 
   plugins.ipvs.ipvs = {
     'graph': {
-      'ipvs_value': { }
+      'ipvs_value': {
+        'apply': 'derivative'
+      }
     },
     'panel': {
       'title': 'Loadbalanced connections',
