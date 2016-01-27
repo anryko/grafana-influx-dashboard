@@ -55,6 +55,7 @@ http://grafanaIP/dashboard/script/getdash.js?metric=redis&span=4
 * [mesos](https://github.com/rayrod2030/collectd-mesos)
 * [apache](https://collectd.org/wiki/index.php/Plugin:Apache)
 * [nfs](https://collectd.org/wiki/index.php/Plugin:NFS)
+* [ipvs](https://collectd.org/wiki/index.php/Plugin:IPVS)
 
 #### Supported metric groups
 * system
