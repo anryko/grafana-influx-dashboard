@@ -43,7 +43,8 @@ define(function getDashConf () {
     'entropy',
     'users',
     'uptime',
-    'nfs'
+    'nfs',
+    'ipvs'
   ];
   plugins.groups.middleware = [
     'redis',
@@ -227,6 +228,20 @@ define(function getDashConf () {
     }
   };
 
+  // collectd ipvs plugin configuration
+  plugins.ipvs = new Plugin({ 'alias': 'ipvs'});
+
+  plugins.ipvs.ipvs = {
+    'graph': {
+      'ipvs_value': {
+        'apply': 'derivative'
+      }
+    },
+    'panel': {
+      'title': 'Loadbalanced connections',
+      'y_formats': [ 'pps' ]
+    }
+  };
 
   // collectd ping plugin configuration
   plugins.ping = new Plugin();
