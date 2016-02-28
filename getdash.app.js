@@ -107,7 +107,7 @@ define([
     alias: '',
     tags: [],  // [tagProto]
     select: [],  // [selectProto]
-    interval: '1m',
+    interval: false,
     query: '',
     groupBy: [
       {
@@ -716,7 +716,7 @@ define([
   var getInterval = function getInterval (time) {
     var rTime = parseTime(time);
     if (!rTime)
-      return '1m';
+      return false;
 
     var timeM = 0;
     if (rTime[2] === 'm')
