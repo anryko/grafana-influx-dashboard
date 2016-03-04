@@ -2,7 +2,7 @@
 
 Javascript dashboard auto-generation script to mimic comfortable Munin behaviour in Grafana. Main project goal is to be able to see all the stats for the added machine in one dashboard (to have possibility to add auto-generated URL to the existing monitoring system alarm notification for faster incident investigation). Project is written and tested with CollectD->InfluxDB+(input_plugins.collectd) as a system stats collector but with minor configuration changes should be collector independent.
 
-:white_check_mark: Tested for **Grafana 2.6.0** and **InfluxDB v0.9.6.1**
+:white_check_mark: Tested for **Grafana 2.6.0** and **InfluxDB v0.10.2**
 
 ## Demonstration
 ![](https://media.giphy.com/media/3oEdvcYi3a3KVvtuHS/giphy.gif)
@@ -12,7 +12,7 @@ There is a bash installation script included. Substitute GRAFANA_ROOT_DIR with a
 ```bash
 # for influxdb v0.8
 git clone -b influxdb_v0.8 --depth=1 https://github.com/anryko/grafana-influx-dashboard.git
-# for influxdb v0.9
+# for influxdb >= v0.9
 git clone --depth=1 https://github.com/anryko/grafana-influx-dashboard.git
 
 cd grafana-influx-dashboard
