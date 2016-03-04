@@ -109,6 +109,7 @@ define([
     select: [],  // [selectProto]
     interval: false,
     query: '',
+    fill: 'none',
     groupBy: [
       {
         type: 'time',
@@ -712,29 +713,6 @@ define([
   };
 
 
-  // getInterval :: timeStr -> intervalStr
-  var getInterval = function getInterval (time) {
-    var rTime = parseTime(time);
-    if (!rTime)
-      return false;
-
-    var timeM = 0;
-    if (rTime[2] === 'm')
-      timeM = parseInt(rTime[1]);
-    else if (rTime[2] === 'h')
-      timeM = parseInt(rTime[1]) * 60;
-    else if (rTime[2] === 'd')
-      timeM = parseInt(rTime[1]) * 60 * 24;
-
-    if (timeM > 360)
-      return  (Math.ceil((Math.floor(timeM / 360) + 1) / 5) * 5).toString() + 'm';
-    else if (timeM === 360)
-      return '1m';
-    else
-      return '30s';
-  };
-
-
   // getMetricArr :: pluginsObj, displayMetricStr -> [metricStr]
   var getMetricArr = _.curry(function getMetricArr (plugins, displayMetric) {
     if (!displayMetric)
@@ -967,7 +945,6 @@ define([
       var series = genSeries(dashConf, seriesResp, datasources);
 
       // Object prototypes setup
-      targetProto.interval = getInterval(dashConf.time);
       panelProto.span = dashConf.span;
 
       dashboard.rows = getRows(dashPlugins, series);
@@ -979,7 +956,6 @@ define([
       var series = genSeries(dashConf, seriesResp, datasources);
 
       // Object prototypes setup
-      targetProto.interval = getInterval(dashConf.time);
       panelProto.span = dashConf.span;
 
       dashboard.rows = getRows(dashPlugins, series);
