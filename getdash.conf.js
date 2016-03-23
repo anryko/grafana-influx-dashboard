@@ -63,6 +63,18 @@ define(function getDashConf () {
 
 
   // collectd cpu plugin configuration: https://github.com/anryko/cpu-collectd-plugin
+  // works also with default cpu collectd plugin configured as below
+  // for reporting aggregated on collectd level metrics:
+  // <Plugin cpu>
+  //   ReportByState true
+  //   ReportByCPU false
+  // </Plugin>
+  // for reporting per-CPU (per-core) metrics that will be aggregated on Grafana level:
+  // <Plugin cpu>
+  //   ReportByState true
+  //   ReportByCPU true
+  //   ValuesPercentage true
+  // </Plugin>
   plugins.cpu = new Plugin({ 'alias': 'cpu' });
   plugins.cpu.config.merge = [ 'instance' ];
 
