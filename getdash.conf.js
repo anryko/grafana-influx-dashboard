@@ -124,7 +124,18 @@ define(function getDashConf () {
 
   plugins.load.midterm = {
     'graph': {
-      'load': { }
+      'load_shortterm': {
+         'color': '#508642',
+         'alias': 'short (1m)'
+       },
+      'load_midterm': {
+         'color': '#447EBC',
+         'alias': 'mid (5m)'
+       },
+      'load_longterm': {
+         'color': '#C15C17',
+         'alias': 'long (15m)'
+       }
     },
     'panel': {
       'title': 'Load Average'
@@ -248,7 +259,7 @@ define(function getDashConf () {
 
   plugins.ping.ping = {
     'graph': {
-      'ping_value': { }
+      'ping_value': { 'color': '#1F78C1' }
     },
     'panel': {
       'title': 'Ping',
@@ -277,7 +288,61 @@ define(function getDashConf () {
 
   plugins.connstate.connStates = {
     'graph': {
-      'connstate': { 'apply': 'sum' }
+      'established': {
+        'color': '#FCE94F',
+        'apply': 'sum',
+        'alias': 'ESTABLISHED'
+      },
+      'syn_sent': {
+        'color': '#FCAF3E',
+        'apply': 'sum',
+        'alias': 'SYN_SENT'
+      },
+      'syn_recv': {
+        'color': '#8AE234',
+        'apply': 'sum',
+        'alias': 'SYN_RECV'
+      },
+      'fin_wait1': {
+        'color': '#729FCF',
+        'apply': 'sum',
+        'alias': 'FIN_WAIT1'
+      },
+      'fin_wait2': {
+        'color': '#AD7FA8',
+        'apply': 'sum',
+        'alias': 'FIN_WAIT2'
+      },
+      'time_wait': {
+        'color': '#EF2929',
+        'apply': 'sum',
+        'alias': 'TIME_WAIT'
+      },
+      '/close$/': {
+        'color': '#D3D7CF',
+        'apply': 'sum',
+        'alias': 'CLOSE'
+      },
+      'close_wait': {
+        'color': '#2E3436',
+        'apply': 'sum',
+        'alias': 'CLOSE_WAIT'
+      },
+      'last_ack': {
+        'color': '#4E9A06',
+        'apply': 'sum',
+        'alias': 'LAST_ACK'
+      },
+      'listen': {
+        'color': '#CE5C00',
+        'apply': 'sum',
+        'alias': 'LISTEN'
+      },
+      'closing': {
+        'color': '#C4A000',
+        'apply': 'sum',
+        'alias': 'CLOSING'
+      }
     },
     'panel': {
       'title': 'Network Connections States',
@@ -427,6 +492,7 @@ define(function getDashConf () {
   plugins.processes.fork = {
     'graph': {
       'processes': {
+        'color': '#BA43A9',
         'alias': 'processes',
         'apply': 'derivative',
         'type': 'fork_rate'
@@ -444,7 +510,7 @@ define(function getDashConf () {
 
   plugins.entropy.entropy = {
     'graph': {
-      'entropy': { }
+      'entropy': { 'color': '#28d' }
     },
     'panel': {
       'title': 'Entropy',
@@ -459,6 +525,7 @@ define(function getDashConf () {
   plugins.users.users = {
     'graph': {
       'users': {
+        'color': '#CCFF66',
         'alias': 'count',
         'apply': 'max'
       }
@@ -474,7 +541,7 @@ define(function getDashConf () {
 
   plugins.uptime.uptime = {
     'graph': {
-      'uptime': { }
+      'uptime': { 'color': '#00FF99' }
     },
     'panel': {
       'title': 'System Uptime',
