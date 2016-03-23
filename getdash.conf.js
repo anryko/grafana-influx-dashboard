@@ -37,8 +37,11 @@ define(function getDashConf () {
     'interface',
     'ping',
     'connstate',
+    'tcpconns',
+    'conntrack',
     'df',
     'disk',
+    'hddtemp',
     'processes',
     'entropy',
     'users',
@@ -363,6 +366,115 @@ define(function getDashConf () {
   };
 
 
+  // collectd tcpconns plugin configuration
+  plugins.tcpconns = new Plugin({ 'alias': 'tcpconns' });
+  plugins.tcpconns.config.multi = true;
+
+  plugins.tcpconns.tcpconnss = {
+    'graph': {
+      'ESTABLISHED': {
+        'color': '#FCE94F',
+        'alias': 'ESTABLISHED'
+      },
+      'SYN_SENT': {
+        'color': '#FCAF3E',
+        'alias': 'SYN_SENT'
+      },
+      'SYN_RECV': {
+        'color': '#8AE234',
+        'alias': 'SYN_RECV'
+      },
+      'FIN_WAIT1': {
+        'color': '#729FCF',
+        'alias': 'FIN_WAIT1'
+      },
+      'FIN_WAIT2': {
+        'color': '#AD7FA8',
+        'alias': 'FIN_WAIT2'
+      },
+      'TIME_WAIT': {
+        'color': '#EF2929',
+        'alias': 'TIME_WAIT'
+      },
+      'CLOSED': {
+        'color': '#D3D7CF',
+        'alias': 'CLOSED'
+      },
+      'CLOSE_WAIT': {
+        'color': '#2E3436',
+        'alias': 'CLOSE_WAIT'
+      },
+      'LAST_ACK': {
+        'color': '#4E9A06',
+        'alias': 'LAST_ACK'
+      },
+      'LISTEN': {
+        'color': '#CE5C00',
+        'alias': 'LISTEN'
+      },
+      'CLOSING': {
+        'color': '#C4A000',
+        'alias': 'CLOSING'
+      }
+    },
+    'panel': {
+      'title': 'Network TCP Connections States',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+
+  // collectd conntrack plugin configuration
+  // collectd conntrack plugin returns measurements like this:
+  //   conntrack_value,host=host.example.com,type=conntrack
+  //   conntrack_value,host=host.example.com,type=conntrack,type_instance=max
+  //   conntrack_value,host=host.example.com,type=percent,type_instance=used
+  // so tag 'type_instance' has an empty value. To set proper value we'll
+  // use collectd chains https://collectd.org/wiki/index.php/Chains
+  //   LoadPlugin match_regex
+  //   LoadPlugin target_replace
+  //
+  //   <Chain "PreCache">
+  //     <Rule "conntrack_add_instance_type" >
+  //       <Match "regex">
+  //         Plugin "^conntrack$"
+  //       </Match>
+  //       <Target "replace">
+  //         TypeInstance "^$" "used"
+  //       </Target>
+  //       Target "return"
+  //     </Rule>
+  //     Target "return"
+  //   </Chain>
+  plugins.conntrack = new Plugin();
+
+  plugins.conntrack.conntrack = {
+    'graph': {
+      'used': {
+        'color': '#00FF99',
+        'type': 'conntrack',
+      }
+    },
+    'panel': {
+      'title': 'Network Connections Tracked Count',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  plugins.conntrack.percent = {
+    'graph': {
+      'used': {
+        'color': '#00FF99',
+        'type': 'percent',
+       }
+    },
+    'panel': {
+      'title': 'Network Connections Table Usage',
+      'y_formats': [ 'percent' ]
+    }
+  };
+
+
   // collectd df plugin configuration
   plugins.df = new Plugin();
   plugins.df.config.multi = true;
@@ -479,6 +591,20 @@ define(function getDashConf () {
       'title': 'Disk Wait for @metric',
       'grid': { 'max': null, 'min': null, 'leftMin': null },
       'y_formats': [ 'ms' ]
+    }
+  };
+
+
+  // collectd hddtemp plugin configuration
+  plugins.hddtemp = new Plugin();
+
+  plugins.hddtemp.temperature = {
+    'graph': {
+       '': { }
+     },
+    'panel': {
+      'title': 'Disk Temperature',
+      'y_formats': [ 'celsius' ]
     }
   };
 
