@@ -56,6 +56,10 @@ http://grafanaIP/dashboard/script/getdash.js?metric=redis&span=4
 * [apache](https://collectd.org/wiki/index.php/Plugin:Apache)
 * [nfs](https://collectd.org/wiki/index.php/Plugin:NFS)
 * [ipvs](https://collectd.org/wiki/index.php/Plugin:IPVS)
+* [conntrack](https://collectd.org/wiki/index.php/Plugin:ConnTrack)
+* [hddtemp](https://collectd.org/wiki/index.php/Plugin:HDDTemp)
+* [lvm](https://collectd.org/wiki/index.php/Plugin:LVM)
+* [tcpconns](https://collectd.org/wiki/index.php/Plugin:TCPConns)
 
 #### Supported metric groups
 * system
