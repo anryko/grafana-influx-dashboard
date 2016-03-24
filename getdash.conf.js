@@ -40,6 +40,7 @@ define(function getDashConf () {
     'tcpconns',
     'conntrack',
     'df',
+    'lvm',
     'disk',
     'hddtemp',
     'processes',
@@ -418,7 +419,7 @@ define(function getDashConf () {
       }
     },
     'panel': {
-      'title': 'Network TCP Connections States',
+      'title': 'Network Connections States for TCP/@metric',
       'y_formats': [ 'short' ]
     }
   };
@@ -520,6 +521,21 @@ define(function getDashConf () {
     'panel': {
       'title': 'Disk inodes for @metric',
       'y_formats': [ 'short' ],
+      'stack': true,
+      'tooltip': { 'value_type': 'individual' }
+    }
+  };
+
+
+  // collectd lvm plugin configuration
+  plugins.lvm = new Plugin();
+  plugins.lvm.config.multi = true;
+
+  plugins.lvm.space = {
+    'graph': { '': { } },
+    'panel': {
+      'title': 'Disk space for @metric',
+      'y_formats': [ 'bytes' ],
       'stack': true,
       'tooltip': { 'value_type': 'individual' }
     }
