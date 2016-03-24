@@ -634,13 +634,14 @@ define([
         if (_.isUndefined(ds.database))
           return {
             datasource: ds.name,
-            url: ds.url + '/query?q=' + encodeURIComponent('SHOW TAG VALUES WITH KEY = host;')
+            url: ds.url + '/query?q=' + encodeURIComponent('SHOW TAG VALUES FROM '+
+                                                            query + ' WITH KEY = host;')
           };
 
         return {
           datasource: ds.name,
           url: ds.url + '/query?db=' + ds.database + '&u=' + ds.username + '&p=' + ds.password +
-            '&q=' + encodeURIComponent('SHOW TAG VALUES WITH KEY = host;')
+            '&q=' + encodeURIComponent('SHOW TAG VALUES FROM ' + query + ' WITH KEY = host;')
         };
       });
     }));
@@ -929,7 +930,7 @@ define([
       }
 
       getDBData(queriesForDDash).then(function (resp) {
-        var hosts = _.uniq(_.flatten(_.compact(parseResp(resp))));
+        var hosts = _.without(_.uniq(_.flatten(_.compact(parseResp(resp)))), 'host');
         return callback(setupDefaultDashboard(hosts, dashboard));
       });
       return;
