@@ -62,6 +62,7 @@ define(function getDashConf () {
   ];
   plugins.groups.database = [
     'elasticsearch',
+    'mysql',
     'postgresql'
   ];
 
@@ -457,7 +458,7 @@ define(function getDashConf () {
       }
     },
     'panel': {
-      'title': 'Network Connections Tracked Count',
+      'title': 'Network Connections Tracking Count',
       'y_formats': [ 'short' ]
     }
   };
@@ -470,7 +471,7 @@ define(function getDashConf () {
        }
     },
     'panel': {
-      'title': 'Network Connections Table Usage',
+      'title': 'Network Connections Tracking Table Usage',
       'y_formats': [ 'percent' ]
     }
   };
@@ -1353,17 +1354,18 @@ define(function getDashConf () {
   // collectd apache plugin
   plugins.apache = new Plugin({ 'alias': 'apache' });
 
-  plugins.apache.bytes = {
+  plugins.apache.traffic = {
     'graph': {
       'apache_value': {
         'type': 'apache_bytes',
-        'color': '#CCFF66',
-        'alias': 'bytes',
-        'apply': 'derivative'
+        'color': '#508642',
+        'alias': 'tx',
+        'apply': 'derivative',
+        'math': '* 8'
       }
     },
     'panel': {
-      'title': 'Apache Bytes',
+      'title': 'Apache Network Traffic',
       'y_formats': [ 'bps' ]
     }
   };
@@ -1431,6 +1433,230 @@ define(function getDashConf () {
       'title': 'Apache Scoreboard',
       'y_formats': [ 'short' ],
       'tooltip': { 'value_type': 'individual' }
+    }
+  };
+
+
+  // collectd mysql plugin configuration
+  plugins.mysql = new Plugin();
+  plugins.mysql.config.multi = true;
+
+  plugins.mysql.commands = {
+    'graph': {
+      '': {
+        'apply': 'derivative',
+        'type': 'mysql_commands'
+      }
+    },
+    'panel': {
+      'title': 'MySQL commands for @metric',
+      'stack': true,
+      'tooltip': { 'value_type': 'individual' },
+      'y_formats': [ 'ops' ]
+    }
+  };
+
+  plugins.mysql.handlers = {
+    'graph': {
+      '': {
+        'apply': 'derivative',
+        'type': 'mysql_handler'
+      }
+    },
+    'panel': {
+      'title': 'MySQL handlers for @metric',
+      'stack': true,
+      'tooltip': { 'value_type': 'individual' },
+      'y_formats': [ 'ops' ]
+    }
+  };
+
+  plugins.mysql.locks = {
+    'graph': {
+      'immediate': {
+        'color': '#508642',
+        'apply': 'derivative',
+        'type': 'mysql_locks'
+      },
+      'waited': {
+        'color': '#BF1B00',
+        'apply': 'derivative',
+        'type': 'mysql_locks'
+      }
+    },
+    'panel': {
+      'title': 'MySQL locks for @metric',
+      'stack': true,
+      'tooltip': { 'value_type': 'individual' },
+      'y_formats': [ 'ops' ],
+      'fill': 5
+    }
+  };
+
+  plugins.mysql.select = {
+    'graph': {
+      'full_join': {
+        'color': '#EAB839',
+        'apply': 'derivative',
+        'type': 'mysql_select'
+      },
+      'full_range_join': {
+        'color': '#EF843C',
+        'apply': 'derivative',
+        'type': 'mysql_select'
+      },
+      '/range$/': {
+        'color': '#6ED0E0',
+        'apply': 'derivative',
+        'type': 'mysql_select'
+      },
+      'range_check': {
+        'color': '#1F78C1',
+        'apply': 'derivative',
+        'type': 'mysql_select'
+      },
+      'scan': {
+        'color': '#E24D42',
+        'apply': 'derivative',
+        'type': 'mysql_select'
+      }
+    },
+    'panel': {
+      'title': 'MySQL select for @metric',
+      'stack': true,
+      'tooltip': { 'value_type': 'individual' },
+      'y_formats': [ 'ops' ],
+      'fill': 5
+    }
+  };
+
+  plugins.mysql.sort = {
+    'graph': {
+      'merge_passes': {
+        'color': '#EAB839',
+        'apply': 'derivative',
+        'type': 'mysql_sort'
+      },
+      'range': {
+        'color': '#6ED0E0',
+        'apply': 'derivative',
+        'type': 'mysql_sort'
+      },
+      'rows': {
+        'color': '#1F78C1',
+        'apply': 'derivative',
+        'type': 'mysql_sort'
+      },
+      'scan': {
+        'color': '#E24D42',
+        'apply': 'derivative',
+        'type': 'mysql_sort'
+      }
+    },
+    'panel': {
+      'title': 'MySQL sort for @metric',
+      'stack': true,
+      'tooltip': { 'value_type': 'individual' },
+      'y_formats': [ 'ops' ],
+      'fill': 5
+    }
+  };
+
+  plugins.mysql.threads = {
+    'graph': {
+      'cached': {
+        'color': '#508642',
+        'type': 'threads'
+      },
+      'connected': {
+        'color': '#EAB839',
+        'type': 'threads'
+      },
+      'running': {
+        'color': '#890F02',
+        'type': 'threads'
+      },
+      'created': {
+        'color': '#2F575E',
+        'apply': 'derivative',
+        'type': 'total_threads'
+      }
+    },
+    'panel': {
+      'title': 'MySQL threads for @metric',
+      'stack': true,
+      'tooltip': { 'value_type': 'individual' },
+      'y_formats': [ 'short' ],
+    }
+  };
+
+  plugins.mysql.qcache = {
+    'graph': {
+      'qcache-hits': {
+        'color': '#508642',
+        'apply': 'derivative',
+        'type': 'cache_result'
+      },
+      'qcache-inserts': {
+        'color': '#6ED0E0',
+        'apply': 'derivative',
+        'type': 'cache_result'
+      },
+      'qcache-not_cached': {
+        'color': '#EAB839',
+        'apply': 'derivative',
+        'type': 'cache_result'
+      },
+      'qcache-prunes': {
+        'color': '#890F02',
+        'apply': 'derivative',
+        'type': 'cache_result'
+      }
+    },
+    'panel': {
+      'title': 'MySQL Query Cache for @metric',
+      'stack': true,
+      'tooltip': { 'value_type': 'individual' },
+      'y_formats': [ 'ops' ],
+      'fill': 5
+    }
+  };
+
+  plugins.mysql.qcache_size = {
+    'graph': {
+      'qcache': {
+        'color': '#1F78C1',
+        'alias': 'queries',
+        'type': 'cache_size'
+      }
+    },
+    'panel': {
+      'title': 'MySQL Query Cache Size for @metric',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  plugins.mysql.traffic = {
+    'graph': {
+      'rx': {
+        'color': '#447EBC',
+        'alias': 'rx',
+        'apply': 'derivative',
+        'math': '* -8',
+        'type': 'mysql_octets'
+      },
+      'tx': {
+        'color': '#508642',
+        'alias': 'tx',
+        'apply': 'derivative',
+        'math': '* 8',
+        'type': 'mysql_octets'
+      }
+    },
+    'panel': {
+      'title': 'MySQL Network Traffic on @metric',
+      'y_formats': [ 'bps' ],
+      'grid': { 'max': null, 'min': null, 'leftMin': null }
     }
   };
 
