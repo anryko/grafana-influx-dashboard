@@ -522,7 +522,7 @@ define(function getDashConf () {
 
   plugins.entropy.entropy = {
     'graph': {
-      'entropy': { 'color': '#28d' }
+      'entropy': { 'color': '#1F78C1' }
     },
     'panel': {
       'title': 'Entropy',
