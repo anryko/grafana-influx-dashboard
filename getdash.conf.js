@@ -71,9 +71,9 @@ define(function getDashConf () {
     'panel': {
       'title': 'CPU',
       'y_formats': [ 'percent' ],
-      'lines': false,
-      'bars': true,
+      'fill': 7,
       'stack': true,
+      'tooltip': { 'value_type': 'individual' },
       'percentage': true,
     },
   };
@@ -93,6 +93,7 @@ define(function getDashConf () {
       'title': 'Memory',
       'y_formats': [ 'bytes' ],
       'stack': true,
+      'tooltip': { 'value_type': 'individual' },
     },
   };
 
@@ -123,6 +124,7 @@ define(function getDashConf () {
       'title': 'Swap',
       'y_formats': [ 'bytes' ],
       'stack': true,
+      'tooltip': { 'value_type': 'individual' },
     },
   };
 
@@ -163,7 +165,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Network Traffic on @metric',
-      'y_formats': [ 'bytes' ],
+      'y_formats': [ 'bps' ],
       'grid': { 'max': null, 'min': null, 'leftMin': null },
     },
   };
@@ -188,6 +190,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Network Packets on @metric',
+      'y_formats': [ 'pps' ],
       'grid': { 'max': null, 'min': null, 'leftMin': null },
     },
   };
@@ -206,6 +209,7 @@ define(function getDashConf () {
       'title': 'Disk space for @metric',
       'y_formats': [ 'bytes' ],
       'stack': true,
+      'tooltip': { 'value_type': 'individual' },
     },
   };
 
@@ -219,6 +223,7 @@ define(function getDashConf () {
       'title': 'Disk inodes for @metric',
       'y_formats': [ 'short' ],
       'stack': true,
+      'tooltip': { 'value_type': 'individual' },
     },
   };
 
@@ -248,6 +253,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Disk Operations for @metric',
+      'y_formats': [ 'iops' ],
       'grid': { 'max': null, 'min': null, 'leftMin': null },
     },
   };
@@ -297,6 +303,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Disk Wait for @metric',
+      'y_formats': [ 'ms' ],
       'grid': { 'max': null, 'min': null, 'leftMin': null },
     },
   };
@@ -326,7 +333,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Processes Fork Rate',
-      'y_formats': [ 'short' ],
+      'y_formats': [ 'pps' ],
     },
   };
 
@@ -363,11 +370,11 @@ define(function getDashConf () {
 
   plugins.uptime.uptime = {
     'graph': {
-      'uptime': { 'alias': 'uptime-days', 'column': 'value/3600/24' },
+      'uptime': { 'alias': 'uptime' },
     },
     'panel': {
       'title': 'System Uptime',
-      'y_formats': [ 'short' ],
+      'y_formats': [ 's' ],
     },
   };
 
@@ -391,6 +398,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Redis Commands',
+      'y_formats': [ 'ops' ],
     },
   };
 
@@ -402,6 +410,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Redis Connections',
+      'y_formats': [ 'ops' ],
     },
   };
 
@@ -411,6 +420,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Redis Unsaved Changes',
+      'y_formats': [ 'short' ],
     },
   };
 
@@ -429,6 +439,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Redis DB Keys',
+      'y_formats': [ 'short' ],
     },
   };
 
@@ -438,6 +449,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Redis Replication Master',
+      'y_formats': [ 'short' ],
     },
   };
 
@@ -448,6 +460,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Redis Replication Backlog Counters',
+      'y_formats': [ 'short' ],
     },
   };
 
@@ -464,10 +477,11 @@ define(function getDashConf () {
 
   plugins.redis.uptime = {
     'graph': {
-      'uptime_in_seconds': { 'color': '#508642', 'alias': 'uptime-hours', 'column': 'value/3600' },
+      'uptime_in_seconds': { 'color': '#508642', 'alias': 'uptime' },
     },
     'panel': {
       'title': 'Redis Uptime',
+      'y_formats': [ 's' ],
     },
   };
 
@@ -494,6 +508,7 @@ define(function getDashConf () {
       'title': 'Memcached Memomy',
       'y_formats': [ 'bytes' ],
       'stack': true,
+      'tooltip': { 'value_type': 'individual' },
     },
   };
 
@@ -503,6 +518,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Memcached Connections',
+      'y_formats': [ 'bytes' ],
     },
   };
 
@@ -512,6 +528,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Memcached Items',
+      'y_formats': [ 'bytes' ],
     },
   };
 
@@ -524,6 +541,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Memcached Commands',
+      'y_formats': [ 'ops' ],
     },
   };
 
@@ -547,7 +565,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Memcached Traffic',
-      'y_formats': [ 'bytes' ],
+      'y_formats': [ 'bps' ],
       'grid': { 'max': null, 'min': null, 'leftMin': null },
     },
   };
@@ -565,6 +583,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Memcached Operations',
+      'y_formats': [ 'ops' ],
     },
   };
 
@@ -593,6 +612,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Memcached Process Stats',
+      'y_formats': [ 'short' ],
     },
   };
 
@@ -616,6 +636,7 @@ define(function getDashConf () {
     'panel': {
       'title': 'Memcached CPU Time',
       'stack': true,
+      'tooltip': { 'value_type': 'individual' },
     },
   };
 
@@ -640,7 +661,8 @@ define(function getDashConf () {
       'queues': { 'alias': 'queues' },
     },
     'panel': {
-      'title': 'RabbitMQ Channels and Queues',
+      'title': 'RabbitMQ Channels and Queues', 
+      'y_formats': [ 'short' ],
     },
   };
 
@@ -652,6 +674,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'RabbitMQ Connections',
+      'y_formats': [ 'short' ],
     },
   };
 
@@ -674,6 +697,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'RabbitMQ File Descriptors',
+      'y_formats': [ 'short' ],
     },
   };
 
@@ -720,6 +744,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'ElasticSearch HTTP Open',
+      'y_formats': [ 'short' ],
     },
   };
 
@@ -731,7 +756,7 @@ define(function getDashConf () {
     'panel': {
       'title': 'ElasticSearch Transport Counters',
       'grid': { 'max': null, 'min': null, 'leftMin': null },
-      'y_formats': [ 'short' ],
+      'y_formats': [ 'pps' ],
     },
   };
 
@@ -743,7 +768,7 @@ define(function getDashConf () {
     'panel': {
       'title': 'ElasticSearch Transport Size',
       'grid': { 'max': null, 'min': null, 'leftMin': null },
-      'y_formats': [ 'bytes' ],
+      'y_formats': [ 'bps' ],
     },
   };
 
@@ -763,6 +788,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'ElasticSearch Indices Times',
+      'y_formats': [ 'ms' ],
     },
   };
 
@@ -781,6 +807,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'ElasticSearch Indices Totals',
+      'y_formats': [ 'short' ],
     },
   };
 
@@ -791,6 +818,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'ElasticSearch Indices Docs',
+      'y_formats': [ 'short' ],
     },
   };
 
@@ -801,6 +829,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'ElasticSearch Indices Cache Evictions',
+      'y_formats': [ 'ops' ],
     },
   };
 
@@ -843,6 +872,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'ElasticSearch JVM Threads',
+      'y_formats': [ 'short' ],
     },
   };
 
@@ -853,6 +883,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'ElasticSearch JVM GC Count',
+      'y_formats': [ 'ops' ],
     },
   };
 
@@ -863,6 +894,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'ElasticSearch JVM GC Time',
+      'y_formats': [ 'ms' ],
     },
   };
 
@@ -882,6 +914,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'ElasticSearch Thread Pool Completed',
+      'y_formats': [ 'ops' ],
     },
   };
 
@@ -901,6 +934,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'ElasticSearch Thread Pool Rejected',
+      'y_formats': [ 'ops' ],
     },
   };
 
@@ -920,6 +954,7 @@ define(function getDashConf () {
     },
       'panel': {
       'title': 'ElasticSearch Thread Pool Active',
+      'y_formats': [ 'ops' ],
     },
   };
 
@@ -939,6 +974,7 @@ define(function getDashConf () {
     },
       'panel': {
       'title': 'ElasticSearch Thread Pool Largest',
+      'y_formats': [ 'short' ],
     },
   };
 
@@ -958,6 +994,7 @@ define(function getDashConf () {
     },
       'panel': {
       'title': 'ElasticSearch Thread Pool Queue',
+      'y_formats': [ 'short' ],
     },
   };
 
@@ -977,6 +1014,7 @@ define(function getDashConf () {
     },
       'panel': {
       'title': 'ElasticSearch Thread Pool Threads',
+      'y_formats': [ 'short' ],
     },
   };
 
@@ -990,7 +1028,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Nginx Requests',
-      'y_formats': [ 'short' ],
+      'y_formats': [ 'ops' ],
     },
   };
 
@@ -1001,7 +1039,7 @@ define(function getDashConf () {
     },
     'panel': {
       'title': 'Nginx Connections',
-      'y_formats': [ 'short' ],
+      'y_formats': [ 'ops' ],
     },
   };
 

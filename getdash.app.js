@@ -1,6 +1,6 @@
 // Getdash application
 
-define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, getdashConf) {
+define(['app/core/config', 'app/getdash/getdash.conf'], function getDashApp (grafanaConf, getdashConf) {
   'use strict';
 
   // Helper Functions
@@ -78,7 +78,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
     series: '',
     alias: '',
     column: 'value',
-    interval: '1m',
+    interval: false,
     function: 'mean',
   };
 
@@ -108,7 +108,8 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
 
   // seriesFilter :: metricConfObj, metricNameObj, seriesObj -> Bool
   var seriesFilter = _.curry(function seriesFilter (metricConf, metricName, series) {
-    if (endsWith(series.name, metricName)) {
+    if (endsWith(series.name, metricName) ||
+      endsWith(series.name.substring(0, series.name.lastIndexOf('-')), metricName)) {
       var instancePositionRight = metricName.split(metricConf.separator).length + 1;
       var instance = series.name.split(metricConf.separator).slice(-instancePositionRight)[0];
       if (startsWith(instance, metricConf.plugin) && (_.isUndefined(metricConf.regexp) ||
@@ -353,7 +354,7 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
     var errors = _.filter(panels, isError);
     if (!_.isEmpty(errors))
       _.map(errors, function (e) {
-        console.error(e.toString());
+        console.warn(e.toString());
       });
     return _.reject(panels, isError);
   };
@@ -455,10 +456,16 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   var getQueriesForDDash = _.curry(function getQueriesForDDash (datasources, queries) {
     return _.flatten(_.map(datasources, function (ds) {
       return _.map(queries, function (query) {
+        if (_.isUndefined(ds.username))
+          return {
+            datasource: ds.name,
+            url: ds.url + '/series?q=' + encodeURIComponent('LIST SERIES ' + query),
+          };
+
         return {
           datasource: ds.name,
-          url: ds.url + '/series?u=' + ds.username + '&p=' + ds.password +
-            '&q=' + encodeURIComponent('list series ' + query),
+          url: ds.url + '/series?&u=' + ds.username + '&p=' + ds.password +
+            '&q=' + encodeURIComponent('LIST SERIES ' + query),
         };
       });
     }));
@@ -478,13 +485,13 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
     var hostsLinks = _.reduce(hostsAll, function (string, host) {
       return string + '\n\t\t\t<li>\n\t\t\t\t<a href="' +
         window.location.href + '?host=' + host +
-        '" onclick="window.location=this.href;window.location.reload();">' +
+        '" onclick="window.location=this.href;">' +
         host + '</a>\n\t\t\t</li>';
     }, '');
 
     var rowProto = {
       'title': 'Default',
-      'height': '90px',
+      'height': '30px',
       'panels': [
         {
           'title': '',
@@ -500,22 +507,22 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
       'title': 'Docs',
       'panels': [
         {
-          'content': '<div class="row-fluid">\n\t<div class="span12">\n\t\t<h4>Grafana InfluxDB Scripted Dashboard Documentation</h4>\n\t\t<ul>\n\t\t\t<li>\n\t\t\t\t<a href="https://github.com/anryko/grafana-influx-dashboard">GitHub</a>\n\t\t\t</li>\n\t</div>\n</div>',
-        },
-      ],
+          'content': '<div class="row-fluid">\n\t<div class="span12">\n\t\t<a href="https://github.com/anryko/grafana-influx-dashboard"><h4>Grafana InfluxDB Scripted Dashboard Documentation</h4></a>\n\t</div>\n</div>'
+        }
+      ]
     });
 
     var rowHosts = _.merge({}, rowProto, {
       'title': 'Hosts',
       'panels': [
         {
-          'content': '<div class="row-fluid">\n\t<div class="span6">\n\t\t<h4>Available Hosts</h4>\n\t\t<ul>' + hostsLinks + '\n\t\t</ul>',
-        },
-      ],
+          'content': '<div class="row-fluid">\n\t<div class="span6">\n\t\t<h4>Available Hosts</h4>\n\t\t<ul>' + hostsLinks + '\n\t\t</ul>'
+        }
+      ]
     });
 
-    dashboard.title = 'Grafana - Scripted Dashboard';
-    dashboard.rows = [ rowDocs, rowHosts ];
+    dashboard.title = 'Scripted Dashboard';
+    dashboard.rows = [ rowHosts, rowDocs ];
     return dashboard;
   };
 
@@ -615,10 +622,17 @@ define(['config', 'getdash/getdash.conf'], function getDashApp (grafanaConf, get
   var getDSQueryArr = _.curry(function getDSQueryArr (hostName, queryConfigs) {
     return _.flatten(_.map(queryConfigs, function (qConf) {
       return _.map(qConf.datasources, function (ds) {
+        if (_.isUndefined(ds.username))
+          return {
+            datasource: ds.name,
+            url: ds.url + '/series?q=' + encodeURIComponent('LIST SERIES /^' + (qConf.prefix || '') +
+                                           hostName + '\\' + qConf.separator + qConf.regexp + '/'),
+          };
+
         return {
           datasource: ds.name,
           url: ds.url + '/series?u=' + ds.username + '&p=' + ds.password + '&q=' +
-            encodeURIComponent('list series /^' + (qConf.prefix || '') + hostName + '\\' +
+            encodeURIComponent('LIST SERIES /^' + (qConf.prefix || '') + hostName + '\\' +
                 qConf.separator + qConf.regexp + '/'),
         };
       });

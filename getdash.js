@@ -13,7 +13,7 @@ var window, document, ARGS, $, jQuery, moment, kbn;
 return function scriptedDashboard (callback) {
   'use strict';
 
-  require(['getdash/getdash.app'], function getDahs (dash) {
+  require(['app/getdash/getdash.app'], function getDahs (dash) {
 
     // GET variables
     var displayHost = '';
@@ -39,7 +39,7 @@ return function scriptedDashboard (callback) {
       host: displayHost,
       metric: displayMetric,
       time: displayTime,
-      title: 'Grafana - Scripted Dashboard for ' + displayHost,
+      title: 'Scripted Dashboard for ' + displayHost,
       // Queries used to get list of all hosts. Query must match series string between
       // hostname and end of the series string.
       defaultQueries: [ '/\\/load\\/load$/', ],
