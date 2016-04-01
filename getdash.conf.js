@@ -37,8 +37,12 @@ define(function getDashConf () {
     'interface',
     'ping',
     'connstate',
+    'tcpconns',
+    'conntrack',
     'df',
+    'lvm',
     'disk',
+    'hddtemp',
     'processes',
     'entropy',
     'users',
@@ -58,6 +62,7 @@ define(function getDashConf () {
   ];
   plugins.groups.database = [
     'elasticsearch',
+    'mysql',
     'postgresql'
   ];
 
@@ -363,6 +368,115 @@ define(function getDashConf () {
   };
 
 
+  // collectd tcpconns plugin configuration
+  plugins.tcpconns = new Plugin({ 'alias': 'tcpconns' });
+  plugins.tcpconns.config.multi = true;
+
+  plugins.tcpconns.tcpconnss = {
+    'graph': {
+      'ESTABLISHED': {
+        'color': '#FCE94F',
+        'alias': 'ESTABLISHED'
+      },
+      'SYN_SENT': {
+        'color': '#FCAF3E',
+        'alias': 'SYN_SENT'
+      },
+      'SYN_RECV': {
+        'color': '#8AE234',
+        'alias': 'SYN_RECV'
+      },
+      'FIN_WAIT1': {
+        'color': '#729FCF',
+        'alias': 'FIN_WAIT1'
+      },
+      'FIN_WAIT2': {
+        'color': '#AD7FA8',
+        'alias': 'FIN_WAIT2'
+      },
+      'TIME_WAIT': {
+        'color': '#EF2929',
+        'alias': 'TIME_WAIT'
+      },
+      'CLOSED': {
+        'color': '#D3D7CF',
+        'alias': 'CLOSED'
+      },
+      'CLOSE_WAIT': {
+        'color': '#2E3436',
+        'alias': 'CLOSE_WAIT'
+      },
+      'LAST_ACK': {
+        'color': '#4E9A06',
+        'alias': 'LAST_ACK'
+      },
+      'LISTEN': {
+        'color': '#CE5C00',
+        'alias': 'LISTEN'
+      },
+      'CLOSING': {
+        'color': '#C4A000',
+        'alias': 'CLOSING'
+      }
+    },
+    'panel': {
+      'title': 'Network Connections States for TCP/@metric',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+
+  // collectd conntrack plugin configuration
+  // collectd conntrack plugin returns measurements like this:
+  //   conntrack_value,host=host.example.com,type=conntrack
+  //   conntrack_value,host=host.example.com,type=conntrack,type_instance=max
+  //   conntrack_value,host=host.example.com,type=percent,type_instance=used
+  // so tag 'type_instance' has an empty value. To set proper value we'll
+  // use collectd chains https://collectd.org/wiki/index.php/Chains
+  //   LoadPlugin match_regex
+  //   LoadPlugin target_replace
+  //
+  //   <Chain "PreCache">
+  //     <Rule "conntrack_add_instance_type" >
+  //       <Match "regex">
+  //         Plugin "^conntrack$"
+  //       </Match>
+  //       <Target "replace">
+  //         TypeInstance "^$" "used"
+  //       </Target>
+  //       Target "return"
+  //     </Rule>
+  //     Target "return"
+  //   </Chain>
+  plugins.conntrack = new Plugin();
+
+  plugins.conntrack.conntrack = {
+    'graph': {
+      'used': {
+        'color': '#00FF99',
+        'type': 'conntrack',
+      }
+    },
+    'panel': {
+      'title': 'Network Connections Tracking Count',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  plugins.conntrack.percent = {
+    'graph': {
+      'used': {
+        'color': '#00FF99',
+        'type': 'percent',
+       }
+    },
+    'panel': {
+      'title': 'Network Connections Tracking Table Usage',
+      'y_formats': [ 'percent' ]
+    }
+  };
+
+
   // collectd df plugin configuration
   plugins.df = new Plugin();
   plugins.df.config.multi = true;
@@ -408,6 +522,21 @@ define(function getDashConf () {
     'panel': {
       'title': 'Disk inodes for @metric',
       'y_formats': [ 'short' ],
+      'stack': true,
+      'tooltip': { 'value_type': 'individual' }
+    }
+  };
+
+
+  // collectd lvm plugin configuration
+  plugins.lvm = new Plugin();
+  plugins.lvm.config.multi = true;
+
+  plugins.lvm.space = {
+    'graph': { '': { } },
+    'panel': {
+      'title': 'Disk space for @metric',
+      'y_formats': [ 'bytes' ],
       'stack': true,
       'tooltip': { 'value_type': 'individual' }
     }
@@ -479,6 +608,20 @@ define(function getDashConf () {
       'title': 'Disk Wait for @metric',
       'grid': { 'max': null, 'min': null, 'leftMin': null },
       'y_formats': [ 'ms' ]
+    }
+  };
+
+
+  // collectd hddtemp plugin configuration
+  plugins.hddtemp = new Plugin();
+
+  plugins.hddtemp.temperature = {
+    'graph': {
+       '': { }
+     },
+    'panel': {
+      'title': 'Disk Temperature',
+      'y_formats': [ 'celsius' ]
     }
   };
 
@@ -1211,17 +1354,18 @@ define(function getDashConf () {
   // collectd apache plugin
   plugins.apache = new Plugin({ 'alias': 'apache' });
 
-  plugins.apache.bytes = {
+  plugins.apache.traffic = {
     'graph': {
       'apache_value': {
         'type': 'apache_bytes',
-        'color': '#CCFF66',
-        'alias': 'bytes',
-        'apply': 'derivative'
+        'color': '#508642',
+        'alias': 'tx',
+        'apply': 'derivative',
+        'math': '* 8'
       }
     },
     'panel': {
-      'title': 'Apache Bytes',
+      'title': 'Apache Network Traffic',
       'y_formats': [ 'bps' ]
     }
   };
@@ -1289,6 +1433,230 @@ define(function getDashConf () {
       'title': 'Apache Scoreboard',
       'y_formats': [ 'short' ],
       'tooltip': { 'value_type': 'individual' }
+    }
+  };
+
+
+  // collectd mysql plugin configuration
+  plugins.mysql = new Plugin();
+  plugins.mysql.config.multi = true;
+
+  plugins.mysql.commands = {
+    'graph': {
+      '': {
+        'apply': 'derivative',
+        'type': 'mysql_commands'
+      }
+    },
+    'panel': {
+      'title': 'MySQL commands for @metric',
+      'stack': true,
+      'tooltip': { 'value_type': 'individual' },
+      'y_formats': [ 'ops' ]
+    }
+  };
+
+  plugins.mysql.handlers = {
+    'graph': {
+      '': {
+        'apply': 'derivative',
+        'type': 'mysql_handler'
+      }
+    },
+    'panel': {
+      'title': 'MySQL handlers for @metric',
+      'stack': true,
+      'tooltip': { 'value_type': 'individual' },
+      'y_formats': [ 'ops' ]
+    }
+  };
+
+  plugins.mysql.locks = {
+    'graph': {
+      'immediate': {
+        'color': '#508642',
+        'apply': 'derivative',
+        'type': 'mysql_locks'
+      },
+      'waited': {
+        'color': '#BF1B00',
+        'apply': 'derivative',
+        'type': 'mysql_locks'
+      }
+    },
+    'panel': {
+      'title': 'MySQL locks for @metric',
+      'stack': true,
+      'tooltip': { 'value_type': 'individual' },
+      'y_formats': [ 'ops' ],
+      'fill': 5
+    }
+  };
+
+  plugins.mysql.select = {
+    'graph': {
+      'full_join': {
+        'color': '#EAB839',
+        'apply': 'derivative',
+        'type': 'mysql_select'
+      },
+      'full_range_join': {
+        'color': '#EF843C',
+        'apply': 'derivative',
+        'type': 'mysql_select'
+      },
+      '/range$/': {
+        'color': '#6ED0E0',
+        'apply': 'derivative',
+        'type': 'mysql_select'
+      },
+      'range_check': {
+        'color': '#1F78C1',
+        'apply': 'derivative',
+        'type': 'mysql_select'
+      },
+      'scan': {
+        'color': '#E24D42',
+        'apply': 'derivative',
+        'type': 'mysql_select'
+      }
+    },
+    'panel': {
+      'title': 'MySQL select for @metric',
+      'stack': true,
+      'tooltip': { 'value_type': 'individual' },
+      'y_formats': [ 'ops' ],
+      'fill': 5
+    }
+  };
+
+  plugins.mysql.sort = {
+    'graph': {
+      'merge_passes': {
+        'color': '#EAB839',
+        'apply': 'derivative',
+        'type': 'mysql_sort'
+      },
+      'range': {
+        'color': '#6ED0E0',
+        'apply': 'derivative',
+        'type': 'mysql_sort'
+      },
+      'rows': {
+        'color': '#1F78C1',
+        'apply': 'derivative',
+        'type': 'mysql_sort'
+      },
+      'scan': {
+        'color': '#E24D42',
+        'apply': 'derivative',
+        'type': 'mysql_sort'
+      }
+    },
+    'panel': {
+      'title': 'MySQL sort for @metric',
+      'stack': true,
+      'tooltip': { 'value_type': 'individual' },
+      'y_formats': [ 'ops' ],
+      'fill': 5
+    }
+  };
+
+  plugins.mysql.threads = {
+    'graph': {
+      'cached': {
+        'color': '#508642',
+        'type': 'threads'
+      },
+      'connected': {
+        'color': '#EAB839',
+        'type': 'threads'
+      },
+      'running': {
+        'color': '#890F02',
+        'type': 'threads'
+      },
+      'created': {
+        'color': '#2F575E',
+        'apply': 'derivative',
+        'type': 'total_threads'
+      }
+    },
+    'panel': {
+      'title': 'MySQL threads for @metric',
+      'stack': true,
+      'tooltip': { 'value_type': 'individual' },
+      'y_formats': [ 'short' ],
+    }
+  };
+
+  plugins.mysql.qcache = {
+    'graph': {
+      'qcache-hits': {
+        'color': '#508642',
+        'apply': 'derivative',
+        'type': 'cache_result'
+      },
+      'qcache-inserts': {
+        'color': '#6ED0E0',
+        'apply': 'derivative',
+        'type': 'cache_result'
+      },
+      'qcache-not_cached': {
+        'color': '#EAB839',
+        'apply': 'derivative',
+        'type': 'cache_result'
+      },
+      'qcache-prunes': {
+        'color': '#890F02',
+        'apply': 'derivative',
+        'type': 'cache_result'
+      }
+    },
+    'panel': {
+      'title': 'MySQL Query Cache for @metric',
+      'stack': true,
+      'tooltip': { 'value_type': 'individual' },
+      'y_formats': [ 'ops' ],
+      'fill': 5
+    }
+  };
+
+  plugins.mysql.qcache_size = {
+    'graph': {
+      'qcache': {
+        'color': '#1F78C1',
+        'alias': 'queries',
+        'type': 'cache_size'
+      }
+    },
+    'panel': {
+      'title': 'MySQL Query Cache Size for @metric',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  plugins.mysql.traffic = {
+    'graph': {
+      'rx': {
+        'color': '#447EBC',
+        'alias': 'rx',
+        'apply': 'derivative',
+        'math': '* -8',
+        'type': 'mysql_octets'
+      },
+      'tx': {
+        'color': '#508642',
+        'alias': 'tx',
+        'apply': 'derivative',
+        'math': '* 8',
+        'type': 'mysql_octets'
+      }
+    },
+    'panel': {
+      'title': 'MySQL Network Traffic on @metric',
+      'y_formats': [ 'bps' ],
+      'grid': { 'max': null, 'min': null, 'leftMin': null }
     }
   };
 
