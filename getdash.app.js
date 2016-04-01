@@ -1,10 +1,7 @@
 // Getdash application
 
-define([
-      'app/core/config',
-      'app/getdash/getdash.conf'
-    ],
-    function getDashApp (grafanaConf, getdashConf) {
+// getDashApp :: [datasourceObj], confObj -> dashObj
+var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   'use strict';
 
   // Helper Functions
@@ -53,9 +50,9 @@ define([
         (RegExp(target.substr(1, target.length - 2)).test(string));
   };
 
+
   // Variables
   var plugins = getdashConf.plugins;
-  var datasourcesAll = grafanaConf.datasources;
   var datasources = _.filter(datasourcesAll, function (ds) {
     return !ds.grafanaDB && startsWith(ds.type, 'influxdb');
   });
@@ -631,17 +628,20 @@ define([
   var getQueriesForDDash = _.curry(function getQueriesForDDash (datasources, queries) {
     return _.flatten(_.map(datasources, function (ds) {
       return _.map(queries, function (query) {
-        if (_.isUndefined(ds.database))
+        if (ds.access == 'proxy')
           return {
             datasource: ds.name,
-            url: ds.url + '/query?q=' + encodeURIComponent('SHOW TAG VALUES FROM '+
-                                                            query + ' WITH KEY = host;')
+            url: 'api/datasources/proxy/' + ds.id + '/query?q=' +
+                   fixedEncodeURIComponent('SHOW TAG VALUES FROM '+
+                     query + ' WITH KEY = host;')
           };
 
         return {
           datasource: ds.name,
-          url: ds.url + '/query?db=' + ds.database + '&u=' + ds.username + '&p=' + ds.password +
-            '&q=' + encodeURIComponent('SHOW TAG VALUES FROM ' + query + ' WITH KEY = host;')
+          url: ds.url + '/query?db=' + ds.database +
+                 '&u=' + ds.username + '&p=' + ds.password +
+                   '&q=' + fixedEncodeURIComponent('SHOW TAG VALUES FROM ' +
+                     query + ' WITH KEY = host;')
         };
       });
     }));
@@ -787,18 +787,20 @@ define([
 
     return _.flatten(_.map(queryConfigs, function (qConf) {
       return _.map(qConf.datasources, function (ds) {
-        if (_.isUndefined(ds.database))
+        if (ds.access == "proxy")
           return {
             datasource: ds.name,
-            url: ds.url + '/query?q=' + fixedEncodeURIComponent('SHOW SERIES FROM /' +
-                qConf.regexp + '.*/ ' + hostQuery + ';')
+            url: 'api/datasources/proxy/' + ds.id + '/query?q=' +
+                   fixedEncodeURIComponent('SHOW SERIES FROM /' +
+                     qConf.regexp + '.*/ ' + hostQuery + ';')
           };
 
         return {
           datasource: ds.name,
-          url: ds.url + '/query?db=' + ds.database + '&u=' + ds.username +
-            '&p=' + ds.password + '&q=' + fixedEncodeURIComponent('SHOW SERIES FROM /' +
-              qConf.regexp + '.*/ ' + hostQuery + ';')
+          url: ds.url + '/query?db=' + ds.database +
+                 '&u=' + ds.username + '&p=' + ds.password +
+                   '&q=' + fixedEncodeURIComponent('SHOW SERIES FROM /' +
+                     qConf.regexp + '.*/ ' + hostQuery + ';')
         };
       });
     }));
@@ -969,4 +971,4 @@ define([
     // get :: dashConfObj, grafanaCallbackFunc -> grafanaCallbackFunc(dashboardObj)
     get: getDashboard(datasources, plugins)
   };
-});
+}

@@ -10,10 +10,29 @@
 var window, document, ARGS, $, jQuery, moment, kbn;
 
 
+// Helper Functions
+
+// loadScripts :: [scriptSourceStr] -> Promise([jQuery.getScript Result])
+var loadScripts = function loadScripts (scriptSrcs) {
+  var gettingScripts = _.map(scriptSrcs, function (src) {
+    return $.getScript(src);
+  });
+
+  return Promise.all(gettingScripts);
+};
+
+
+
+// Dashboard Functions
+
+// scriptedDashboard :: callbackFunc -> dashboardJSON
 return function scriptedDashboard (callback) {
   'use strict';
 
-  require(['app/getdash/getdash.app'], function getDahs (dash) {
+  loadScripts([
+      'public/app/getdash/getdash.app.js',
+      'public/app/getdash/getdash.conf.js'
+    ]).then(function () {
 
     // GET variables
     var displayHost = '';
@@ -22,7 +41,7 @@ return function scriptedDashboard (callback) {
     var displaySpan = 12;
     var async = true;
 
-    // sanitize :: String -> new String
+    // sanitize :: Str -> new Str
     var sanitize = function sanitize (str) {
       return str.replace(/[^\w\s-,.*/]/gi, '');
     };
@@ -55,6 +74,9 @@ return function scriptedDashboard (callback) {
       defaultQueries: [ 'load_midterm' ]
     };
 
-    dash.get(dashConf, callback);
+    $.getJSON('api/datasources', function (datasources) {
+      var dash = getDashApp(datasources, getDashConf());
+      dash.get(dashConf, callback);
+    });
   });
 };
