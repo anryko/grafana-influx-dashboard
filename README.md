@@ -12,12 +12,17 @@ There is a bash installation script included. Substitute GRAFANA_ROOT_DIR with a
 ```bash
 # for influxdb v0.8
 git clone -b influxdb_v0.8 --depth=1 https://github.com/anryko/grafana-influx-dashboard.git
-# for influxdb >= v0.9
+
+# for grafana 3.0.0 and influxdb >= v0.9 (beta)
+git clone -b grafana3.0_influxdb0.11 --depth=1 https://github.com/anryko/grafana-influx-dashboard.git
+
+# for grafana 2.6.0 and influxdb >= v0.9
 git clone --depth=1 https://github.com/anryko/grafana-influx-dashboard.git
 
 cd grafana-influx-dashboard
 sudo ./install.sh GRAFANA_ROOT_DIR
 ```
+<sub>**README is branch-specific. Please refer to the correct README when cloning branches.**</sub>
 
 ## Usage examples
 ```
