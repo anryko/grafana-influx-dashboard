@@ -1,6 +1,7 @@
 // Configuration JS file for getdash.app.js
 
-define(function getDashConf () {
+// getDashConf :: -> configurationObj
+var getDashConf = function getDashConf () {
   'use strict';
 
   // You can add custom 'alias', 'prefix', 'separator', 'datasources', 'multi', 'regexp' per plugin.
@@ -2213,4 +2214,4 @@ define(function getDashConf () {
   return {
     'plugins': plugins
   };
-});
+}
