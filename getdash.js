@@ -22,7 +22,6 @@ var loadScripts = function loadScripts (scriptSrcs) {
 };
 
 
-
 // Dashboard Functions
 
 // scriptedDashboard :: callbackFunc -> dashboardJSON
@@ -34,43 +33,23 @@ return function scriptedDashboard (callback) {
       'public/app/getdash/getdash.conf.js'
     ]).then(function () {
 
-    // GET variables
-    var displayHost = '';
-    var displayMetric = '';
-    var displayTime;
-    var displaySpan = 12;
-    var async = true;
-
     // sanitize :: Str -> new Str
     var sanitize = function sanitize (str) {
       return str.replace(/[^\w\s-,.*/]/gi, '');
     };
 
-    if(!_.isUndefined(ARGS.host))
-      displayHost = sanitize(ARGS.host);
-
-    if(!_.isUndefined(ARGS.metric))
-      displayMetric = sanitize(ARGS.metric);
-
-    if(!_.isUndefined(ARGS.time))
-      displayTime = sanitize(ARGS.time);
-
-    if(!_.isUndefined(ARGS.span))
-      displaySpan = sanitize(ARGS.span);
-
-    if(!_.isUndefined(ARGS.async))
-      async = !!JSON.parse(ARGS.async.toLowerCase());
+    var displayHost = (_.isUndefined(ARGS.host)) ? '' : sanitize(ARGS.host);
 
     // Dashboard configuration
     var dashConf = {
       host: displayHost,
-      metric: displayMetric,
-      time: displayTime,
-      span: displaySpan,
-      async: async,
-      title: 'Scripted Dashboard for ' + displayHost,
+      metric: (_.isUndefined(ARGS.metric)) ? '' : sanitize(ARGS.metric),
+      time: (_.isUndefined(ARGS.time)) ? undefined : sanitize(ARGS.time),
+      span: (_.isUndefined(ARGS.span)) ? 12 : sanitize(ARGS.span),
+      title: 'Dashboard for ' + displayHost,
       // Series used to get the list of all hosts
       // (Some metric that is common for all hosts).
+      // If there is none for all hpsts ypu can add a list
       defaultQueries: [ 'load_midterm' ]
     };
 

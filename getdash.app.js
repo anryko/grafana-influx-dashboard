@@ -610,20 +610,6 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   };
 
 
-  // getDBDataSync :: [datasourcePointsObj] -> [queryResultObj]
-  var getDBDataSync = function getDBDataSync (dsQueries) {
-    $.ajaxSetup({
-      async: false
-    });
-
-    var gettingDBData = _.map(dsQueries, function (query) {
-      return $.getJSON(query.url).responseJSON;
-    });
-
-    return gettingDBData;
-  };
-
-
   // getQueriesForDDash :: [datasourcesObj], [queriesStr] -> [queryObj]
   var getQueriesForDDash = _.curry(function getQueriesForDDash (datasources, queries) {
     return _.flatten(_.map(datasources, function (ds) {
@@ -920,39 +906,18 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
       time: getDashboardTime(dashConf.time)
     };
 
-    var isAsync = dashConf.async;
-
     if (!dashConf.host && !dashConf.metric) {
       var queriesForDDash = getQueriesForDDash(datasources, dashConf.defaultQueries);
-
-      if (!isAsync) {
-        var resp = getDBDataSync(queriesForDDash);
-        var hosts = _.uniq(_.flatten(_.compact(parseResp(resp))));
-        return callback(setupDefaultDashboard(hosts, dashboard));
-      }
 
       getDBData(queriesForDDash).then(function (resp) {
         var hosts = _.without(_.uniq(_.flatten(_.compact(parseResp(resp)))), 'host');
         return callback(setupDefaultDashboard(hosts, dashboard));
       });
-      return;
     }
 
     var dashPlugins = pickPlugins(plugins, dashConf.metric);
     var dashQueries = getQueries(dashConf.host, datasources, dashPlugins);
     var datasources = _.pluck(dashQueries, 'datasource');
-
-    if (!isAsync) {
-      var resp = getDBDataSync(dashQueries);
-      var seriesResp = parseResp(resp);
-      var series = genSeries(dashConf, seriesResp, datasources);
-
-      // Object prototypes setup
-      panelProto.span = dashConf.span;
-
-      dashboard.rows = getRows(dashPlugins, series);
-      return callback(dashboard);
-    }
 
     getDBData(dashQueries).then(function (resp) {
       var seriesResp = parseResp(resp);
