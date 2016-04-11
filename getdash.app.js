@@ -913,6 +913,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
         var hosts = _.without(_.uniq(_.flatten(_.compact(parseResp(resp)))), 'host');
         return callback(setupDefaultDashboard(hosts, dashboard));
       });
+      return;
     }
 
     var dashPlugins = pickPlugins(plugins, dashConf.metric);
