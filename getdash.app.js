@@ -913,22 +913,23 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
         var hosts = _.without(_.uniq(_.flatten(_.compact(parseResp(resp)))), 'host');
         return callback(setupDefaultDashboard(hosts, dashboard));
       });
+    } else {
+
+      var dashPlugins = pickPlugins(plugins, dashConf.metric);
+      var dashQueries = getQueries(dashConf.host, datasources, dashPlugins);
+      var datasources = _.pluck(dashQueries, 'datasource');
+
+      getDBData(dashQueries).then(function (resp) {
+        var seriesResp = parseResp(resp);
+        var series = genSeries(dashConf, seriesResp, datasources);
+
+        // Object prototypes setup
+        panelProto.span = dashConf.span;
+
+        dashboard.rows = getRows(dashPlugins, series);
+        return callback(dashboard);
+      });
     }
-
-    var dashPlugins = pickPlugins(plugins, dashConf.metric);
-    var dashQueries = getQueries(dashConf.host, datasources, dashPlugins);
-    var datasources = _.pluck(dashQueries, 'datasource');
-
-    getDBData(dashQueries).then(function (resp) {
-      var seriesResp = parseResp(resp);
-      var series = genSeries(dashConf, seriesResp, datasources);
-
-      // Object prototypes setup
-      panelProto.span = dashConf.span;
-
-      dashboard.rows = getRows(dashPlugins, series);
-      return callback(dashboard);
-    });
   });
 
 
