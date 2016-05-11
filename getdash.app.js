@@ -617,8 +617,8 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
         if (ds.access == 'proxy')
           return {
             datasource: ds.name,
-            url: 'api/datasources/proxy/' + ds.id + '/query?q=' +
-                   fixedEncodeURIComponent('SHOW TAG VALUES FROM '+
+            url: 'api/datasources/proxy/' + ds.id + '/query?db=' + ds.database +
+                   '&q=' + fixedEncodeURIComponent('SHOW TAG VALUES FROM ' +
                      query + ' WITH KEY = host;')
           };
 
@@ -776,8 +776,8 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
         if (ds.access == "proxy")
           return {
             datasource: ds.name,
-            url: 'api/datasources/proxy/' + ds.id + '/query?q=' +
-                   fixedEncodeURIComponent('SHOW SERIES FROM /' +
+            url: 'api/datasources/proxy/' + ds.id + '/query?db=' + ds.database +
+                   '&q=' + fixedEncodeURIComponent('SHOW SERIES FROM /' +
                      qConf.regexp + '.*/ ' + hostQuery + ';')
           };
 
