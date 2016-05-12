@@ -4,7 +4,7 @@ Javascript dashboard auto-generation script to mimic comfortable Munin behaviour
 
 :white_check_mark: Tested for **Grafana 2.6.0** and **InfluxDB v0.8.8**  
 :white_check_mark: Tested for **Grafana 2.6.0** and **InfluxDB v0.11.1**  
-:white_check_mark: Tested for **Grafana 3.0.0** and **InfluxDB v0.11.1**  
+:white_check_mark: Tested for **Grafana 3.0.1** and **InfluxDB v0.12.2**  
 
 ## Demonstration
 ![](https://media.giphy.com/media/3oEdvcYi3a3KVvtuHS/giphy.gif)
@@ -223,7 +223,11 @@ If you understand your data and how it is structured inside database you should 
 
 ## Notes
 
-#### Fetching server side generated graph images.
+#### Fetching server side generated graph images
 ```
 http://grafanaIP/render/dashboard-solo/script/getdash.js?host=hostname&metric=cpu&panelId=1&time=6h
 ```
+
+#### Adding getdash to grafana dashboard list
+[Issue #54](https://github.com/anryko/grafana-influx-dashboard/issues/54)
+
