@@ -53,9 +53,8 @@ return function scriptedDashboard (callback) {
       defaultQueries: [ 'load_midterm' ]
     };
 
-    $.getJSON('api/datasources', function (datasources) {
-      var dash = getDashApp(datasources, getDashConf());
-      dash.get(dashConf, callback);
-    });
+    var datasources = _.values(window.grafanaBootData.settings.datasources);
+    var dash = getDashApp(datasources, getDashConf());
+    dash.get(dashConf, callback);
   });
 };
