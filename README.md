@@ -4,7 +4,7 @@ Javascript dashboard auto-generation script to mimic comfortable Munin behaviour
 
 :white_check_mark: Tested for **Grafana 2.6.0** and **InfluxDB v0.8.8**  
 :white_check_mark: Tested for **Grafana 2.6.0** and **InfluxDB v0.11.1**  
-:white_check_mark: Tested for **Grafana 3.0.1** and **InfluxDB v0.12.2**  
+:white_check_mark: Tested for **Grafana 3.0.4** and **InfluxDB v0.13.0**  
 
 ## Demonstration
 ![](https://media.giphy.com/media/3oEdvcYi3a3KVvtuHS/giphy.gif)
