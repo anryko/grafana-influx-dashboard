@@ -614,20 +614,13 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   var getQueriesForDDash = _.curry(function getQueriesForDDash (datasources, queries) {
     return _.flatten(_.map(datasources, function (ds) {
       return _.map(queries, function (query) {
-        if (ds.access == 'proxy')
-          return {
-            datasource: ds.name,
-            url: 'api/datasources/proxy/' + ds.id + '/query?db=' + ds.database +
-                   '&q=' + fixedEncodeURIComponent('SHOW TAG VALUES FROM ' +
-                     query + ' WITH KEY = host;')
-          };
-
         return {
           datasource: ds.name,
           url: ds.url + '/query?db=' + ds.database +
-                 '&u=' + ds.username + '&p=' + ds.password +
-                   '&q=' + fixedEncodeURIComponent('SHOW TAG VALUES FROM ' +
-                     query + ' WITH KEY = host;')
+                 (ds.username ? '&u=' + ds.username : '') +
+                 (ds.password ? '&p=' + ds.password : '') +
+                 '&q=' + fixedEncodeURIComponent('SHOW TAG VALUES FROM ' +
+                 query + ' WITH KEY = host;')
         };
       });
     }));
@@ -773,20 +766,13 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
 
     return _.flatten(_.map(queryConfigs, function (qConf) {
       return _.map(qConf.datasources, function (ds) {
-        if (ds.access == "proxy")
-          return {
-            datasource: ds.name,
-            url: 'api/datasources/proxy/' + ds.id + '/query?db=' + ds.database +
-                   '&q=' + fixedEncodeURIComponent('SHOW SERIES FROM /' +
-                     qConf.regexp + '.*/ ' + hostQuery + ';')
-          };
-
         return {
           datasource: ds.name,
           url: ds.url + '/query?db=' + ds.database +
-                 '&u=' + ds.username + '&p=' + ds.password +
-                   '&q=' + fixedEncodeURIComponent('SHOW SERIES FROM /' +
-                     qConf.regexp + '.*/ ' + hostQuery + ';')
+                 (ds.username ? '&u=' + ds.username : '') +
+                 (ds.password ? '&p=' + ds.password : '') +
+                 '&q=' + fixedEncodeURIComponent('SHOW SERIES FROM /' +
+                 qConf.regexp + '.*/ ' + hostQuery + ';')
         };
       });
     }));
