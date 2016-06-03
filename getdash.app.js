@@ -630,10 +630,10 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   // setupDefaultDashboard :: [seriesObj], dashboardObj -> mod dashboardObj
   var setupDefaultDashboard = function setupDefaultDashboard (hostsAll, dashboard) {
     var hostsLinks = _.reduce(hostsAll, function (string, host) {
-      return string + '\n\t\t\t<li>\n\t\t\t\t<a href="' +
+      return string + '\n\t\t\t<div class="filter-div" data-filter="' + host + '"><li>\n\t\t\t\t<a href="' +
         window.location.href + '?host=' + host +
         '" onclick="window.location.href=this.href;">' +
-        host + '</a>\n\t\t\t</li>';
+        host + '</a>\n\t\t\t</li></div>';
     }, '');
 
     var rowProto = {
@@ -663,7 +663,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
       'title': 'Hosts',
       'panels': [
         {
-          'content': '<div class="row-fluid">\n\t<div class="span6">\n\t\t<h4>Available Hosts</h4>\n\t\t<ul>' + hostsLinks + '\n\t\t</ul>'
+          'content': '<div class="row-fluid">\n\t<div class="span12">\n\t\t<label for="search"><h4>Filter available hosts: </h4></label><input type="search" name="filter" id="search" value="" />\n\t\t<ul>' + hostsLinks + '\n\t\t</ul><script>var divs = $("div[data-filter]");divs.show();$("#search").on("keyup", function() { var val = $.trim(this.value); divs.hide(); divs.filter(function() { return $(this).data("filter").search(val) >= 0 }).show(); }); divs.on("click", function() { divs.not(this).hide(); var text = $.trim($(this).text()); $("#search").val(text); });</script>'
         }
       ]
     });
