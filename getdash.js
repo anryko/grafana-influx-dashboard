@@ -38,7 +38,7 @@ return function scriptedDashboard (callback) {
       return str.replace(/[^\w\s-,.*/]/gi, '');
     };
 
-    var displayHost = (_.isUndefined(ARGS.host)) ? '' : sanitize(ARGS.host);
+    var displayHost = (_.isUndefined(ARGS.host)) ? '' : ARGS.host;
 
     // Dashboard configuration
     var dashConf = {

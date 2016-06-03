@@ -760,9 +760,21 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
 
   // getDSQueryArr :: hostNameStr, [queryConfigObj] -> [urlDatasourceObj]
   var getDSQueryArr = _.curry(function getDSQueryArr (hostName, queryConfigs) {
-    var hostQuery = (hostName)
-        ? 'WHERE host = \'' + hostName + '\''
-        : '';
+    if (hostName) {
+      var rxPatt = /[^\w\s-,./]/gi;
+      if (rxPatt.test(hostName)) {
+        var hostQuery = 'host =~ /' + hostName + '/';
+      } else if (hostName.indexOf(',') > -1) {
+        var hostQuery = _.reduce(hostName.split(','), function(result, host) {
+            result += 'host = \'' + host + '\' ' + 'OR '
+            return result;
+          }, '').slice(0, -4);
+      } else {
+        var hostQuery = 'host = \'' + hostName + '\'';
+      }
+    } else {
+        var hostQuery = '';
+    }
 
     return _.flatten(_.map(queryConfigs, function (qConf) {
       return _.map(qConf.datasources, function (ds) {
@@ -772,7 +784,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
                  (ds.username ? '&u=' + ds.username : '') +
                  (ds.password ? '&p=' + ds.password : '') +
                  '&q=' + fixedEncodeURIComponent('SHOW SERIES FROM /' +
-                 qConf.regexp + '.*/ ' + hostQuery + ';')
+                 qConf.regexp + '.*/ WHERE ' + hostQuery + ';')
         };
       });
     }));
