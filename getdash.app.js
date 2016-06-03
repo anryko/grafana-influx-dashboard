@@ -766,8 +766,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
         var hostQuery = 'host =~ /' + hostName + '/';
       } else if (hostName.indexOf(',') > -1) {
         var hostQuery = _.reduce(hostName.split(','), function(result, host) {
-            result += 'host = \'' + host + '\' ' + 'OR '
-            return result;
+            return result + 'host = \'' + host + '\' ' + 'OR '
           }, '').slice(0, -4);
       } else {
         var hostQuery = 'host = \'' + hostName + '\'';
