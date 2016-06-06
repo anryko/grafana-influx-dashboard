@@ -654,7 +654,8 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
       'title': 'Docs',
       'panels': [
         {
-          'content': '<div class="row-fluid"><div class="span12"><a href="https://github.com/anryko/grafana-influx-dashboard"><h4>Grafana InfluxDB Scripted Dashboard Documentation</h4></a></div></div>'
+          'transparent': true,
+          'content': '<div class="row-fluid"><div class="span12"><hr style="border:0; height:2px; box-shadow:0 1px 1px -1px #8c8b8b inset;"><a href="https://github.com/anryko/grafana-influx-dashboard"><i>Grafana InfluxDB Scripted Dashboard Documentation</i></a></div></div>'
         }
       ]
     });
@@ -663,12 +664,14 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
       'title': 'Hosts',
       'panels': [
         {
-          'content': '<div class="row-fluid"><div class="span12"><h4>Available Hosts</h4><input type="search" name="filter" id="search" placeholder="Filter..." value="" /><ul>' + hostsLinks + '</ul><script type="text/javascript">var divs = $("div[data-filter]"); divs.show(); $("#search").on("keyup", function(e) { var val = $.trim(this.value); divs.hide(); var m = divs.filter(function() {return $(this).data("filter").search(val) >= 0}).get(); if (e.which == 13 && m.length <= 4) {window.location.href = window.location.href + "?host=" + $(m).map(function() {return $(this).text()}).get().join() + "&span=" + 12/m.length; return;} $(m).show();}); divs.on("click", function() {divs.not(this).hide(); var text = $.trim($(this).text()); $("#search").val(text);});</script>'
+          'transparent': true,
+          'content': '<div class="row-fluid"><div class="span12"><h4>Available Hosts</h4><input type="search" name="filter" id="search" placeholder="Filter..." value="" ondblclick="this.select();"/><ul>' + hostsLinks + '</ul><script type="text/javascript">var divs = $("div[data-filter]"); divs.show(); $("#search").on("keyup", function(e) { var val = $.trim(this.value); divs.hide(); var m = divs.filter(function() {return $(this).data("filter").search(val) >= 0}).get(); if (e.which == 13 && m.length <= 4) {window.location.href = window.location.href + "?host=" + $(m).map(function() {return $(this).text()}).get().join() + "&span=" + 12/m.length; return;} $(m).show();}); divs.on("click", function() {divs.not(this).hide(); var text = $.trim($(this).text()); $("#search").val(text);});</script>'
         }
       ]
     });
 
     dashboard.title = 'Scripted Dashboard';
+    dashboard.editable = false;
     dashboard.rows = [
       rowHosts,
       rowDocs
