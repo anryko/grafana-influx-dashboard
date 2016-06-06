@@ -630,10 +630,10 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   // setupDefaultDashboard :: [seriesObj], dashboardObj -> mod dashboardObj
   var setupDefaultDashboard = function setupDefaultDashboard (hostsAll, dashboard) {
     var hostsLinks = _.reduce(hostsAll, function (string, host) {
-      return string + '\n\t\t\t<div class="filter-div" data-filter="' + host + '"><li>\n\t\t\t\t<a href="' +
+      return string + '<div class="filter-div" data-filter="' + host + '"><li><a href="' +
         window.location.href + '?host=' + host +
         '" onclick="window.location.href=this.href;">' +
-        host + '</a>\n\t\t\t</li></div>';
+        host + '</a></li></div>';
     }, '');
 
     var rowProto = {
@@ -654,7 +654,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
       'title': 'Docs',
       'panels': [
         {
-          'content': '<div class="row-fluid">\n\t<div class="span12">\n\t\t<a href="https://github.com/anryko/grafana-influx-dashboard"><h4>Grafana InfluxDB Scripted Dashboard Documentation</h4></a>\n\t</div>\n</div>'
+          'content': '<div class="row-fluid"><div class="span12"><a href="https://github.com/anryko/grafana-influx-dashboard"><h4>Grafana InfluxDB Scripted Dashboard Documentation</h4></a></div></div>'
         }
       ]
     });
@@ -663,7 +663,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
       'title': 'Hosts',
       'panels': [
         {
-          'content': '<div class="row-fluid">\n\t<div class="span12">\n\t\t<label for="search"><h4>Filter available hosts: </h4></label><input type="search" name="filter" id="search" value="" />\n\t\t<ul>' + hostsLinks + '\n\t\t</ul><script>var divs = $("div[data-filter]");divs.show();$("#search").on("keyup", function() { var val = $.trim(this.value); divs.hide(); divs.filter(function() { return $(this).data("filter").search(val) >= 0 }).show(); }); divs.on("click", function() { divs.not(this).hide(); var text = $.trim($(this).text()); $("#search").val(text); });</script>'
+          'content': '<div class="row-fluid"><div class="span12"><h4>Available Hosts</h4><input type="search" name="filter" id="search" placeholder="Filter..." value="" /><ul>' + hostsLinks + '</ul><script type="text/javascript">var divs = $("div[data-filter]"); divs.show(); $("#search").on("keyup", function(e) { var val = $.trim(this.value); divs.hide(); var m = divs.filter(function() {return $(this).data("filter").search(val) >= 0}).get(); if (e.which == 13 && m.length <= 4) {window.location.href = window.location.href + "?host=" + $(m).map(function() {return $(this).text()}).get().join() + "&span=" + 12/m.length; return;} $(m).show();}); divs.on("click", function() {divs.not(this).hide(); var text = $.trim($(this).text()); $("#search").val(text);});</script>'
         }
       ]
     });
