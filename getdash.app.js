@@ -917,6 +917,20 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
     }
 
     var dashPlugins = pickPlugins(plugins, dashConf.metric);
+
+    if (!_.isUndefined(dashConf.instance)) {
+      var rxPatt = /[^\w\s-,./]/gi;
+      var dashInstance = (rxPatt.test(dashConf.instance))
+            ? new RegExp(dashConf.instance)
+            : new RegExp('^' + dashConf.instance + '$');
+
+      _.map(dashPlugins, function (p) {
+        if (p.config.multi)
+          p.config.regexp = dashInstance
+        return p;
+      });
+    }
+
     var dashQueries = getQueries(dashConf.host, datasources, dashPlugins);
     var datasources = _.pluck(dashQueries, 'datasource');
 
