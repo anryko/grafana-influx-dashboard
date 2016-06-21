@@ -38,6 +38,10 @@ http://grafanaIP/dashboard/script/getdash.js?metric=redis&span=4
 http://grafanaIP/dashboard/script/getdash.js?host=hostname0*&span=6
 http://grafanaIP/dashboard/script/getdash.js?host=hostname64,hostname01&span=6
 http://grafanaIP/dashboard/script/getdash.js?host=hostname(01|64)&span=6
+http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=disk&instance=sda1
+http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=disk&instance=sd*
+http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=disk&instance=sda1,sdb1
+http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=disk&instance=sda[1-3]
 ```
 
 ## Features
