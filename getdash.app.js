@@ -918,16 +918,23 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
 
     var dashPlugins = pickPlugins(plugins, dashConf.metric);
 
-    if (!_.isUndefined(dashConf.instance)) {
+    if (dashConf.instance) {
       var rxPatt = /[^\w\s-,./]/gi;
-      var dashInstance = (rxPatt.test(dashConf.instance))
-            ? new RegExp(dashConf.instance)
-            : new RegExp('^' + dashConf.instance + '$');
+      var dashInstance = dashConf.instance;
+      if (rxPatt.test(dashInstance)) {
+        var rxDashInstance = new RegExp(dashInstance);
+      } else if (dashInstance.indexOf(',') > -1) {
+        var rxDashInstance = new RegExp(_.map(dashInstance.split(','), function (s) {
+            return '^' + s + '$';
+          }).join('|'));
+      } else {
+        var rxDashInstance =  new RegExp('^' + dashConf.instance + '$');
+      }
 
       _.map(dashPlugins, function (p) {
-        if (p.config.multi)
-          p.config.regexp = dashInstance
-        return p;
+        return (p.config.multi)
+            ? p.config.regexp = rxDashInstance
+            : p;
       });
     }
 
