@@ -44,6 +44,7 @@ return function scriptedDashboard (callback) {
     var dashConf = {
       host: displayHost,
       metric: (_.isUndefined(ARGS.metric)) ? '' : sanitize(ARGS.metric),
+      instance: (_.isUndefined(ARGS.instance)) ? undefined : ARGS.instance,
       time: (_.isUndefined(ARGS.time)) ? undefined : sanitize(ARGS.time),
       span: (_.isUndefined(ARGS.span)) ? 12 : sanitize(ARGS.span),
       title: 'Dashboard for ' + displayHost,
