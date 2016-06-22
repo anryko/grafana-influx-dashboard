@@ -806,6 +806,30 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   });
 
 
+  // setPlginsInstance :: pluginsObj, instanceStr -> new pluginsObj
+  var setPluginsInstance = function setPluginsInstance (plugins, instance) {
+    if (!instance)
+      return plugins;
+
+    var rxPatt = /[^\w\s-,./]/gi;
+    if (rxPatt.test(instance)) {
+      var rxInstance = new RegExp(instance);
+    } else if (instance.indexOf(',') > -1) {
+      var rxInstance = new RegExp(_.map(instance.split(','), function (s) {
+        return '^' + s + '$';
+      }).join('|'));
+    } else {
+      var rxInstance =  new RegExp('^' + instance + '$');
+    }
+
+    return _.mapValues(plugins, function (p) {
+      if (p.config.multi)
+        p.config.regexp = rxInstance
+      return p;
+    });
+  };
+
+
   // getQueries :: hostNameStr, datasourcesObj, pluginsObj -> [queryStr]
   var getQueries = function getQueries (hostName, datasources, plugins) {
     return _.compose(getDSQueryArr(hostName), getQueryConfigs(datasources))(plugins);
@@ -917,26 +941,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
     }
 
     var dashPlugins = pickPlugins(plugins, dashConf.metric);
-
-    if (dashConf.instance) {
-      var rxPatt = /[^\w\s-,./]/gi;
-      var dashInstance = dashConf.instance;
-      if (rxPatt.test(dashInstance)) {
-        var rxDashInstance = new RegExp(dashInstance);
-      } else if (dashInstance.indexOf(',') > -1) {
-        var rxDashInstance = new RegExp(_.map(dashInstance.split(','), function (s) {
-            return '^' + s + '$';
-          }).join('|'));
-      } else {
-        var rxDashInstance =  new RegExp('^' + dashConf.instance + '$');
-      }
-
-      _.map(dashPlugins, function (p) {
-        return (p.config.multi)
-            ? p.config.regexp = rxDashInstance
-            : p;
-      });
-    }
+    dashPlugins = setPluginsInstance(dashPlugins, dashConf.instance);
 
     var dashQueries = getQueries(dashConf.host, datasources, dashPlugins);
     var datasources = _.pluck(dashQueries, 'datasource');
