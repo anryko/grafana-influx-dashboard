@@ -48,6 +48,7 @@ var getDashConf = function getDashConf () {
     'entropy',
     'users',
     'uptime',
+    'irq',
     'nfs',
     'ipvs'
   ];
@@ -2209,6 +2210,62 @@ var getDashConf = function getDashConf () {
       'y_formats': [ 'short' ]
     }
   };
+
+
+  // Plugin for collectd-IRQ. for more verbosity ,you need to confiugure 
+  // it to your own needs. At the client machine, you do 
+  // '$cat /proc/interrrups' 
+  // and choose the interrups you need by number. 
+  // Than you edit the 'graph' section. 
+  // The commented example you can use, for more verbosity.
+  plugins.irq = new Plugin();
+  plugins.irq.config.multi = true;
+
+  /*
+  plugins.irq.perSec = {
+    'graph': {
+      '/^5$/': { 
+        'color': '#E24D42',
+        'alias': 'eth1',
+        'apply': 'derivative(1s)'
+      },
+      '/^4$/': {
+        'color': '#890F02',
+        'alias': 'eth0',
+        'apply': 'derivative(1s)'
+      },
+      '/^7$/': {
+        'color': '#508642',
+        'alias': 'timer',
+        'apply': 'derivative(1s)'
+      },
+      '/^11$/': {
+        'color': '#9400D3' ,
+        'alias': 'serial',
+        'apply': 'derivative(1s)'
+      }
+    },
+    'panel': {
+      'title': 'interrupts per second'
+    }
+  };
+
+  */
+
+
+  plugins.irq.genericPSec = {
+    'graph': {
+      '': {
+        'apply': 'derivative(1s)'
+      } 
+      
+    },
+    'panel': {
+      'title': 'generic interrupts pers second'
+    }
+  };
+
+
 
 
   return {
