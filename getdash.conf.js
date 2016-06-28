@@ -2250,69 +2250,8 @@ var getDashConf = function getDashConf () {
     }
   };
 
-  plugins.irq.perMin = {
-    'graph': {
-      '/^5$/': { 
-        'color': '#E24D42',
-        'alias': 'eth1',
-        'apply': 'derivative(1m)'
-      },
-      '/^4$/': {
-        'color': '#890F02',
-        'alias': 'eth0',
-        'apply': 'derivative(1m)'
-      },
-      '/^7$/': {
-        'color': '#508642',
-        'alias': 'timer',
-        'apply': 'derivative(1m)'
-      },
-      '/^11$/': {
-        'color': '#9400D3' ,
-        'alias': 'serial',
-        'apply': 'derivative(1m)'
-      }
-    },
-    'panel': {
-      'title': 'interrupts per minute',
-    }
-  };
-
-  plugins.irq.total = {
-    'graph': {
-      '/^5$/': { 
-        'color': '#E24D42',
-        'alias': 'eth1'
-      },
-      '/^4$/': {
-        'color': '#890F02',
-        'alias': 'eth0'
-      },
-      '/^7$/': {
-        'color': '#508642',
-        'alias': 'timer'
-      },
-      '/^11$/': {
-        'color': '#9400D3' ,
-        'alias': 'serial'
-      }
-    },
-    'panel': {
-      'title': 'interrupts total'
-    }
-  };
   */
-  plugins.irq.genericPerMinute = {
-    'graph': {
-      '': {
-        'apply': 'derivative(1m)'
-      } 
-      
-    },
-    'panel': {
-      'title': 'generic interrupts per minute'
-    }
-  };
+
 
   plugins.irq.genericPSec = {
     'graph': {
@@ -2326,15 +2265,7 @@ var getDashConf = function getDashConf () {
     }
   };
 
-  plugins.irq.genericTotal = {
-    'graph': {
-      '': {} 
-      
-    },
-    'panel': {
-      'title': 'generic interrupts in total'
-    }
-  };
+
 
 
   return {
