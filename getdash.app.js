@@ -696,6 +696,22 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   };
 
 
+  // parseRefresh :: timeStr -> [timeStr]
+  var parseRefresh = function parseRefresh (refresh) {
+    var regexpRefresh = /(\d+)(s|m|h|d)/;
+    return regexpRefresh.exec(refresh);
+  };
+
+
+  // getDashboardRefresh :: timeStr -> dashboardTimeObj
+  var getDashboardRefresh = function getDashboardRefresh (refresh) {
+    if (!refresh || !parseRefresh(refresh))
+      return '';
+
+    return refresh;
+  };
+
+
   // getMetricArr :: pluginsObj, displayMetricStr -> [metricStr]
   var getMetricArr = _.curry(function getMetricArr (plugins, displayMetric) {
     if (!displayMetric)
@@ -927,7 +943,8 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   var getDashboard = _.curry(function getDashboard (datasources, plugins, dashConf, callback) {
     var dashboard = {
       title: dashConf.title,
-      time: getDashboardTime(dashConf.time)
+      time: getDashboardTime(dashConf.time),
+      refresh: getDashboardRefresh(dashConf.refresh)
     };
 
     if (!dashConf.host && !dashConf.metric) {

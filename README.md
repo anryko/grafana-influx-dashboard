@@ -42,6 +42,8 @@ http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=disk&instance=
 http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=disk&instance=sd*
 http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=disk&instance=sda1,sdb1
 http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=disk&instance=sda[1-3]
+http://grafanaIP/dashboard/script/getdash.js?host=hostname&refresh=5s
+http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=disk&instance=sda1&refresh=1m
 ```
 
 ## Features
@@ -82,9 +84,17 @@ http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=disk&instance=
 * database
 
 #### Supported time format
+For time :
+
 ```
 /(\d+)(m|h|d)/
 ```
+
+For refresh :
+```
+/(\d+)(s|m|h|d)/
+```
+
 <sub>_Grouping by time is automatically adjusted._</sub>
 
 
@@ -237,4 +247,3 @@ http://grafanaIP/render/dashboard-solo/script/getdash.js?host=hostname&metric=cp
 
 #### Adding getdash to grafana dashboard list
 [Issue #54](https://github.com/anryko/grafana-influx-dashboard/issues/54)
-
