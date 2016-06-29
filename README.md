@@ -2,9 +2,9 @@
 
 Javascript dashboard auto-generation script to mimic comfortable Munin behaviour in Grafana. Main project goal is to be able to see all the stats for the added machine in one dashboard (to have possibility to add auto-generated URL to the existing monitoring system alarm notification for faster incident investigation). Project is written and tested with CollectD->InfluxDB+(input_plugins.collectd) as a system stats collector but with minor configuration changes should be collector independent.
 
-:white_check_mark: Tested for **Grafana 2.6.0** and **InfluxDB v0.8.8**  
-:white_check_mark: Tested for **Grafana 2.6.0** and **InfluxDB v0.11.1**  
-:white_check_mark: Tested for **Grafana 3.0.4** and **InfluxDB v0.13.0**  
+:white_check_mark: Tested for **Grafana 2.6.0** and **InfluxDB v0.8.8**
+:white_check_mark: Tested for **Grafana 2.6.0** and **InfluxDB v0.11.1**
+:white_check_mark: Tested for **Grafana 3.0.4** and **InfluxDB v0.13.0**
 
 ## Demonstration
 ![](https://media.giphy.com/media/3oEdvcYi3a3KVvtuHS/giphy.gif)
@@ -42,6 +42,8 @@ http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=disk&instance=
 http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=disk&instance=sd*
 http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=disk&instance=sda1,sdb1
 http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=disk&instance=sda[1-3]
+http://grafanaIP/dashboard/script/getdash.js?host=hostname&refresh=5s
+http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=disk&instance=sda1&refresh=1m
 ```
 
 ## Features
@@ -82,9 +84,17 @@ http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=disk&instance=
 * database
 
 #### Supported time format
+For time :
+
 ```
 /(\d+)(m|h|d)/
 ```
+
+For refresh :
+```
+/(\d+)(s|m|h|d)/
+```
+
 <sub>_Grouping by time is automatically adjusted._</sub>
 
 
@@ -237,4 +247,3 @@ http://grafanaIP/render/dashboard-solo/script/getdash.js?host=hostname&metric=cp
 
 #### Adding getdash to grafana dashboard list
 [Issue #54](https://github.com/anryko/grafana-influx-dashboard/issues/54)
-
