@@ -2221,7 +2221,7 @@ var getDashConf = function getDashConf () {
   // The commented example you can use, for more verbosity.
   plugins.irq = new Plugin();
   plugins.irq.config.multi = true;
-
+  /*
   plugins.irq.perSec = {
     'graph': {
       '/^5$/': { 
@@ -2249,9 +2249,8 @@ var getDashConf = function getDashConf () {
       'title': 'interrupts per second'
     }
   };
-
-
-
+  */
+  
   plugins.irq.genericPSec = {
     'graph': {
       '': {
