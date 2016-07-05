@@ -36,6 +36,7 @@ var getDashConf = function getDashConf () {
     'load',
     'swap',
     'interface',
+    'netlink',
     'ping',
     'connstate',
     'tcpconns',
@@ -2221,7 +2222,6 @@ var getDashConf = function getDashConf () {
   plugins.irq = new Plugin();
   plugins.irq.config.multi = true;
 
-  /*
   plugins.irq.perSec = {
     'graph': {
       '/^5$/': { 
@@ -2250,7 +2250,6 @@ var getDashConf = function getDashConf () {
     }
   };
 
-  */
 
 
   plugins.irq.genericPSec = {
@@ -2265,7 +2264,26 @@ var getDashConf = function getDashConf () {
     }
   };
 
+  // netlink 
+  //
+  // generic plugin for netlink, which offers a higher 
+  // resolution overview about networking.
+  // HINT: use generic for a overwiev and specify needed
+  // metrics in /etc/collectd/collectd.conf at client
+  plugins.netlink = new Plugin();
+  plugins.netlink.config.multi = true;
 
+  plugins.netlink.perSec = {
+    'graph': {
+      '': {
+        'apply': 'derivative(1s)'
+      } 
+      
+    },
+    'panel': {
+      'title': 'netlink on interface @metric /sec'
+    }
+  };
 
 
   return {
