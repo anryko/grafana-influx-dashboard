@@ -631,15 +631,40 @@ var getDashConf = function getDashConf () {
 
   // collectd processes plugin configuration
   plugins.processes = new Plugin();
+  plugins.processes.config.multi = true;
 
   plugins.processes.state = {
     'graph': {
-      'sleeping': { 'color': '#EAB839', 'alias': 'sleeping' },
-      'running': { 'color': '#508642', 'alias': 'running' },
-      'stopped': { 'color': '#E9967A', 'alias': 'stopped' },
-      'blocked': { 'color': '#890F02', 'alias': 'blocked' },
-      'zombies': { 'color': '#E24D42', 'alias': 'zombies' },
-      'paging': { 'color': '#9400D3', 'alias': 'paging' }
+      'sleeping': {
+        'type': 'ps_state',
+        'color': '#EAB839',
+        'alias': 'sleeping'
+      },
+      'running': {
+        'type': 'ps_state',
+        'color': '#508642',
+        'alias': 'running'
+      },
+      'stopped': {
+        'type': 'ps_state',
+        'color': '#E9967A',
+        'alias': 'stopped'
+      },
+      'blocked': {
+        'type': 'ps_state',
+        'color': '#890F02',
+        'alias': 'blocked'
+      },
+      'zombies': {
+        'type': 'ps_state',
+        'color': '#E24D42',
+        'alias': 'zombies'
+      },
+      'paging': {
+        'type': 'ps_state',
+        'color': '#9400D3',
+        'alias': 'paging'
+      }
     },
     'panel': {
       'title': 'Processes State',
@@ -659,6 +684,182 @@ var getDashConf = function getDashConf () {
     'panel': {
       'title': 'Processes Fork Rate',
       'y_formats': [ 'pps' ]
+    }
+  };
+
+  // processes_processes,host=ubuntu-xenial,instance=influxd,type=ps_count
+  // processes_threads,host=ubuntu-xenial,instance=influxd,type=ps_count
+  plugins.processes.psCpunt = {
+    'graph': {
+      '_processes': {
+        'type': 'ps_count',
+        'alias': 'processes'
+      },
+      'threads': {
+        'type': 'ps_count',
+        'alias': 'threads'
+      }
+    },
+    'panel': {
+      'title': 'Processes/Threads Count for @metric',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  // processes_syst,host=ubuntu-xenial,instance=influxd,type=ps_cputime
+  // processes_user,host=ubuntu-xenial,instance=influxd,type=ps_cputime
+  plugins.processes.psCpuTime = {
+    'graph': {
+      'syst': {
+        'type': 'ps_cputime',
+        'apply': 'derivative',
+        'alias': 'system'
+      },
+      'user': {
+        'type': 'ps_cputime',
+        'apply': 'derivative',
+        'alias': 'user'
+      }
+    },
+    'panel': {
+      'title': 'Processes CPU Time for @metric',
+      'stack': true,
+      'tooltip': { 'value_type': 'individual' },
+      'y_formats': [ 'µs' ]
+    }
+  };
+
+  // processes_majflt,host=ubuntu-xenial,instance=influxd,type=ps_pagefaults
+  // processes_minflt,host=ubuntu-xenial,instance=influxd,type=ps_pagefaults
+  plugins.processes.psPageFaults = {
+    'graph': {
+      'majflt': {
+        'type': 'ps_pagefaults',
+        'apply': 'derivative',
+        'alias': 'max'
+      },
+      'minflt': {
+        'type': 'ps_pagefaults',
+        'apply': 'derivative',
+        'alias': 'min'
+      }
+    },
+    'panel': {
+      'title': 'Processes Page Faults for @metric',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  // processes_write,host=ubuntu-xenial,instance=influxd,type=ps_disk_ops
+  // processes_read,host=ubuntu-xenial,instance=influxd,type=ps_disk_ops
+  plugins.processes.psDiskOps = {
+    'graph': {
+      'read': {
+        'color': '#447EBC',
+        'type': 'ps_disk_ops',
+        'apply': 'derivative',
+        'alias': 'read'
+      },
+      'write': {
+        'color': '#508642',
+        'type': 'ps_disk_ops',
+        'math': '* -1',
+        'apply': 'derivative',
+        'alias': 'write'
+      }
+    },
+    'panel': {
+      'title': 'Processes Disk Ops for @metric',
+      'grid': { 'max': null, 'min': null, 'leftMin': null },
+      'y_formats': [ 'iops' ]
+    }
+  };
+
+  // processes_write,host=ubuntu-xenial,instance=influxd,type=ps_disk_octets
+  // processes_read,host=ubuntu-xenial,instance=influxd,type=ps_disk_octets
+  plugins.processes.psDiskOctets = {
+    'graph': {
+      'read': {
+        'color': '#447EBC',
+        'type': 'ps_disk_octets',
+        'apply': 'derivative',
+        'alias': 'read'
+      },
+      'write': {
+        'color': '#508642',
+        'type': 'ps_disk_octets',
+        'math': '* -1',
+        'apply': 'derivative',
+        'alias': 'write'
+      }
+    },
+    'panel': {
+      'title': 'Processes Disk Octets for @metric',
+      'grid': { 'max': null, 'min': null, 'leftMin': null },
+      'y_formats': [ 'bps' ]
+    }
+  };
+
+  // processes_value,host=ubuntu-xenial,instance=influxd,type=ps_vm
+  plugins.processes.psVM = {
+    'graph': {
+      'processes': {
+        'type': 'ps_vm',
+        'alias': 'vm'
+      }
+    },
+    'panel': {
+      'title': 'Processes VM for @metric',
+      'y_formats': [ 'bytes' ]
+    }
+  };
+
+  // processes_value,host=ubuntu-xenial,instance=influxd,type=ps_stacksize
+  plugins.processes.psStackSize = {
+    'graph': {
+      'processes': {
+        'type': 'ps_stacksize',
+        'alias': 'stacksize'
+      }
+    },
+    'panel': {
+      'title': 'Processes Stack Size for @metric',
+      'y_formats': [ 'bytes' ]
+    }
+  };
+
+  // processes_value,host=ubuntu-xenial,instance=influxd,type=ps_rss
+  plugins.processes.psRSS = {
+    'graph': {
+      'processes': {
+        'type': 'ps_rss',
+        'alias': 'rss'
+      }
+    },
+    'panel': {
+      'title': 'Processes RSS for @metric',
+      'y_formats': [ 'bytes' ]
+    }
+  };
+
+  // processes_value,host=ubuntu-xenial,instance=influxd,type=ps_code
+  // processes_value,host=ubuntu-xenial,instance=influxd,type=ps_data
+  plugins.processes.psCodeData = {
+    'graph': {
+      'processes': {
+        'type': 'ps_code',
+        'alias': 'code'
+      },
+      'value': {
+        'type': 'ps_data',
+        'alias': 'data'
+      }
+    },
+    'panel': {
+      'title': 'Processes Code and Data for @metric',
+      'stack': true,
+      'tooltip': { 'value_type': 'individual' },
+      'y_formats': [ 'bytes' ]
     }
   };
 
