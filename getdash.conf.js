@@ -687,17 +687,17 @@ var getDashConf = function getDashConf () {
     }
   };
 
-  // processes_processes,host=ubuntu-xenial,instance=influxd,type=ps_count
-  // processes_threads,host=ubuntu-xenial,instance=influxd,type=ps_count
-  plugins.processes.psCpunt = {
+  plugins.processes.psCount = {
     'graph': {
-      '_processes': {
-        'type': 'ps_count',
-        'alias': 'processes'
-      },
       'threads': {
+        'color': '#508642',
         'type': 'ps_count',
         'alias': 'threads'
+      },
+      '_processes': {
+        'color': '#EAB839',
+        'type': 'ps_count',
+        'alias': 'processes'
       }
     },
     'panel': {
@@ -706,16 +706,16 @@ var getDashConf = function getDashConf () {
     }
   };
 
-  // processes_syst,host=ubuntu-xenial,instance=influxd,type=ps_cputime
-  // processes_user,host=ubuntu-xenial,instance=influxd,type=ps_cputime
   plugins.processes.psCpuTime = {
     'graph': {
       'syst': {
+        'color': '#EAB839', 
         'type': 'ps_cputime',
         'apply': 'derivative',
         'alias': 'system'
       },
       'user': {
+        'color': '#508642',
         'type': 'ps_cputime',
         'apply': 'derivative',
         'alias': 'user'
@@ -729,19 +729,19 @@ var getDashConf = function getDashConf () {
     }
   };
 
-  // processes_majflt,host=ubuntu-xenial,instance=influxd,type=ps_pagefaults
-  // processes_minflt,host=ubuntu-xenial,instance=influxd,type=ps_pagefaults
   plugins.processes.psPageFaults = {
     'graph': {
       'majflt': {
+        'color': '#890F02',
         'type': 'ps_pagefaults',
         'apply': 'derivative',
-        'alias': 'max'
+        'alias': 'major'
       },
       'minflt': {
+        'color': '#C15C17',
         'type': 'ps_pagefaults',
         'apply': 'derivative',
-        'alias': 'min'
+        'alias': 'minor'
       }
     },
     'panel': {
@@ -750,8 +750,6 @@ var getDashConf = function getDashConf () {
     }
   };
 
-  // processes_write,host=ubuntu-xenial,instance=influxd,type=ps_disk_ops
-  // processes_read,host=ubuntu-xenial,instance=influxd,type=ps_disk_ops
   plugins.processes.psDiskOps = {
     'graph': {
       'read': {
@@ -775,8 +773,6 @@ var getDashConf = function getDashConf () {
     }
   };
 
-  // processes_write,host=ubuntu-xenial,instance=influxd,type=ps_disk_octets
-  // processes_read,host=ubuntu-xenial,instance=influxd,type=ps_disk_octets
   plugins.processes.psDiskOctets = {
     'graph': {
       'read': {
@@ -800,7 +796,27 @@ var getDashConf = function getDashConf () {
     }
   };
 
-  // processes_value,host=ubuntu-xenial,instance=influxd,type=ps_vm
+  plugins.processes.psCodeData = {
+    'graph': {
+      'processes': {
+        'color': '#EAB839',
+        'type': 'ps_code',
+        'alias': 'code'
+      },
+      'value': {
+        'color': '#508642',
+        'type': 'ps_data',
+        'alias': 'data'
+      }
+    },
+    'panel': {
+      'title': 'Processes Code and Data for @metric',
+      'stack': true,
+      'tooltip': { 'value_type': 'individual' },
+      'y_formats': [ 'bytes' ]
+    }
+  };
+
   plugins.processes.psVM = {
     'graph': {
       'processes': {
@@ -814,7 +830,6 @@ var getDashConf = function getDashConf () {
     }
   };
 
-  // processes_value,host=ubuntu-xenial,instance=influxd,type=ps_stacksize
   plugins.processes.psStackSize = {
     'graph': {
       'processes': {
@@ -828,7 +843,6 @@ var getDashConf = function getDashConf () {
     }
   };
 
-  // processes_value,host=ubuntu-xenial,instance=influxd,type=ps_rss
   plugins.processes.psRSS = {
     'graph': {
       'processes': {
@@ -842,23 +856,44 @@ var getDashConf = function getDashConf () {
     }
   };
 
-  // processes_value,host=ubuntu-xenial,instance=influxd,type=ps_code
-  // processes_value,host=ubuntu-xenial,instance=influxd,type=ps_data
-  plugins.processes.psCodeData = {
+  // collectd processes plugin configuration with agregated metrics
+  plugins.process = new Plugin();
+
+  plugins.process.psVM = {
     'graph': {
       'processes': {
-        'type': 'ps_code',
-        'alias': 'code'
-      },
-      'value': {
-        'type': 'ps_data',
-        'alias': 'data'
+        'type': 'ps_vm',
+        'alias': 'vm'
       }
     },
     'panel': {
-      'title': 'Processes Code and Data for @metric',
-      'stack': true,
-      'tooltip': { 'value_type': 'individual' },
+      'title': 'Processes VM',
+      'y_formats': [ 'bytes' ]
+    }
+  };
+
+  plugins.process.psStackSize = {
+    'graph': {
+      'processes': {
+        'type': 'ps_stacksize',
+        'alias': 'stacksize'
+      }
+    },
+    'panel': {
+      'title': 'Processes Stack Size',
+      'y_formats': [ 'bytes' ]
+    }
+  };
+
+  plugins.process.psRSS = {
+    'graph': {
+      'processes': {
+        'type': 'ps_rss',
+        'alias': 'rss'
+      }
+    },
+    'panel': {
+      'title': 'Processes RSS',
       'y_formats': [ 'bytes' ]
     }
   };
