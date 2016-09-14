@@ -630,7 +630,7 @@ var getDashConf = function getDashConf () {
 
 
   // collectd processes plugin configuration
-  plugins.processes = new Plugin();
+  plugins.processes = new Plugin({ 'alias': 'processes' });
 
   plugins.processes.state = {
     'graph': {
@@ -675,7 +675,7 @@ var getDashConf = function getDashConf () {
     'graph': {
       'processes': {
         'color': '#BA43A9',
-        'alias': 'processes',
+        'alias': 'forks',
         'apply': 'derivative',
         'type': 'fork_rate'
       }
@@ -727,7 +727,7 @@ var getDashConf = function getDashConf () {
 
 
   // collectd processes plugin configuration with individual metrics
-  plugins.process = new Plugin();
+  plugins.process = new Plugin({ 'alias': 'process' });
   plugins.process.config.multi = true;
 
   plugins.process.psCount = {
@@ -755,17 +755,17 @@ var getDashConf = function getDashConf () {
         'color': '#EAB839', 
         'type': 'ps_cputime',
         'apply': 'derivative',
-        'alias': 'system'
+        'alias': 'cpu-system'
       },
       'user': {
         'color': '#508642',
         'type': 'ps_cputime',
         'apply': 'derivative',
-        'alias': 'user'
+        'alias': 'cpu-user'
       }
     },
     'panel': {
-      'title': 'Processes CPU Time for @metric',
+      'title': 'Process CPU Time for @metric',
       'stack': true,
       'tooltip': { 'value_type': 'individual' },
       'y_formats': [ 'µs' ]
@@ -778,17 +778,17 @@ var getDashConf = function getDashConf () {
         'color': '#890F02',
         'type': 'ps_pagefaults',
         'apply': 'derivative',
-        'alias': 'major'
+        'alias': 'faults-major'
       },
       'minflt': {
         'color': '#C15C17',
         'type': 'ps_pagefaults',
         'apply': 'derivative',
-        'alias': 'minor'
+        'alias': 'faults-minor'
       }
     },
     'panel': {
-      'title': 'Processes Page Faults for @metric',
+      'title': 'Process Page Faults for @metric',
       'y_formats': [ 'short' ]
     }
   };
@@ -799,18 +799,18 @@ var getDashConf = function getDashConf () {
         'color': '#447EBC',
         'type': 'ps_disk_ops',
         'apply': 'derivative',
-        'alias': 'read'
+        'alias': 'ops-read'
       },
       'write': {
         'color': '#508642',
         'type': 'ps_disk_ops',
         'math': '* -1',
         'apply': 'derivative',
-        'alias': 'write'
+        'alias': 'ops-write'
       }
     },
     'panel': {
-      'title': 'Processes Disk Ops for @metric',
+      'title': 'Process Disk Ops for @metric',
       'grid': { 'max': null, 'min': null, 'leftMin': null },
       'y_formats': [ 'iops' ]
     }
@@ -822,18 +822,18 @@ var getDashConf = function getDashConf () {
         'color': '#447EBC',
         'type': 'ps_disk_octets',
         'apply': 'derivative',
-        'alias': 'read'
+        'alias': 'bytes-read'
       },
       'write': {
         'color': '#508642',
         'type': 'ps_disk_octets',
         'math': '* -1',
         'apply': 'derivative',
-        'alias': 'write'
+        'alias': 'bytes-write'
       }
     },
     'panel': {
-      'title': 'Processes Disk Octets for @metric',
+      'title': 'Process Disk Octets for @metric',
       'grid': { 'max': null, 'min': null, 'leftMin': null },
       'y_formats': [ 'bps' ]
     }
@@ -844,16 +844,16 @@ var getDashConf = function getDashConf () {
       'processes': {
         'color': '#EAB839',
         'type': 'ps_code',
-        'alias': 'code'
+        'alias': 'size-code'
       },
       'value': {
         'color': '#508642',
         'type': 'ps_data',
-        'alias': 'data'
+        'alias': 'size-data'
       }
     },
     'panel': {
-      'title': 'Processes Code and Data for @metric',
+      'title': 'Process Code and Data for @metric',
       'stack': true,
       'tooltip': { 'value_type': 'individual' },
       'y_formats': [ 'bytes' ]
@@ -868,7 +868,7 @@ var getDashConf = function getDashConf () {
       }
     },
     'panel': {
-      'title': 'Processes VM for @metric',
+      'title': 'Process VM for @metric',
       'y_formats': [ 'bytes' ]
     }
   };
@@ -881,7 +881,7 @@ var getDashConf = function getDashConf () {
       }
     },
     'panel': {
-      'title': 'Processes Stack Size for @metric',
+      'title': 'Process Stack Size for @metric',
       'y_formats': [ 'bytes' ]
     }
   };
@@ -894,7 +894,7 @@ var getDashConf = function getDashConf () {
       }
     },
     'panel': {
-      'title': 'Processes RSS for @metric',
+      'title': 'Process RSS for @metric',
       'y_formats': [ 'bytes' ]
     }
   };
