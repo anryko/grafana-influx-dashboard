@@ -631,7 +631,6 @@ var getDashConf = function getDashConf () {
 
   // collectd processes plugin configuration
   plugins.processes = new Plugin();
-  plugins.processes.config.multi = true;
 
   plugins.processes.state = {
     'graph': {
@@ -687,7 +686,51 @@ var getDashConf = function getDashConf () {
     }
   };
 
-  plugins.processes.psCount = {
+  plugins.processes.psVM = {
+    'graph': {
+      'processes': {
+        'type': 'ps_vm',
+        'alias': 'vm'
+      }
+    },
+    'panel': {
+      'title': 'Processes VM',
+      'y_formats': [ 'bytes' ]
+    }
+  };
+
+  plugins.processes.psStackSize = {
+    'graph': {
+      'processes': {
+        'type': 'ps_stacksize',
+        'alias': 'stacksize'
+      }
+    },
+    'panel': {
+      'title': 'Processes Stack Size',
+      'y_formats': [ 'bytes' ]
+    }
+  };
+
+  plugins.processes.psRSS = {
+    'graph': {
+      'processes': {
+        'type': 'ps_rss',
+        'alias': 'rss'
+      }
+    },
+    'panel': {
+      'title': 'Processes RSS',
+      'y_formats': [ 'bytes' ]
+    }
+  };
+
+
+  // collectd processes plugin configuration with individual metrics
+  plugins.process = new Plugin();
+  plugins.process.config.multi = true;
+
+  plugins.process.psCount = {
     'graph': {
       'threads': {
         'color': '#508642',
@@ -706,7 +749,7 @@ var getDashConf = function getDashConf () {
     }
   };
 
-  plugins.processes.psCpuTime = {
+  plugins.process.psCpuTime = {
     'graph': {
       'syst': {
         'color': '#EAB839', 
@@ -729,7 +772,7 @@ var getDashConf = function getDashConf () {
     }
   };
 
-  plugins.processes.psPageFaults = {
+  plugins.process.psPageFaults = {
     'graph': {
       'majflt': {
         'color': '#890F02',
@@ -750,7 +793,7 @@ var getDashConf = function getDashConf () {
     }
   };
 
-  plugins.processes.psDiskOps = {
+  plugins.process.psDiskOps = {
     'graph': {
       'read': {
         'color': '#447EBC',
@@ -773,7 +816,7 @@ var getDashConf = function getDashConf () {
     }
   };
 
-  plugins.processes.psDiskOctets = {
+  plugins.process.psDiskOctets = {
     'graph': {
       'read': {
         'color': '#447EBC',
@@ -796,7 +839,7 @@ var getDashConf = function getDashConf () {
     }
   };
 
-  plugins.processes.psCodeData = {
+  plugins.process.psCodeData = {
     'graph': {
       'processes': {
         'color': '#EAB839',
@@ -817,7 +860,7 @@ var getDashConf = function getDashConf () {
     }
   };
 
-  plugins.processes.psVM = {
+  plugins.process.psVM = {
     'graph': {
       'processes': {
         'type': 'ps_vm',
@@ -830,7 +873,7 @@ var getDashConf = function getDashConf () {
     }
   };
 
-  plugins.processes.psStackSize = {
+  plugins.process.psStackSize = {
     'graph': {
       'processes': {
         'type': 'ps_stacksize',
@@ -843,48 +886,6 @@ var getDashConf = function getDashConf () {
     }
   };
 
-  plugins.processes.psRSS = {
-    'graph': {
-      'processes': {
-        'type': 'ps_rss',
-        'alias': 'rss'
-      }
-    },
-    'panel': {
-      'title': 'Processes RSS for @metric',
-      'y_formats': [ 'bytes' ]
-    }
-  };
-
-  // collectd processes plugin configuration with agregated metrics
-  plugins.process = new Plugin();
-
-  plugins.process.psVM = {
-    'graph': {
-      'processes': {
-        'type': 'ps_vm',
-        'alias': 'vm'
-      }
-    },
-    'panel': {
-      'title': 'Processes VM',
-      'y_formats': [ 'bytes' ]
-    }
-  };
-
-  plugins.process.psStackSize = {
-    'graph': {
-      'processes': {
-        'type': 'ps_stacksize',
-        'alias': 'stacksize'
-      }
-    },
-    'panel': {
-      'title': 'Processes Stack Size',
-      'y_formats': [ 'bytes' ]
-    }
-  };
-
   plugins.process.psRSS = {
     'graph': {
       'processes': {
@@ -893,7 +894,7 @@ var getDashConf = function getDashConf () {
       }
     },
     'panel': {
-      'title': 'Processes RSS',
+      'title': 'Processes RSS for @metric',
       'y_formats': [ 'bytes' ]
     }
   };
