@@ -245,12 +245,15 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   var moveUpToMetric = _.curry(function moveUpToMetric (key, metricConf) {
     var keys = key + 's';
     var o = {};
-    o[keys] =  _.union(_.flatten(_.map(metricConf.graph, function (graph) {
+    o[keys] = _.union(_.flatten(_.map(metricConf.graph, function (graph) {
       var g = (_.isArray(graph))
           ? graph[0]
           : graph;
       return _.pluck(g.series, key);
     })));
+
+    _.remove(o[keys], (x) => _.isUndefined(x));
+
     return _.merge({}, metricConf, o);
   });
 
@@ -560,6 +563,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
           metricConf.name + ' are empty.');
 
     var instances = getInstancesForPanel(pluginConf, metricConf);
+
     return _.flatten(_.map(hosts, function (host) {
       return _.map(datasources, function (source) {
         return _.map(instances, function (instance) {

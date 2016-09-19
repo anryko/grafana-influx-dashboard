@@ -630,16 +630,40 @@ var getDashConf = function getDashConf () {
 
 
   // collectd processes plugin configuration
-  plugins.processes = new Plugin();
+  plugins.processes = new Plugin({ 'alias': 'processes' });
 
   plugins.processes.state = {
     'graph': {
-      'sleeping': { 'color': '#EAB839', 'alias': 'sleeping' },
-      'running': { 'color': '#508642', 'alias': 'running' },
-      'stopped': { 'color': '#E9967A', 'alias': 'stopped' },
-      'blocked': { 'color': '#890F02', 'alias': 'blocked' },
-      'zombies': { 'color': '#E24D42', 'alias': 'zombies' },
-      'paging': { 'color': '#9400D3', 'alias': 'paging' }
+      'sleeping': {
+        'type': 'ps_state',
+        'color': '#EAB839',
+        'alias': 'sleeping'
+      },
+      'running': {
+        'type': 'ps_state',
+        'color': '#508642',
+        'alias': 'running'
+      },
+      'stopped': {
+        'type': 'ps_state',
+        'color': '#E9967A',
+        'alias': 'stopped'
+      },
+      'blocked': {
+        'type': 'ps_state',
+        'color': '#890F02',
+        'alias': 'blocked'
+      },
+      'zombies': {
+        'type': 'ps_state',
+        'color': '#E24D42',
+        'alias': 'zombies'
+      },
+      'paging': {
+        'type': 'ps_state',
+        'color': '#9400D3',
+        'alias': 'paging'
+      }
     },
     'panel': {
       'title': 'Processes State',
@@ -651,7 +675,7 @@ var getDashConf = function getDashConf () {
     'graph': {
       'processes': {
         'color': '#BA43A9',
-        'alias': 'processes',
+        'alias': 'forks',
         'apply': 'derivative',
         'type': 'fork_rate'
       }
@@ -659,6 +683,219 @@ var getDashConf = function getDashConf () {
     'panel': {
       'title': 'Processes Fork Rate',
       'y_formats': [ 'pps' ]
+    }
+  };
+
+  plugins.processes.psVM = {
+    'graph': {
+      'processes': {
+        'type': 'ps_vm',
+        'alias': 'vm'
+      }
+    },
+    'panel': {
+      'title': 'Processes VM',
+      'y_formats': [ 'bytes' ]
+    }
+  };
+
+  plugins.processes.psStackSize = {
+    'graph': {
+      'processes': {
+        'type': 'ps_stacksize',
+        'alias': 'stacksize'
+      }
+    },
+    'panel': {
+      'title': 'Processes Stack Size',
+      'y_formats': [ 'bytes' ]
+    }
+  };
+
+  plugins.processes.psRSS = {
+    'graph': {
+      'processes': {
+        'type': 'ps_rss',
+        'alias': 'rss'
+      }
+    },
+    'panel': {
+      'title': 'Processes RSS',
+      'y_formats': [ 'bytes' ]
+    }
+  };
+
+
+  // collectd processes plugin configuration with individual metrics
+  plugins.process = new Plugin({ 'alias': 'process' });
+  plugins.process.config.multi = true;
+
+  plugins.process.psCount = {
+    'graph': {
+      'threads': {
+        'color': '#508642',
+        'type': 'ps_count',
+        'alias': 'threads'
+      },
+      '_processes': {
+        'color': '#EAB839',
+        'type': 'ps_count',
+        'alias': 'processes'
+      }
+    },
+    'panel': {
+      'title': 'Processes/Threads Count for @metric',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  plugins.process.psCpuTime = {
+    'graph': {
+      'syst': {
+        'color': '#EAB839', 
+        'type': 'ps_cputime',
+        'apply': 'derivative',
+        'alias': 'cpu-system'
+      },
+      'user': {
+        'color': '#508642',
+        'type': 'ps_cputime',
+        'apply': 'derivative',
+        'alias': 'cpu-user'
+      }
+    },
+    'panel': {
+      'title': 'Process CPU Time for @metric',
+      'stack': true,
+      'tooltip': { 'value_type': 'individual' },
+      'y_formats': [ 'µs' ]
+    }
+  };
+
+  plugins.process.psPageFaults = {
+    'graph': {
+      'majflt': {
+        'color': '#890F02',
+        'type': 'ps_pagefaults',
+        'apply': 'derivative',
+        'alias': 'faults-major'
+      },
+      'minflt': {
+        'color': '#C15C17',
+        'type': 'ps_pagefaults',
+        'apply': 'derivative',
+        'alias': 'faults-minor'
+      }
+    },
+    'panel': {
+      'title': 'Process Page Faults for @metric',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  plugins.process.psDiskOps = {
+    'graph': {
+      'read': {
+        'color': '#447EBC',
+        'type': 'ps_disk_ops',
+        'apply': 'derivative',
+        'alias': 'ops-read'
+      },
+      'write': {
+        'color': '#508642',
+        'type': 'ps_disk_ops',
+        'math': '* -1',
+        'apply': 'derivative',
+        'alias': 'ops-write'
+      }
+    },
+    'panel': {
+      'title': 'Process Disk Ops for @metric',
+      'grid': { 'max': null, 'min': null, 'leftMin': null },
+      'y_formats': [ 'iops' ]
+    }
+  };
+
+  plugins.process.psDiskOctets = {
+    'graph': {
+      'read': {
+        'color': '#447EBC',
+        'type': 'ps_disk_octets',
+        'apply': 'derivative',
+        'alias': 'bytes-read'
+      },
+      'write': {
+        'color': '#508642',
+        'type': 'ps_disk_octets',
+        'math': '* -1',
+        'apply': 'derivative',
+        'alias': 'bytes-write'
+      }
+    },
+    'panel': {
+      'title': 'Process Disk Octets for @metric',
+      'grid': { 'max': null, 'min': null, 'leftMin': null },
+      'y_formats': [ 'bps' ]
+    }
+  };
+
+  plugins.process.psCodeData = {
+    'graph': {
+      'processes': {
+        'color': '#EAB839',
+        'type': 'ps_code',
+        'alias': 'size-code'
+      },
+      'value': {
+        'color': '#508642',
+        'type': 'ps_data',
+        'alias': 'size-data'
+      }
+    },
+    'panel': {
+      'title': 'Process Code and Data for @metric',
+      'stack': true,
+      'tooltip': { 'value_type': 'individual' },
+      'y_formats': [ 'bytes' ]
+    }
+  };
+
+  plugins.process.psVM = {
+    'graph': {
+      'processes': {
+        'type': 'ps_vm',
+        'alias': 'vm'
+      }
+    },
+    'panel': {
+      'title': 'Process VM for @metric',
+      'y_formats': [ 'bytes' ]
+    }
+  };
+
+  plugins.process.psStackSize = {
+    'graph': {
+      'processes': {
+        'type': 'ps_stacksize',
+        'alias': 'stacksize'
+      }
+    },
+    'panel': {
+      'title': 'Process Stack Size for @metric',
+      'y_formats': [ 'bytes' ]
+    }
+  };
+
+  plugins.process.psRSS = {
+    'graph': {
+      'processes': {
+        'type': 'ps_rss',
+        'alias': 'rss'
+      }
+    },
+    'panel': {
+      'title': 'Process RSS for @metric',
+      'y_formats': [ 'bytes' ]
     }
   };
 
