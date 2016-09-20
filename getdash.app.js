@@ -257,25 +257,12 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
     return _.merge({}, metricConf, o);
   });
 
-
-  // addSourcesToMetric :: metricConfObj -> new metricConfObj
-  var addSourcesToMetric = moveUpToMetric('source');
-
-
-  // addInstancesToMetric :: metricConfObj -> new metricConfObj
-  var addInstancesToMetric = moveUpToMetric('instance');
-
-
-  // addHostsToMetric :: metricConfObj -> new metricConfObj
-  var addHostsToMetric = moveUpToMetric('host');
-
-
   // getMetric :: [seriesObj], pluginObj -> func
   var getMetric = _.curry(function getMetric (series, plugin) {
     // :: metricConfObj, metricNameStr -> metricObj
-    return _.compose(addHostsToMetric,
-                     addInstancesToMetric,
-                     addSourcesToMetric,
+    return _.compose(moveUpToMetric('host'),
+                     moveUpToMetric('instance'),
+                     moveUpToMetric('source'),
                      addSeriesToMetricGraphs(series),
                      addProperty('merge', plugin.config.merge),
                      addProperty('regexp', plugin.config.regexp),
@@ -826,7 +813,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   });
 
 
-  // setPlginsInstance :: pluginsObj, instanceStr -> new pluginsObj
+  // setPluginsInstance :: pluginsObj, instanceStr -> new pluginsObj
   var setPluginsInstance = function setPluginsInstance (plugins, instance) {
     if (!instance)
       return plugins;
