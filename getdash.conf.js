@@ -259,6 +259,123 @@ var getDashConf = function getDashConf () {
     }
   };
 
+
+  // collectd netlink plugin configuration
+  plugins.netlink = new Plugin({ 'alias': 'netlink' });
+  plugins.netlink.config.multi = true;
+
+  plugins.netlink.packets = {
+    'graph': {
+      'rx': {
+        'color': '#447EBC',
+        'apply': 'derivative',
+        'math': '* -1',
+        'type': 'if_packets',
+        'alias': 'rx'
+      },
+      'tx': {
+        'color': '#508642',
+        'apply': 'derivative',
+        'type': 'if_packets',
+        'alias': 'tx'
+      }
+    },
+    'panel': {
+      'title': 'Netlink packets for @metric',
+      'y_formats': [ 'pps' ],
+      'grid': { 'max': null, 'min': null, 'leftMin': null }
+    }
+  };
+
+  plugins.netlink.octets = {
+    'graph': {
+      'rx': {
+        'color': '#447EBC',
+        'apply': 'derivative',
+        'math': '* -1',
+        'type': 'if_octets',
+        'alias': 'rx'
+      },
+      'tx': {
+        'color': '#508642',
+        'apply': 'derivative',
+        'type': 'if_octets',
+        'alias': 'tx'
+      }
+    },
+    'panel': {
+      'title': 'Netlink octets for @metric',
+      'y_formats': [ 'bps' ],
+      'grid': { 'max': null, 'min': null, 'leftMin': null }
+    }
+  };
+
+  plugins.netlink.errors = {
+    'graph': {
+      'rx': {
+        'color': '#FF6600',
+        'apply': 'derivative',
+        'math': '* -1',
+        'type': 'if_errors',
+        'alias': 'rx'
+      },
+      'tx': {
+        'color': '#FFCC00',
+        'apply': 'derivative',
+        'type': 'if_errors',
+        'alias': 'tx'
+      }
+    },
+    'panel': {
+      'title': 'Netlink errors for @metric',
+      'y_formats': [ 'pps' ],
+      'grid': { 'max': null, 'min': null, 'leftMin': null }
+    }
+  };
+
+  plugins.netlink.dropped = {
+    'graph': {
+      'rx': {
+        'color': '#FF6600',
+        'apply': 'derivative',
+        'math': '* -1',
+        'type': 'if_dropped',
+        'alias': 'rx'
+      },
+      'tx': {
+        'color': '#FFCC00',
+        'apply': 'derivative',
+        'type': 'if_dropped',
+        'alias': 'tx'
+      }
+    },
+    'panel': {
+      'title': 'Netlink dropped for @metric',
+      'y_formats': [ 'pps' ],
+      'grid': { 'max': null, 'min': null, 'leftMin': null }
+    }
+  };
+
+  plugins.netlink.errorsExtended = {
+    'graph': {
+      'netlink_value': {
+        'apply': 'derivative',
+        'math': '* -1',
+        'type': 'if_rx_errors'
+      },
+      'tx': {
+        'apply': 'derivative',
+        'type': 'if_tx_errors'
+      }
+    },
+    'panel': {
+      'title': 'Netlink errors extended for @metric',
+      'y_formats': [ 'pps' ],
+      'grid': { 'max': null, 'min': null, 'leftMin': null }
+    }
+  };
+
+
   // collectd ipvs plugin configuration
   plugins.ipvs = new Plugin({ 'alias': 'ipvs'});
 
@@ -2497,27 +2614,6 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'generic interrupts pers second'
-    }
-  };
-
-  // netlink 
-  //
-  // generic plugin for netlink, which offers a higher 
-  // resolution overview about networking.
-  // HINT: use generic for a overwiev and specify needed
-  // metrics in /etc/collectd/collectd.conf at client
-  plugins.netlink = new Plugin();
-  plugins.netlink.config.multi = true;
-
-  plugins.netlink.perSec = {
-    'graph': {
-      '': {
-        'apply': 'derivative(1s)'
-      } 
-      
-    },
-    'panel': {
-      'title': 'netlink on interface @metric /sec'
     }
   };
 

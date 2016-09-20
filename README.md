@@ -53,6 +53,7 @@ http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=disk&instance=
 * [memory](https://collectd.org/wiki/index.php/Plugin:Memory)
 * [swap](https://collectd.org/wiki/index.php/Plugin:Swap)
 * [interface](https://collectd.org/wiki/index.php/Plugin:Interface)
+* [netlink](https://collectd.org/wiki/index.php/Plugin:Netlink)
 * [df](https://collectd.org/wiki/index.php/Plugin:DF)
 * [disk](https://collectd.org/wiki/index.php/Plugin:Disk)
 * [processes](https://collectd.org/wiki/index.php/Plugin:Processes)
