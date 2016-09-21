@@ -358,20 +358,102 @@ var getDashConf = function getDashConf () {
 
   plugins.netlink.errorsExtended = {
     'graph': {
-      'netlink_value': {
+      'crc': {
         'apply': 'derivative',
         'math': '* -1',
-        'type': 'if_rx_errors'
+        'type': 'if_rx_errors',
+        'alias': 'crc-rx'
       },
-      'tx': {
+      'fifo': {
         'apply': 'derivative',
-        'type': 'if_tx_errors'
+        'math': '* -1',
+        'type': 'if_rx_errors',
+        'alias': 'fifo-rx'
+      },
+      'frame': {
+        'apply': 'derivative',
+        'math': '* -1',
+        'type': 'if_rx_errors',
+        'alias': 'frame-rx'
+      },
+      'length': {
+        'apply': 'derivative',
+        'math': '* -1',
+        'type': 'if_rx_errors',
+        'alias': 'length-rx'
+      },
+      'missed': {
+        'apply': 'derivative',
+        'math': '* -1',
+        'type': 'if_rx_errors',
+        'alias': 'missed-rx'
+      },
+      'over': {
+        'apply': 'derivative',
+        'math': '* -1',
+        'type': 'if_rx_errors',
+        'alias': 'over-rx'
+      },
+      'fifo': {
+        'apply': 'derivative',
+        'type': 'if_tx_errors',
+        'alias': 'fifo-tx'
+      },
+      'aborted': {
+        'apply': 'derivative',
+        'type': 'if_tx_errors',
+        'alias': 'aborted-tx'
+      },
+      'carrier': {
+        'apply': 'derivative',
+        'type': 'if_tx_errors',
+        'alias': 'carrier-tx'
+      },
+      'heartbeat': {
+        'apply': 'derivative',
+        'type': 'if_tx_errors',
+        'alias': 'heartbeat-tx'
+      },
+      'window': {
+        'apply': 'derivative',
+        'type': 'if_tx_errors',
+        'alias': 'window-tx'
       }
     },
     'panel': {
       'title': 'Netlink errors extended for @metric',
       'y_formats': [ 'pps' ],
       'grid': { 'max': null, 'min': null, 'leftMin': null }
+    }
+  };
+
+  plugins.netlink.collisions = {
+    'graph': {
+      'netlink_value': {
+        'color': '#FF6600',
+        'apply': 'derivative',
+        'type': 'if_collisions',
+        'alias': 'collisions'
+      }
+    },
+    'panel': {
+      'title': 'Netlink collisions for @metric',
+      'y_formats': [ 'pps' ]
+    }
+  };
+
+  plugins.netlink.multicast = {
+    'graph': {
+      'netlink_value': {
+        'color': '#FFCC00',
+        'apply': 'derivative',
+        'type': 'if_multicast',
+        'alias': 'multicast'
+      }
+    },
+    'panel': {
+      'title': 'Netlink multicast for @metric',
+      'y_formats': [ 'pps' ]
     }
   };
 
