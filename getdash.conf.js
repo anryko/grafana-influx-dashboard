@@ -2700,6 +2700,127 @@ var getDashConf = function getDashConf () {
   };
 
 
+  // kafka GenericJMX plugin configuration
+  plugins.kafka = new Plugin({ 'alias': 'kafka' });
+
+  plugins.kafka.controller = {
+    'graph': {
+      'controller.active.gauge': {
+        'alias': 'active'
+      },
+    },
+    'panel': {
+      'title': 'JMX Kafka Active Controllers',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  plugins.kafka.logFlush = {
+    'graph': {
+      'log.flush.count': {
+        'apply': 'derivative(max)',
+        'alias': 'flushes'
+      },
+    },
+    'panel': {
+      'title': 'JMX Kafka Log Flushes',
+      'y_formats': [ 'ops' ]
+    }
+  };
+
+  plugins.kafka.logTime = {
+    'graph': {
+      'log.flush.time-ms.median': {
+        'alias': 'flush-time-average',
+        'color': '#CCA300'
+      },
+      'log.flush.time-ms.99th': {
+        'alias': 'flush-time-most',
+        'color': '#508642'
+      }
+    },
+    'panel': {
+      'title': 'JMX Kafka Log Flushes Time',
+      'fill': 3,
+      'y_formats': [ 'ms' ]
+    }
+  };
+
+  plugins.kafka.requestsCount = {
+    'graph': {
+      'requests.count': {
+        'apply': 'derivative',
+        'alias': 'requests'
+      }
+    },
+    'panel': {
+      'title': 'JMX Kafka Requests',
+      'y_formats': [ 'ops' ]
+    }
+  };
+
+  plugins.kafka.totalTimeMedian = {
+    'graph': {
+      'total-time.median': {
+        'alias': 'average-time'
+      },
+      'total-time.99th': {
+        'alias': 'max-time'
+      }
+    },
+    'panel': {
+      'title': 'JMX Kafka Operation Times',
+      'y_formats': [ 'ms' ]
+    }
+  };
+
+  plugins.kafka.messages = {
+    'graph': {
+      'topics.messages.count': {
+        'apply': 'derivative',
+        'alias': 'messages-count'
+      }
+    },
+    'panel': {
+      'title': 'JMX Kafka Topics Messages',
+      'y_formats': [ 'pps' ]
+    }
+  };
+
+  plugins.kafka.traffic = {
+    'graph': {
+      'topics.bytes-out.count': {
+        'color': '#447EBC',
+        'apply': 'derivative',
+        'alias': 'bytes-out'
+      },
+      'topics.bytes-in.count': {
+        'color': '#508642',
+        'math': '* -1',
+        'apply': 'derivative',
+        'alias': 'bytes-in'
+      }
+    },
+    'panel': {
+      'title': 'JMX Kafka Topics Traffic',
+      'grid': { 'max': null, 'min': null, 'leftMin': null },
+      'y_formats': [ 'bytes' ]
+    }
+  };
+
+  plugins.kafka.partitionsUnderRepl = {
+    'graph': {
+      'partitions.underreplicated.gauge': {
+        'alias': 'underreplicated-count'
+      }
+    },
+    'panel': {
+      'title': 'JMX Kafka Partitions Underreplicated',
+      'y_formats': [ 'short' ]
+    }
+  };
+
+
   return {
     'plugins': plugins
   };

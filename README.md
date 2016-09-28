@@ -78,6 +78,7 @@ http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=disk&instance=
 * [lvm](https://collectd.org/wiki/index.php/Plugin:LVM)
 * [mysql](https://collectd.org/wiki/index.php/Plugin:MySQL)
 * [tcpconns](https://collectd.org/wiki/index.php/Plugin:TCPConns)
+* [kafka](https://collectd.org/wiki/index.php/Plugin:GenericJMX)
 
 #### Supported metric groups
 * system
