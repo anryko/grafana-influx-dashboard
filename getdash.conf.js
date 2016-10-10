@@ -61,7 +61,8 @@ var getDashConf = function getDashConf () {
     'nginx',
     'zookeeper',
     'mesos',
-    'apache'
+    'apache',
+    'kafka'
   ];
   plugins.groups.database = [
     'elasticsearch',
@@ -680,7 +681,7 @@ var getDashConf = function getDashConf () {
 
 
   // collectd df plugin configuration
-  plugins.df = new Plugin();
+  plugins.df = new Plugin({ 'alias': 'df' });
   plugins.df.config.multi = true;
 
   plugins.df.space = {

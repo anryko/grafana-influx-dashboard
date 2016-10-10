@@ -131,7 +131,10 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
     linewidth: 1,
     nullPointMode: 'null',
     targets: [],  // [targetProto]
-    aliasColors: {}
+    aliasColors: {},
+    legend: {
+      show: true
+    }
   };
 
   var rowProto = {
@@ -960,6 +963,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
 
       // Object prototypes setup
       panelProto.span = dashConf.span;
+      panelProto.legend.show = dashConf.legend;
 
       dashboard.rows = getRows(dashPlugins, series);
       return callback(dashboard);

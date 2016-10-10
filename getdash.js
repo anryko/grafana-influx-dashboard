@@ -48,6 +48,7 @@ return function scriptedDashboard (callback) {
       time: (_.isUndefined(ARGS.time)) ? undefined : sanitize(ARGS.time),
       refresh: (_.isUndefined(ARGS.refresh)) ? undefined : sanitize(ARGS.refresh),
       span: (_.isUndefined(ARGS.span)) ? 12 : sanitize(ARGS.span),
+      legend: (!_.isUndefined(ARGS.legend) && ARGS.legend == 'false') ? false : true,
       title: 'Dashboard for ' + displayHost,
       // Series used to get the list of all hosts
       // (Some metric that is common for all hosts).
