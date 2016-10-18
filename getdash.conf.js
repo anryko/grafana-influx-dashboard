@@ -6,12 +6,22 @@ var getDashConf = function getDashConf () {
 
   // You can add custom 'alias', 'prefix', 'separator', 'datasources', 'multi', 'regexp' per plugin.
   var pluginConfProto = {
-    'alias': undefined,
-    //'prefix': 'collectd\\.',        // Special characters in prefix should be escaped by '\\'.
-                                      // If you use no prefix set it to undefined or comment it out.
-    'separator': ',',                 // In backend query separator is automatically escaped by '\\'.
-    //'datasources': [ 'graphite' ],  // You can add custom datasources per plugin.
-                                      // If datasources is not set all grafana datasources will be used.
+    alias: undefined,
+    //prefix: 'collectd\\.',         // Special characters in prefix should be escaped by '\\'.
+                                     // If you use no prefix set it to undefined or comment it out.
+
+    separator: ',',                  // In backend query separator is automatically escaped by '\\'.
+
+    //datasources: [ 'graphite' ],   // You can add custom datasources per plugin.
+                                     // If datasources is not set all grafana InfluxDB
+                                     // datasources will be used.
+
+    tags: {                          // Tags used to identify data in InfluxDB.
+      host: 'host',                  // Defaults are set to work with CollectD metric collector.
+      instance: 'instance',
+      description: 'type_instance',
+      type: 'type'
+    }
   };
 
   // Plugin constructor
@@ -2818,6 +2828,108 @@ var getDashConf = function getDashConf () {
     'panel': {
       'title': 'JMX Kafka Partitions Underreplicated',
       'y_formats': [ 'short' ]
+    }
+  };
+
+
+  // collectd docker plugin configuration: https://github.com/lebauce/docker-collectd-plugin
+  plugins.docker = new Plugin();
+
+  plugins.docker.cpuPercent = {
+    'graph': {
+      'docker': {
+        'type': 'cpu.percent',
+        'alias': 'usage'
+      }
+    },
+    'panel': {
+      'title': 'Docker CPU Percent',
+      'y_formats': [ 'percent' ]
+    }
+  };
+
+  plugins.docker.cpuThrottling = {
+    'graph': {
+      'docker': {
+        'type': 'cpu.throttling_data',
+        'alias': 'data'
+      }
+    },
+    'panel': {
+      'title': 'Docker CPU Throttling',
+      'stack': true,
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  plugins.docker.ioOps = {
+    'graph': {
+      'io_serviced': {
+        'type': 'blkio',
+        'apply': 'derivative',
+        'alias': 'ops'
+      }
+    },
+    'panel': {
+      'title': 'Docker I/O Ops',
+      'y_formats': [ 'iops' ]
+    }
+  };
+
+  plugins.docker.ioBytes = {
+    'graph': {
+      'io_service_bytes': {
+        'type': 'blkio',
+        'apply': 'derivative',
+        'alias': 'bytes'
+      }
+    },
+    'panel': {
+      'title': 'Docker I/O Bytes',
+      'y_formats': [ 'bps' ]
+    }
+  };
+
+  plugins.docker.networkUsage = {
+    'graph': {
+      'docker': {
+        'type': 'network.usage',
+        'apply': 'derivative',
+        'alias': 'ops'
+      }
+    },
+    'panel': {
+      'title': 'Docker Network Usage',
+      'y_formats': [ 'bps' ]
+    }
+  };
+
+  plugins.docker.memoryBytes = {
+    'graph': {
+      'docker': {
+        'type': 'memory.usage',
+        'alias': 'bytes'
+      }
+    },
+    'panel': {
+      'title': 'Docker Memory Usage',
+      'y_formats': [ 'bytes' ]
+    }
+  };
+
+  plugins.docker.memoryDetail = {
+    'graph': {
+      '/^(?!total_|docker_|hierarchical_).+/': {
+        'type': 'memory.stats',
+        'alias': ''
+      }
+    },
+    'panel': {
+      'multi': true,
+      'title': 'Docker Memory Usage for @metric',
+      'stack': true,
+      'tooltip': { 'value_type': 'individual' },
+      'y_formats': [ 'bytes' ]
     }
   };
 
