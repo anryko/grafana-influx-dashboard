@@ -787,10 +787,10 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
         qConf.datasources;
     });
 
-    return _.map(queryConfigsGrouped, function (qConf, pfxSepaDS) {
-      var pfxSepaDSArr = pfxSepaDS.split(qSeparator);
-      var hostTag = pfxSepaDSArr[0];
-      var separator = pfxSepaDSArr[1];
+    return _.map(queryConfigsGrouped, function (qConf, htagSepaDS) {
+      var htagSepaDSArr = htagSepaDS.split(qSeparator);
+      var hostTag = htagSepaDSArr[0];
+      var separator = htagSepaDSArr[1];
       var qDS = qConf[0].datasources;
       return {
         hostTag: (hostTag === 'undefined')
