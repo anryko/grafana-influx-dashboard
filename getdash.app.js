@@ -249,8 +249,6 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   var addSeriesToMetricGraphs = _.curry(function addSeriesToMetricGraphs (series, tags, metricConf) {
     // seriesThisFilter :: graphNameStr -> Bool
     var seriesThisFilter = seriesFilter(metricConf);
-    // internalizeSeries :: [seriesObj] -> [new internalSeriesObj]
-    var internalizeSeries = swapSeriesTags(tags);
 
     var graphSeries = _.reduce(metricConf.graph, function (newConf, graphConf, graphName) {
       var matchedSeries = _.filter(series, seriesThisFilter(graphName));
@@ -264,12 +262,12 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
       if (_.isArray(graphConf))
         newConf.graph[graphName] = _.map(_.range(graphConf.length), function () {
           return {
-            series: internalizeSeries(readySeries)
+            series: readySeries
           };
         });
       else
         newConf.graph[graphName] = {
-          series: internalizeSeries(readySeries)
+          series: readySeries
         };
 
       return newConf;
@@ -296,11 +294,13 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
 
   // getMetric :: [seriesObj], pluginObj -> func
   var getMetric = _.curry(function getMetric (series, plugin) {
+    // convert series to internal common format
+    var internal_series = swapSeriesTags(plugin.config.tags, series);
     // :: metricConfObj, metricNameStr -> metricObj
     return _.compose(moveUpToMetric('host', 'hosts'),
                      moveUpToMetric('instance', 'instances'),
                      moveUpToMetric('source', 'sources'),
-                     addSeriesToMetricGraphs(series, plugin.config.tags),
+                     addSeriesToMetricGraphs(internal_series, plugin.config.tags),
                      addProperty('merge', plugin.config.merge),
                      addProperty('regexp', plugin.config.regexp),
                      addProperty('separator', plugin.config.separator),
@@ -383,6 +383,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
       return _.indexOf([ 'name', 'source', 'key' ], n) !== -1;
     });
 
+    // convert series back to external influxdb format
     var readyTags = swapSeriesKeysTags(_.invert(panelConf.tags), tagObjs)
 
     var tags = _.map(readyTags, function (v, k) {
