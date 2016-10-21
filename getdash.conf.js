@@ -51,7 +51,8 @@ var getDashConf = function getDashConf () {
     'uptime',
     'irq',
     'nfs',
-    'ipvs'
+    'ipvs',
+    'docker'
   ];
   plugins.groups.middleware = [
     'redis',
