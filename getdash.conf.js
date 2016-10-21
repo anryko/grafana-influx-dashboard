@@ -51,7 +51,8 @@ var getDashConf = function getDashConf () {
     'uptime',
     'irq',
     'nfs',
-    'ipvs'
+    'ipvs',
+    'docker'
   ];
   plugins.groups.middleware = [
     'redis',
@@ -2818,6 +2819,108 @@ var getDashConf = function getDashConf () {
     'panel': {
       'title': 'JMX Kafka Partitions Underreplicated',
       'y_formats': [ 'short' ]
+    }
+  };
+
+
+  // collectd docker plugin configuration: https://github.com/lebauce/docker-collectd-plugin
+  plugins.docker = new Plugin();
+
+  plugins.docker.cpuPercent = {
+    'graph': {
+      'docker': {
+        'type': 'cpu.percent',
+        'alias': 'usage'
+      }
+    },
+    'panel': {
+      'title': 'Docker CPU Percent',
+      'y_formats': [ 'percent' ]
+    }
+  };
+
+  plugins.docker.cpuThrottling = {
+    'graph': {
+      'docker': {
+        'type': 'cpu.throttling_data',
+        'alias': 'data'
+      }
+    },
+    'panel': {
+      'title': 'Docker CPU Throttling',
+      'stack': true,
+      'y_formats': [ 'short' ]
+    }
+  };
+
+  plugins.docker.ioOps = {
+    'graph': {
+      'io_serviced': {
+        'type': 'blkio',
+        'apply': 'derivative',
+        'alias': 'ops'
+      }
+    },
+    'panel': {
+      'title': 'Docker I/O Ops',
+      'y_formats': [ 'iops' ]
+    }
+  };
+
+  plugins.docker.ioBytes = {
+    'graph': {
+      'io_service_bytes': {
+        'type': 'blkio',
+        'apply': 'derivative',
+        'alias': 'bytes'
+      }
+    },
+    'panel': {
+      'title': 'Docker I/O Bytes',
+      'y_formats': [ 'bps' ]
+    }
+  };
+
+  plugins.docker.networkUsage = {
+    'graph': {
+      'docker': {
+        'type': 'network.usage',
+        'apply': 'derivative',
+        'alias': 'ops'
+      }
+    },
+    'panel': {
+      'title': 'Docker Network Usage',
+      'y_formats': [ 'bps' ]
+    }
+  };
+
+  plugins.docker.memoryBytes = {
+    'graph': {
+      'docker': {
+        'type': 'memory.usage',
+        'alias': 'bytes'
+      }
+    },
+    'panel': {
+      'title': 'Docker Memory Usage',
+      'y_formats': [ 'bytes' ]
+    }
+  };
+
+  plugins.docker.memoryDetail = {
+    'graph': {
+      '/^(?!total_|docker_|hierarchical_).+/': {
+        'type': 'memory.stats',
+        'alias': ''
+      }
+    },
+    'panel': {
+      'multi': true,
+      'title': 'Docker Memory Usage for @metric',
+      'stack': true,
+      'tooltip': { 'value_type': 'individual' },
+      'y_formats': [ 'bytes' ]
     }
   };
 

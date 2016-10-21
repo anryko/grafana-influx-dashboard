@@ -537,6 +537,10 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
 
   // getInstances :: pluginConfObj, metricConfObj -> [Str]
   var getInstancesForPanel = _.curry(function getInstancesForPanel (pluginConf, metricConf) {
+    if (_.has(metricConf.panel, 'multi'))
+      return (metricConf.panel.multi)
+          ? metricConf.instances
+          : [ undefined ];
     return (_.has(pluginConf, 'multi') && pluginConf.multi)
         ? metricConf.instances
         : [ undefined ];
