@@ -148,12 +148,12 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
 
   // seriesFilter :: metricConfObj, metricNameObj, seriesObj -> Bool
   var seriesFilter = _.curry(function seriesFilter (metricConf, metricName, series) {
-    var type_instance = (_.isUndefined(series.type_instance) || _.isEmpty(series.type_instance))
+    var description = (_.isUndefined(series.description) || _.isEmpty(series.description))
         ? 'UNDEFINED'
-        : series.type_instance;
+        : series.description;
     return startsWith(series.name, metricConf.plugin) && (startsOrEndsWith(series.name, metricName) ||
-        testIfRegexp(series.name, metricName) || startsOrEndsWith(type_instance, metricName) ||
-        testIfRegexp(type_instance, metricName)) && (_.isUndefined(metricConf.regexp) ||
+        testIfRegexp(series.name, metricName) || startsOrEndsWith(description, metricName) ||
+        testIfRegexp(description, metricName)) && (_.isUndefined(metricConf.regexp) ||
         metricConf.regexp.test(series.instance));
   });
 
@@ -213,10 +213,43 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   // ), "mergeSeries is broken.");
 
 
-  // addSeriesToMetricGraphs :: seriesObj, metricConfObj -> new metricConfObj
-  var addSeriesToMetricGraphs = _.curry(function addSeriesToMetricGraphs (series, metricConf) {
-    // seriesThisFilter :: graphNameStr -> [seriesObj]
+  // swapSeriesKeysTags :: tagsObj, seriesObj -> new seriesObj
+  var swapSeriesKeysTags = _.curry(function swapSeriesKeysTags (tags, series) {
+    var invTags = _.invert(tags);
+    return _.reduce(series, function (o, v, k) {
+        (_.contains(_.keys(invTags), k)) ? o[invTags[k]] = v : o[k] = v;
+        return o;
+      }, {});
+  });
+  // console.assert(_.isEqual(
+  //   swapSeriesKeysTags({
+  //       source: 'ops',
+  //       host_name: 'vagrant-ubuntu-trusty-64',
+  //       event_type: 'cpu',
+  //       type_instance: 'system'
+  //     }, {
+  //       host: 'host_name',
+  //       description: 'type_instance',
+  //       type: 'event_type'
+  //   }), {
+  //     source: 'ops',
+  //     host: 'vagrant-ubuntu-trusty-64',
+  //     type: 'cpu',
+  //     description: 'system'
+  //   }), "swapSeriesKeysTags is broken.");
+
+
+  // swapSeriesTags :: tagsObj, [seriesObj] -> [new seriesObj]
+  var swapSeriesTags = _.curry(function swapSeriesTags (tags, series) {
+    return _.map(series, swapSeriesKeysTags(tags));
+  });
+
+
+  // addSeriesToMetricGraphs :: seriesObj, tagsObj, metricConfObj -> new metricConfObj
+  var addSeriesToMetricGraphs = _.curry(function addSeriesToMetricGraphs (series, tags, metricConf) {
+    // seriesThisFilter :: graphNameStr -> Bool
     var seriesThisFilter = seriesFilter(metricConf);
+
     var graphSeries = _.reduce(metricConf.graph, function (newConf, graphConf, graphName) {
       var matchedSeries = _.filter(series, seriesThisFilter(graphName));
       var readySeries = (_.isUndefined(metricConf.merge))
@@ -244,29 +277,30 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   });
 
 
-  // moveUpToMetric :: keyStr, metricConfObj -> new metricConfObj
-  var moveUpToMetric = _.curry(function moveUpToMetric (key, metricConf) {
-    var keys = key + 's';
+  // moveUpToMetric :: keyStr, asKeyStr, metricConfObj -> new metricConfObj
+  var moveUpToMetric = _.curry(function moveUpToMetric (key, asKey, metricConf) {
     var o = {};
-    o[keys] = _.union(_.flatten(_.map(metricConf.graph, function (graph) {
+    o[asKey] = _.union(_.flatten(_.map(metricConf.graph, function (graph) {
       var g = (_.isArray(graph))
           ? graph[0]
           : graph;
       return _.pluck(g.series, key);
     })));
 
-    _.remove(o[keys], (x) => _.isUndefined(x));
+    _.remove(o[asKey], (x) => _.isUndefined(x));
 
     return _.merge({}, metricConf, o);
   });
 
   // getMetric :: [seriesObj], pluginObj -> func
   var getMetric = _.curry(function getMetric (series, plugin) {
+    // convert series to internal common format
+    var internal_series = swapSeriesTags(plugin.config.tags, series);
     // :: metricConfObj, metricNameStr -> metricObj
-    return _.compose(moveUpToMetric('host'),
-                     moveUpToMetric('instance'),
-                     moveUpToMetric('source'),
-                     addSeriesToMetricGraphs(series),
+    return _.compose(moveUpToMetric('host', 'hosts'),
+                     moveUpToMetric('instance', 'instances'),
+                     moveUpToMetric('source', 'sources'),
+                     addSeriesToMetricGraphs(internal_series, plugin.config.tags),
                      addProperty('merge', plugin.config.merge),
                      addProperty('regexp', plugin.config.regexp),
                      addProperty('separator', plugin.config.separator),
@@ -341,14 +375,18 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   };
 
 
-  // setupTarget :: metricConfObj, graphConfObj, seriesObj -> targetObj
-  var setupTarget = _.curry(function setupTarget (metricConf, graphConf, series) {
+  // setupTarget :: panelConfObj, graphConfObj, seriesObj -> targetObj
+  var setupTarget = _.curry(function setupTarget (panelConf, graphConf, series) {
     var select = getSelect(graphConf);
 
     var tagObjs = _.omit(series, function (v, n) {
       return _.indexOf([ 'name', 'source', 'key' ], n) !== -1;
     });
-    var tags = _.map(tagObjs, function (v, k) {
+
+    // convert series back to external influxdb format
+    var readyTags = swapSeriesKeysTags(_.invert(panelConf.tags), tagObjs)
+
+    var tags = _.map(readyTags, function (v, k) {
       return {
         condition: 'AND',
         key: k,
@@ -358,9 +396,9 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
     });
     delete tags[0].condition;
     var target = {
-      alias: (metricConf.pluginAlias || series.type || series.name) +
+      alias: (panelConf.metric.pluginAlias || series.type || series.name) +
         (series.instance ? '.' + series.instance : '') + '.' +
-        (graphConf.alias || series.type_instance || series.name || series.type),
+        (graphConf.alias || series.description || series.name || series.type),
       color: graphConf.color || genRandomColor(),
       measurement: series.name,
       select: [ select ],
@@ -383,8 +421,8 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   var setupAlias = transformObj('alias', 'color');
 
 
-  // initPanel :: metricConfObj, datasourceStr, instanceStr, hostnameStr -> panelObj
-  var initPanel = _.curry(function initPanel (metricConf, datasource, instance, host) {
+  // initPanel :: pluginConfObj, metricConfObj, datasourceStr, instanceStr, hostnameStr -> panelObj
+  var initPanel = _.curry(function initPanel (pluginConf, metricConf, datasource, instance, host) {
     if (_.isUndefined(datasource) || _.isUndefined(metricConf)) {
       return new Error('undefined argument in initPanel function.');
     }
@@ -393,7 +431,8 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
       config: {
         instance: instance,
         host: host,
-        metric: metricConf
+        metric: metricConf,
+        tags: pluginConf.tags
       }
     };
 
@@ -419,7 +458,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
       return [];
 
     // setupThisTarget :: graphConfObj -> [targetObj]
-    var setupThisTarget = setupTarget(panel.config.metric, graphConf);
+    var setupThisTarget = setupTarget(panel.config, graphConf);
     return _.map(graphSeries, setupThisTarget);
   });
 
@@ -561,7 +600,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
     return _.flatten(_.map(hosts, function (host) {
       return _.map(datasources, function (source) {
         return _.map(instances, function (instance) {
-          return getPanel(metricConf, source, instance, host);
+          return getPanel(pluginConf, metricConf, source, instance, host);
         });
       });
     }));
@@ -608,18 +647,20 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   };
 
 
-  // getQueriesForDDash :: [datasourcesObj], [queriesStr] -> [queryObj]
-  var getQueriesForDDash = _.curry(function getQueriesForDDash (datasources, queries) {
+  // getQueriesForDDash :: [datasourcesObj], [queriesStr], [hostTagStr] -> [queryObj]
+  var getQueriesForDDash = _.curry(function getQueriesForDDash (datasources, queries, hostTags) {
     return _.flatten(_.map(datasources, function (ds) {
       return _.map(queries, function (query) {
-        return {
-          datasource: ds.name,
-          url: ds.url + '/query?db=' + ds.database +
-                 (ds.username ? '&u=' + ds.username : '') +
-                 (ds.password ? '&p=' + ds.password : '') +
-                 '&q=' + fixedEncodeURIComponent('SHOW TAG VALUES FROM ' +
-                 query + ' WITH KEY = host;')
-        };
+        return _.map(hostTags, function (hostTag) {
+          return {
+            datasource: ds.name,
+            url: ds.url + '/query?db=' + ds.database +
+                   (ds.username ? '&u=' + ds.username : '') +
+                   (ds.password ? '&p=' + ds.password : '') +
+                   '&q=' + fixedEncodeURIComponent('SHOW TAG VALUES FROM ' +
+                   query + ' WITH KEY = ' + hostTag  + ';')
+          };
+        });
       });
     }));
   });
@@ -734,27 +775,27 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
         name: name,
         separator: plugin.config.separator,
         prefix: plugin.config.prefix,
+        hostTag: plugin.config.tags.host,
         datasources: plugin.config.datasources || _.pluck(datasources, 'name')
       };
     });
 
     var qSeparator = '@SEPARATOR@';
     var queryConfigsGrouped = _.groupBy(queryConfigsAll, function (qConf) {
-      return qConf.prefix + qSeparator +
+      return qConf.hostTag + qSeparator +
         qConf.separator + qSeparator +
         qConf.datasources;
     });
 
-    // TODO: remove prefix.
-    return _.map(queryConfigsGrouped, function (qConf, pfxSepaDS) {
-      var pfxSepaDSArr = pfxSepaDS.split(qSeparator);
-      var prefix = pfxSepaDSArr[0];
-      var separator = pfxSepaDSArr[1];
+    return _.map(queryConfigsGrouped, function (qConf, htagSepaDS) {
+      var htagSepaDSArr = htagSepaDS.split(qSeparator);
+      var hostTag = htagSepaDSArr[0];
+      var separator = htagSepaDSArr[1];
       var qDS = qConf[0].datasources;
       return {
-        prefix: (prefix === 'undefined')
+        hostTag: (hostTag === 'undefined')
             ? undefined
-            : prefix,
+            : hostTag,
         separator: (separator === 'undefined')
             ? undefined
             : separator,
@@ -775,23 +816,26 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   }
 
 
+  // getHostQuery :: hostNameStr, hostTagStr -> hostQueryStr
+  var getHostQuery = function getHostQuery (hostName, hostTag) {
+    if (!hostName)
+      return '';
+
+    var rxPatt = /[^\w\s-,./]/gi;
+    if (rxPatt.test(hostName))
+      return hostTag + ' =~ /' + hostName + '/';
+
+    if (hostName.indexOf(',') > -1)
+      return _.reduce(hostName.split(','), function(result, host) {
+          return result + hostTag + ' = \'' + host + '\' ' + 'OR '
+        }, '').slice(0, -4);
+
+    return  hostTag + ' = \'' + hostName + '\'';
+  }
+
+
   // getDSQueryArr :: hostNameStr, [queryConfigObj] -> [urlDatasourceObj]
   var getDSQueryArr = _.curry(function getDSQueryArr (hostName, queryConfigs) {
-    if (hostName) {
-      var rxPatt = /[^\w\s-,./]/gi;
-      if (rxPatt.test(hostName)) {
-        var hostQuery = 'host =~ /' + hostName + '/';
-      } else if (hostName.indexOf(',') > -1) {
-        var hostQuery = _.reduce(hostName.split(','), function(result, host) {
-            return result + 'host = \'' + host + '\' ' + 'OR '
-          }, '').slice(0, -4);
-      } else {
-        var hostQuery = 'host = \'' + hostName + '\'';
-      }
-    } else {
-        var hostQuery = '';
-    }
-
     return _.flatten(_.map(queryConfigs, function (qConf) {
       return _.map(qConf.datasources, function (ds) {
         return {
@@ -800,7 +844,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
                  (ds.username ? '&u=' + ds.username : '') +
                  (ds.password ? '&p=' + ds.password : '') +
                  '&q=' + fixedEncodeURIComponent('SHOW SERIES FROM /' +
-                 qConf.regexp + '.*/ WHERE ' + hostQuery + ';')
+                 qConf.regexp + '.*/ WHERE ' + getHostQuery(hostName, qConf.hostTag) + ';')
         };
       });
     }));
@@ -946,10 +990,10 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
     };
 
     if (!dashConf.host && !dashConf.metric) {
-      var queriesForDDash = getQueriesForDDash(datasources, dashConf.defaultQueries);
+      var queriesForDDash = getQueriesForDDash(datasources, dashConf.defaultQueries, dashConf.defaultHostTags);
 
       getDBData(queriesForDDash).then(function (resp) {
-        var hosts = _.without(_.uniq(_.flatten(_.compact(parseResp(resp)))), 'host');
+        var hosts = _.filter(_.uniq(_.flatten(_.compact(parseResp(resp)))), (x) => !_.contains(dashConf.defaultHostTags , x));
         return callback(setupDefaultDashboard(hosts, dashboard));
       });
       return;

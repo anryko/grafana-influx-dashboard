@@ -53,7 +53,8 @@ return function scriptedDashboard (callback) {
       // Series used to get the list of all hosts
       // (Some metric that is common for all hosts).
       // If there is none for all hpsts ypu can add a list
-      defaultQueries: [ 'load_midterm' ]
+      defaultQueries: [ 'load_midterm' ],
+      defaultHostTags: [ 'host' ]
     };
 
     var datasources = _.values(window.grafanaBootData.settings.datasources);
