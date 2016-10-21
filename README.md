@@ -107,6 +107,8 @@ This HOWTO will guide you through initial script configuration and example of ad
 #### Initial getdash.js script configuration
 Grafana datasource configuration is used for InfluxDB backend requests.
 
+When you are using CollectD metric collector no configuration is required and preconfigured plugins will work out of the box. Otherwise, some additional ``getdash.js`` setup is needed and you will have to configure your plugins from scratch. First, for hosts discovery ``defaultQueries`` should be set to InfluxDB measurement name shared among all the hosts. If there is no one such measurement, list can be supplied. Second, ``defaultHostTags`` should be set to the InsluxDB tag containing hostname value. If it works you should be able to see hosts list on ``http://grafanaIP/dashboard/script/getdash.js``. If this is the case, you can start developing your custom plugins in ``getdash.conf.js`` Start with setting-up ``pluginConfProto.tags`` to meet your setup. Multi-collector setup is also possible. In that case ``plugins.<name>.config.tags.<tag>`` can be set per plugin.
+
 #### New plugin configuration
 Lets assume you have some metric in your InfluxDB and you want it to be displayed. Before starting plugin configuration you will need *hostname*, *series* and *type*. For this demonstration I will use *\<hostname\>*, *disk_read*/*disk_write* and *disk_ops* accordingly. If you are not sure about *series* you can list all host series by querying your InfluxDB:
 ```bash
