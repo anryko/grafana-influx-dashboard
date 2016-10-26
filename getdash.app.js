@@ -375,6 +375,24 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   };
 
 
+  // fmtAlias :: aliasStr, serisObj -> new aliasStr
+  var fmtAlias = function fmtAlias (alias, series) {
+    var matches = {
+      '@measurement': series.name,
+      '@description': series.description,
+      '@type': series.type,
+      '@instance': series.instance,
+      '@host': series.host
+    };
+
+    return _.reduce(matches, function (result, val, key) {
+        return (val && result.match(key))
+            ? result.replace(key, val)
+            : result;
+      }, alias);
+  }
+
+
   // setupTarget :: panelConfObj, graphConfObj, seriesObj -> targetObj
   var setupTarget = _.curry(function setupTarget (panelConf, graphConf, series) {
     var select = getSelect(graphConf);
@@ -395,10 +413,15 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
       };
     });
     delete tags[0].condition;
+
+    var alias = (graphConf.alias && graphConf.alias.match('@'))
+        ? fmtAlias(graphConf.alias, series)
+        : (panelConf.metric.pluginAlias || series.type || series.name) +
+            (series.instance ? '.' + series.instance : '') + '.' +
+            (graphConf.alias || series.description || series.name || series.type);
+
     var target = {
-      alias: (panelConf.metric.pluginAlias || series.type || series.name) +
-        (series.instance ? '.' + series.instance : '') + '.' +
-        (graphConf.alias || series.description || series.name || series.type),
+      alias: alias,
       color: graphConf.color || genRandomColor(),
       measurement: series.name,
       select: [ select ],
