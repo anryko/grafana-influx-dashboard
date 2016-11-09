@@ -4,19 +4,24 @@
 var getDashConf = function getDashConf () {
   'use strict';
 
-  // You can add custom 'alias', 'prefix', 'separator', 'datasources', 'multi', 'regexp' per plugin.
   var pluginConfProto = {
-    alias: undefined,
-    //prefix: 'collectd\\.',         // Special characters in prefix should be escaped by '\\'.
-                                     // If you use no prefix set it to undefined or comment it out.
+    alias: undefined,                // Used to replace real measurement name in graphs.
 
-    separator: ',',                  // In backend query separator is automatically escaped by '\\'.
+    separator: ',',                  // Used to define series separator.
 
-    //datasources: [ 'graphite' ],   // You can add custom datasources per plugin.
-                                     // If datasources is not set all grafana InfluxDB
+    //merge: [ 'instance' ],         // Used to merge multiple instances, types or descriptions
+                                     // to one line.
+
+    //multi: false,                  // Used to split single measurement instances to multiple
+                                     // individual graphs.
+
+    //regexp: /\d$/,                 // Used to filter instances by regexp.
+
+    //datasources: [ 'graphite' ],   // Used to limit datasources per plugin.
+                                     // If undefined all grafana InfluxDB
                                      // datasources will be used.
 
-    tags: {                          // Tags used to identify data in InfluxDB.
+    tags: {                          // Used to identify data in InfluxDB.
       host: 'host',                  // Defaults are set to work with CollectD metric collector.
       instance: 'instance',
       description: 'type_instance',

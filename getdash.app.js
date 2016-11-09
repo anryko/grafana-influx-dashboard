@@ -797,7 +797,6 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
       return {
         name: name,
         separator: plugin.config.separator,
-        prefix: plugin.config.prefix,
         hostTag: plugin.config.tags.host,
         datasources: plugin.config.datasources || _.pluck(datasources, 'name')
       };
