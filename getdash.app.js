@@ -217,7 +217,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   var swapSeriesKeysTags = _.curry(function swapSeriesKeysTags (tags, series) {
     var invTags = _.invert(tags);
     return _.reduce(series, function (o, v, k) {
-        (_.contains(_.keys(invTags), k)) ? o[invTags[k]] = v : o[k] = v;
+        (_.includes(_.keys(invTags), k)) ? o[invTags[k]] = v : o[k] = v;
         return o;
       }, {});
   });
@@ -280,11 +280,11 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   // moveUpToMetric :: keyStr, asKeyStr, metricConfObj -> new metricConfObj
   var moveUpToMetric = _.curry(function moveUpToMetric (key, asKey, metricConf) {
     var o = {};
-    o[asKey] = _.union(_.flatten(_.map(metricConf.graph, function (graph) {
+    o[asKey] = _.union(_.flattenDeep(_.map(metricConf.graph, function (graph) {
       var g = (_.isArray(graph))
           ? graph[0]
           : graph;
-      return _.pluck(g.series, key);
+      return _.map(g.series, key);
     })));
 
     _.remove(o[asKey], (x) => _.isUndefined(x));
@@ -297,16 +297,16 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
     // convert series to internal common format
     var internal_series = swapSeriesTags(plugin.config.tags, series);
     // :: metricConfObj, metricNameStr -> metricObj
-    return _.compose(moveUpToMetric('host', 'hosts'),
-                     moveUpToMetric('instance', 'instances'),
-                     moveUpToMetric('source', 'sources'),
-                     addSeriesToMetricGraphs(internal_series, plugin.config.tags),
-                     addProperty('merge', plugin.config.merge),
-                     addProperty('regexp', plugin.config.regexp),
-                     addProperty('separator', plugin.config.separator),
-                     addProperty('pluginAlias', plugin.config.alias),
-                     addProperty('plugin', plugin.name),
-                     initMetric);
+    return _.flowRight(moveUpToMetric('host', 'hosts'),
+                       moveUpToMetric('instance', 'instances'),
+                       moveUpToMetric('source', 'sources'),
+                       addSeriesToMetricGraphs(internal_series, plugin.config.tags),
+                       addProperty('merge', plugin.config.merge),
+                       addProperty('regexp', plugin.config.regexp),
+                       addProperty('separator', plugin.config.separator),
+                       addProperty('pluginAlias', plugin.config.alias),
+                       addProperty('plugin', plugin.name),
+                       initMetric);
   });
 
 
@@ -397,7 +397,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   var setupTarget = _.curry(function setupTarget (panelConf, graphConf, series) {
     var select = getSelect(graphConf);
 
-    var tagObjs = _.omit(series, function (v, n) {
+    var tagObjs = _.omitBy(series, function (v, n) {
       return _.indexOf([ 'name', 'source', 'key' ], n) !== -1;
     });
 
@@ -476,7 +476,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
       grepBy['type'] = graphConf.type;
     }
 
-    var graphSeries = _.where(graphConf.series, grepBy);
+    var graphSeries = _.filter(graphConf.series, grepBy);
     if (_.isEmpty(graphSeries))
       return [];
 
@@ -493,9 +493,9 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
 
     // getTargetsForThisPanel :: graphConfObj -> [targetObj]
     var getTargetsForThisPanel = getTargetsForPanel(panel);
-    var targets = _.flatten(_.map(panel.config.metric.graph, function (graphConf) {
+    var targets = _.flattenDeep(_.map(panel.config.metric.graph, function (graphConf) {
       if (_.isArray(graphConf))
-        return _.flatten(_.map(graphConf, getTargetsForThisPanel));
+        return _.flattenDeep(_.map(graphConf, getTargetsForThisPanel));
 
       return getTargetsForThisPanel(graphConf);
     }));
@@ -551,11 +551,11 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
 
 
   // getPanel :: metricConfigObj, datasourceStr, instanceStr, hostnameStr -> panelObj
-  var getPanel = _.compose(setupPanel,
-                           addTitleToPanel,
-                           addAliasColorsToPanel,
-                           addTargetsToPanel,
-                           initPanel);
+  var getPanel = _.flowRight(setupPanel,
+                             addTitleToPanel,
+                             addAliasColorsToPanel,
+                             addTargetsToPanel,
+                             initPanel);
 
 
   // setupRow :: [panelObj] -> rowObj
@@ -585,7 +585,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
 
   // getPanelsForPlugin :: pluginObj -> [panelObj]
   var getPanelsForPlugin = function getPanelsForPlugin (plugin) {
-    return _.flatten(_.map(plugin.metrics, getPanelsForMetric(plugin.config)));
+    return _.flattenDeep(_.map(plugin.metrics, getPanelsForMetric(plugin.config)));
   };
 
 
@@ -620,7 +620,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
 
     var instances = getInstancesForPanel(pluginConf, metricConf);
 
-    return _.flatten(_.map(hosts, function (host) {
+    return _.flattenDeep(_.map(hosts, function (host) {
       return _.map(datasources, function (source) {
         return _.map(instances, function (instance) {
           return getPanel(pluginConf, metricConf, source, instance, host);
@@ -645,17 +645,17 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   var getRowsForPlugin = function getRowsForPlugin (series) {
     // curry doesn't work inside compose... probably lodash issue
     // :: pluginConfObj, pluginNameStr -> rowObj
-    return _.compose(setupRow,
-                     stripErrorsFromPanels,
-                     getPanelsForPlugin,
-                     setupPlugin(series));
+    return _.flowRight(setupRow,
+                       stripErrorsFromPanels,
+                       getPanelsForPlugin,
+                       setupPlugin(series));
   };
 
 
   // getRows :: seriesObj, pluginsObj -> [rowObj]
   var getRows = _.curry(function getRows (plugins, series) {
     return (_.isArray(series) && !_.isEmpty(series))
-        ? _.flatten(_.map(plugins, getRowsForPlugin(series)))
+        ? _.flattenDeep(_.map(plugins, getRowsForPlugin(series)))
         : [];
   });
 
@@ -672,7 +672,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
 
   // getQueriesForDDash :: [datasourcesObj], [queriesStr], [hostTagStr] -> [queryObj]
   var getQueriesForDDash = _.curry(function getQueriesForDDash (datasources, queries, hostTags) {
-    return _.flatten(_.map(datasources, function (ds) {
+    return _.flattenDeep(_.map(datasources, function (ds) {
       return _.map(queries, function (query) {
         return _.map(hostTags, function (hostTag) {
           return {
@@ -798,7 +798,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
         name: name,
         separator: plugin.config.separator,
         hostTag: plugin.config.tags.host,
-        datasources: plugin.config.datasources || _.pluck(datasources, 'name')
+        datasources: plugin.config.datasources || _.map(datasources, 'name')
       };
     });
 
@@ -821,9 +821,9 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
         separator: (separator === 'undefined')
             ? undefined
             : separator,
-        regexp: '(' + _.pluck(qConf, 'name').join('|') + ')',
-        datasources: _.flatten(_.map(qDS, function (ds) {
-            return _.where(datasources, { name: ds });
+        regexp: '(' + _.map(qConf, 'name').join('|') + ')',
+        datasources: _.flattenDeep(_.map(qDS, function (ds) {
+            return _.filter(datasources, { name: ds });
           }))
       };
     });
@@ -858,7 +858,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
 
   // getDSQueryArr :: hostNameStr, [queryConfigObj] -> [urlDatasourceObj]
   var getDSQueryArr = _.curry(function getDSQueryArr (hostName, queryConfigs) {
-    return _.flatten(_.map(queryConfigs, function (qConf) {
+    return _.flattenDeep(_.map(queryConfigs, function (qConf) {
       return _.map(qConf.datasources, function (ds) {
         return {
           datasource: ds.name,
@@ -878,7 +878,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
     var newPlugins = _.merge({}, plugins);
     // have to use this ugly thing because reduce will strip unenumerable 'config'
     _.each(_.keys(plugins), function (pluginName) {
-      if (!_.contains(metrics, pluginName)) {
+      if (!_.includes(metrics, pluginName)) {
         delete newPlugins[pluginName];
       }
     });
@@ -912,7 +912,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
 
   // getQueries :: hostNameStr, datasourcesObj, pluginsObj -> [queryStr]
   var getQueries = function getQueries (hostName, datasources, plugins) {
-    return _.compose(getDSQueryArr(hostName), getQueryConfigs(datasources))(plugins);
+    return _.flowRight(getDSQueryArr(hostName), getQueryConfigs(datasources))(plugins);
   };
 
 
@@ -941,7 +941,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
 
 
   // convertKey :: keyStr -> keyObj
-  var convertKey = _.compose(objectKey, splitKey);
+  var convertKey = _.flowRight(objectKey, splitKey);
   //  console.assert(_.isEqual(
   //    convertKey("load_longterm,host=vagrant,type=load"),
   //    { host: "vagrant", name: "load_longterm", type: "load"}
@@ -955,12 +955,12 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
 
 
   // getSeries :: keyStr -> seriesObj
-  var getSeries = _.compose(setupSeries, convertKey);
+  var getSeries = _.flowRight(setupSeries, convertKey);
 
 
   // pickPlugins :: pluginObj, metricsStr -> new pluginsObj
   var pickPlugins = function pickPlugins (plugins, metrics) {
-    return _.compose(stripPlugins(plugins), getMetricArr(plugins))(metrics);
+    return _.flowRight(stripPlugins(plugins), getMetricArr(plugins))(metrics);
   };
 
 
@@ -971,7 +971,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
       if (_.isUndefined(series))
         return;
 
-      return _.pluck(series, 'values');
+      return _.map(series, 'values');
     });
   };
 
@@ -982,14 +982,14 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
       if (_.isUndefined(val))
         return;
 
-      return _.flatten(_.map(val, function (v) {
+      return _.flattenDeep(_.map(val, function (v) {
         return _.map(v, _.first);
       }));
     });
 
     var dsKeys = _.zip(datasources, keys);
 
-    return  _.flatten(_.map(dsKeys, function (dsKey) {
+    return  _.flattenDeep(_.map(dsKeys, function (dsKey) {
       var ds = dsKey[0];
       var kk = dsKey[1];
       return _.map(kk, function (k) {
@@ -1015,7 +1015,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
       var queriesForDDash = getQueriesForDDash(datasources, dashConf.defaultQueries, dashConf.defaultHostTags);
 
       getDBData(queriesForDDash).then(function (resp) {
-        var hosts = _.filter(_.uniq(_.flatten(_.compact(parseResp(resp)))), (x) => !_.contains(dashConf.defaultHostTags , x));
+        var hosts = _.filter(_.uniq(_.flattenDeep(_.compact(parseResp(resp)))), (x) => !_.includes(dashConf.defaultHostTags , x));
         return callback(setupDefaultDashboard(hosts, dashboard));
       });
       return;
@@ -1025,7 +1025,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
     dashPlugins = setPluginsInstance(dashPlugins, dashConf.instance);
 
     var dashQueries = getQueries(dashConf.host, datasources, dashPlugins);
-    var datasources = _.pluck(dashQueries, 'datasource');
+    var datasources = _.map(dashQueries, 'datasource');
 
     getDBData(dashQueries).then(function (resp) {
       var seriesResp = parseResp(resp);

@@ -5,6 +5,7 @@ Javascript dashboard auto-generation script to mimic comfortable Munin behaviour
 :white_check_mark: Tested for **Grafana 2.6.0** and **InfluxDB v0.8.8**  
 :white_check_mark: Tested for **Grafana 2.6.0** and **InfluxDB v0.11.1**  
 :white_check_mark: Tested for **Grafana 3.1.1** and **InfluxDB v1.0.2**  
+:white_check_mark: Tested for **Grafana 4.0.0** and **InfluxDB v1.0.2**  
 
 ## Demonstration
 ![](https://media.giphy.com/media/3oEdvcYi3a3KVvtuHS/giphy.gif)
@@ -18,7 +19,10 @@ git clone -b influxdb_v0.8 --depth=1 https://github.com/anryko/grafana-influx-da
 # for grafana 2.6.0 and influxdb >= v0.9
 git clone -b grafana2.6_influxdb0.11 --depth=1 https://github.com/anryko/grafana-influx-dashboard.git
 
-# for grafana >= 3.0.0 and influxdb >= v0.9
+# for grafana 3.1 and influxdb >= v0.9
+git clone -b grafana3.1_influxdb1.0 --depth=1 https://github.com/anryko/grafana-influx-dashboard.git
+
+# for grafana >= 4.0 and influxdb >= v0.9
 git clone --depth=1 https://github.com/anryko/grafana-influx-dashboard.git
 
 cd grafana-influx-dashboard
