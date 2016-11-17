@@ -105,14 +105,38 @@ var getDashConf = function getDashConf () {
 
   plugins.cpu.cpu = {
     'graph': {
-      'system': { 'color': '#EAB839' },
-      'user': { 'color': '#508642' },
-      'idle': { 'color': '#303030' },
-      'wait': { 'color': '#890F02' },
-      'steal': { 'color': '#E24D42' },
-      'nice': { 'color': '#9400D3' },
-      'softirq': { 'color': '#E9967A' },
-      'interrupt': { 'color': '#1E90FF' }
+      'system': {
+        'color': '#EAB839',
+        'alias': '@description'
+      },
+      'user': {
+        'color': '#508642',
+        'alias': '@description'
+      },
+      'idle': {
+        'color': '#303030',
+        'alias': '@description'
+      },
+      'wait': {
+        'color': '#890F02',
+        'alias': '@description'
+      },
+      'steal': {
+        'color': '#E24D42',
+        'alias': '@description'
+      },
+      'nice': {
+        'color': '#9400D3',
+        'alias': '@description'
+      },
+      'softirq': {
+        'color': '#E9967A',
+        'alias': '@description'
+      },
+      'interrupt': {
+        'color': '#1E90FF',
+        'alias': '@description'
+      }
     },
     'panel': {
       'title': 'CPU',

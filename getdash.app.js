@@ -176,7 +176,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
 
   // mergeSeries :: [Str], [seriesObj] -> mod [seriesObj]
   var mergeSeries = function (series, delKeys) {
-    return _.uniq(_.map(series, function (s) {
+    return _.uniqBy(_.map(series, function (s) {
       _.map(delKeys, function (k) {
         if (_.isUndefined(s[k]))
           return s;
