@@ -63,7 +63,8 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
     rows: [],  // [rowProto]
     services: {},
     time: {},  // dashboardTimeProto
-    title: ''
+    title: '',
+    schemaVersion: 13
   };
 
   var dashboardTimeProto = {
@@ -118,7 +119,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   var panelProto = {
     title: 'default',
     height: '300px',
-    type: 'graphite',
+    type: 'graph',
     span: 12,
     y_formats: [ 'none' ],
     grid: {
@@ -134,7 +135,8 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
     aliasColors: {},
     legend: {
       show: true
-    }
+    },
+    id: 1
   };
 
   var rowProto = {
@@ -544,7 +546,11 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
     if (isError(panel))
       return panel;
 
-    var p = _.merge({}, panelProto, panel);
+    // idCounter keeps state of panel ID number
+    if (!setupPanel.idCounter)
+      setupPanel.idCounter = 1
+
+    var p = _.merge({}, panelProto, panel, { id: setupPanel.idCounter++ });
     delete p.config;  // no need in config after panel complected.
     return p;
   };
@@ -734,6 +740,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
 
     dashboard.title = 'Scripted Dashboard';
     dashboard.editable = false;
+    dashboard.hideControls = true;
     dashboard.rows = [
       rowHosts,
       rowDocs
@@ -1005,11 +1012,11 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   // getDashboard :: [datasources], pluginsObj, dashConfObj,
   //                 grafanaCallbackFunc -> grafanaCallbackFunc(dashboardObj)
   var getDashboard = _.curry(function getDashboard (datasources, plugins, dashConf, callback) {
-    var dashboard = {
+    var dashboard = _.merge({}, dashboardProto, {
       title: dashConf.title,
       time: getDashboardTime(dashConf.time),
       refresh: getDashboardRefresh(dashConf.refresh)
-    };
+    });
 
     if (!dashConf.host && !dashConf.metric) {
       var queriesForDDash = getQueriesForDDash(datasources, dashConf.defaultQueries, dashConf.defaultHostTags);
