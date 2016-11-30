@@ -551,57 +551,57 @@ var getDashConf = function getDashConf () {
       'established': {
         'color': '#FCE94F',
         'apply': 'sum',
-        'alias': 'ESTABLISHED'
+        'alias': 'established@'
       },
       'syn_sent': {
         'color': '#FCAF3E',
         'apply': 'sum',
-        'alias': 'SYN_SENT'
+        'alias': 'syn_sent@'
       },
       'syn_recv': {
         'color': '#8AE234',
         'apply': 'sum',
-        'alias': 'SYN_RECV'
+        'alias': 'syn_recv@'
       },
       'fin_wait1': {
         'color': '#729FCF',
         'apply': 'sum',
-        'alias': 'FIN_WAIT1'
+        'alias': 'fin_wait1@'
       },
       'fin_wait2': {
         'color': '#AD7FA8',
         'apply': 'sum',
-        'alias': 'FIN_WAIT2'
+        'alias': 'fin_wait2@'
       },
       'time_wait': {
         'color': '#EF2929',
         'apply': 'sum',
-        'alias': 'TIME_WAIT'
+        'alias': 'time_wait@'
       },
       '/close$/': {
         'color': '#D3D7CF',
         'apply': 'sum',
-        'alias': 'CLOSE'
+        'alias': 'close@'
       },
       'close_wait': {
         'color': '#2E3436',
         'apply': 'sum',
-        'alias': 'CLOSE_WAIT'
+        'alias': 'close_wait@'
       },
       'last_ack': {
         'color': '#4E9A06',
         'apply': 'sum',
-        'alias': 'LAST_ACK'
+        'alias': 'last_ack@'
       },
       'listen': {
         'color': '#CE5C00',
         'apply': 'sum',
-        'alias': 'LISTEN'
+        'alias': 'listen@'
       },
       'closing': {
         'color': '#C4A000',
         'apply': 'sum',
-        'alias': 'CLOSING'
+        'alias': 'closing@'
       }
     },
     'panel': {
