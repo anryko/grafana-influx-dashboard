@@ -156,19 +156,19 @@ var getDashConf = function getDashConf () {
     'graph': {
       'used': {
         'color': '#1F78C1',
-        'alias': 'used'
+        'alias': '@description'
       },
       'cached': {
         'color': '#EF843C',
-        'alias': 'cached'
+        'alias': '@description'
       },
       'buffered': {
         'color': '#CCA300',
-        'alias': 'buffered'
+        'alias': '@description'
       },
       'free': {
         'color': '#629E51',
-        'alias': 'free'
+        'alias': '@description'
       }
     },
     'panel': {
@@ -187,15 +187,15 @@ var getDashConf = function getDashConf () {
     'graph': {
       'load_shortterm': {
          'color': '#508642',
-         'alias': 'short (1m)'
+         'alias': '1m@'
        },
       'load_midterm': {
          'color': '#447EBC',
-         'alias': 'mid (5m)'
+         'alias': '5m@'
        },
       'load_longterm': {
          'color': '#C15C17',
-         'alias': 'long (15m)'
+         'alias': '15m@'
        }
     },
     'panel': {

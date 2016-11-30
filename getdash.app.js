@@ -417,7 +417,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
     delete tags[0].condition;
 
     var alias = (graphConf.alias && graphConf.alias.match('@'))
-        ? fmtAlias(graphConf.alias, series)
+        ? fmtAlias(graphConf.alias, series).replace('@', '')
         : (panelConf.metric.pluginAlias || series.type || series.name) +
             (series.instance ? '.' + series.instance : '') + '.' +
             (graphConf.alias || series.description || series.name || series.type);
