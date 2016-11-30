@@ -140,7 +140,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'CPU',
-      'yaxes': [ { 'format': 'percent' }, {} ],
+      'yaxes': [ { 'format': 'percent', 'max': 100 }, {} ],
       'fill': 7,
       'stack': true,
       'tooltip': { 'value_type': 'individual' },
