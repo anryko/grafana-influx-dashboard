@@ -140,7 +140,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'CPU',
-      'y_formats': [ 'percent' ],
+      'yaxes': [ { 'format': 'percent' }, {} ],
       'fill': 7,
       'stack': true,
       'tooltip': { 'value_type': 'individual' },
@@ -173,7 +173,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Memory',
-      'y_formats': [ 'bytes' ],
+      'yaxes': [ { 'format': 'bytes' }, {} ],
       'stack': true,
       'tooltip': { 'value_type': 'individual' }
     }
@@ -224,7 +224,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Swap',
-      'y_formats': [ 'bytes' ],
+      'yaxes': [ { 'format': 'bytes' }, {} ],
       'stack': true,
       'tooltip': { 'value_type': 'individual' }
     }
@@ -245,7 +245,7 @@ var getDashConf = function getDashConf () {
     'panel': {
       'title': 'Swap IO',
       'grid': { 'max': null, 'min': null, 'leftMin': null },
-      'y_formats': [ 'bytes' ]
+      'yaxes': [ { 'format': 'bytes' }, {} ]
     }
   };
 
@@ -272,7 +272,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Network Traffic on @metric',
-      'y_formats': [ 'Bps' ],
+      'yaxes': [ { 'format': 'Bps' }, {} ],
       'grid': { 'max': null, 'min': null, 'leftMin': null }
     }
   };
@@ -295,7 +295,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Network Packets on @metric',
-      'y_formats': [ 'pps' ],
+      'yaxes': [ { 'format': 'pps' }, {} ],
       'grid': { 'max': null, 'min': null, 'leftMin': null }
     }
   };
@@ -323,7 +323,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Netlink packets for @metric',
-      'y_formats': [ 'pps' ],
+      'yaxes': [ { 'format': 'pps' }, {} ],
       'grid': { 'max': null, 'min': null, 'leftMin': null }
     }
   };
@@ -346,7 +346,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Netlink octets for @metric',
-      'y_formats': [ 'bps' ],
+      'yaxes': [ { 'format': 'bps' }, {} ],
       'grid': { 'max': null, 'min': null, 'leftMin': null }
     }
   };
@@ -369,7 +369,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Netlink errors for @metric',
-      'y_formats': [ 'pps' ],
+      'yaxes': [ { 'format': 'pps' }, {} ],
       'grid': { 'max': null, 'min': null, 'leftMin': null }
     }
   };
@@ -392,7 +392,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Netlink dropped for @metric',
-      'y_formats': [ 'pps' ],
+      'yaxes': [ { 'format': 'pps' }, {} ],
       'grid': { 'max': null, 'min': null, 'leftMin': null }
     }
   };
@@ -463,7 +463,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Netlink errors extended for @metric',
-      'y_formats': [ 'pps' ],
+      'yaxes': [ { 'format': 'pps' }, {} ],
       'grid': { 'max': null, 'min': null, 'leftMin': null }
     }
   };
@@ -479,7 +479,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Netlink collisions for @metric',
-      'y_formats': [ 'pps' ]
+      'yaxes': [ { 'format': 'pps' }, {} ]
     }
   };
 
@@ -494,7 +494,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Netlink multicast for @metric',
-      'y_formats': [ 'pps' ]
+      'yaxes': [ { 'format': 'pps' }, {} ]
     }
   };
 
@@ -510,7 +510,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Loadbalanced connections',
-      'y_formats': [ 'pps' ]
+      'yaxes': [ { 'format': 'pps' }, {} ]
     }
   };
 
@@ -523,7 +523,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Ping',
-      'y_formats': [ 'ms' ]
+      'yaxes': [ { 'format': 'ms' }, {} ]
     }
   };
 
@@ -537,7 +537,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'NFS for @metric',
-      'y_formats': [ 'pps' ]
+      'yaxes': [ { 'format': 'pps' }, {} ]
     }
   };
 
@@ -606,7 +606,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Network Connections States',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -664,7 +664,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Network Connections States for TCP/@metric',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -702,7 +702,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Network Connections Tracking Count',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -715,7 +715,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Network Connections Tracking Table Usage',
-      'y_formats': [ 'percent' ]
+      'yaxes': [ { 'format': 'percent' }, {} ]
     }
   };
 
@@ -741,7 +741,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Disk space for @metric',
-      'y_formats': [ 'bytes' ],
+      'yaxes': [ { 'format': 'bytes' }, {} ],
       'stack': true,
       'tooltip': { 'value_type': 'individual' }
     }
@@ -764,7 +764,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Disk inodes for @metric',
-      'y_formats': [ 'short' ],
+      'yaxes': [ { 'format': 'short' }, {} ],
       'stack': true,
       'tooltip': { 'value_type': 'individual' }
     }
@@ -779,7 +779,7 @@ var getDashConf = function getDashConf () {
     'graph': { '': { } },
     'panel': {
       'title': 'Disk space for @metric',
-      'y_formats': [ 'bytes' ],
+      'yaxes': [ { 'format': 'bytes' }, {} ],
       'stack': true,
       'tooltip': { 'value_type': 'individual' }
     }
@@ -808,7 +808,7 @@ var getDashConf = function getDashConf () {
     'panel': {
       'title': 'Disk Operations for @metric',
       'grid': { 'max': null, 'min': null, 'leftMin': null },
-      'y_formats': [ 'iops' ]
+      'yaxes': [ { 'format': 'iops' }, {} ]
     }
   };
 
@@ -829,7 +829,7 @@ var getDashConf = function getDashConf () {
     'panel': {
       'title': 'Disk Traffic for @metric',
       'grid': { 'max': null, 'min': null, 'leftMin': null },
-      'y_formats': [ 'bytes' ]
+      'yaxes': [ { 'format': 'bytes' }, {} ]
     }
   };
 
@@ -850,7 +850,7 @@ var getDashConf = function getDashConf () {
     'panel': {
       'title': 'Disk Wait for @metric',
       'grid': { 'max': null, 'min': null, 'leftMin': null },
-      'y_formats': [ 'ms' ]
+      'yaxes': [ { 'format': 'ms' }, {} ]
     }
   };
 
@@ -864,7 +864,7 @@ var getDashConf = function getDashConf () {
      },
     'panel': {
       'title': 'Disk Temperature',
-      'y_formats': [ 'celsius' ]
+      'yaxes': [ { 'format': 'celsius' }, {} ]
     }
   };
 
@@ -907,7 +907,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Processes State',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -922,7 +922,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Processes Fork Rate',
-      'y_formats': [ 'pps' ]
+      'yaxes': [ { 'format': 'pps' }, {} ]
     }
   };
 
@@ -935,7 +935,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Processes VM',
-      'y_formats': [ 'bytes' ]
+      'yaxes': [ { 'format': 'bytes' }, {} ]
     }
   };
 
@@ -948,7 +948,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Processes Stack Size',
-      'y_formats': [ 'bytes' ]
+      'yaxes': [ { 'format': 'bytes' }, {} ]
     }
   };
 
@@ -961,7 +961,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Processes RSS',
-      'y_formats': [ 'bytes' ]
+      'yaxes': [ { 'format': 'bytes' }, {} ]
     }
   };
 
@@ -985,7 +985,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Processes/Threads Count for @metric',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -1008,7 +1008,7 @@ var getDashConf = function getDashConf () {
       'title': 'Process CPU Time for @metric',
       'stack': true,
       'tooltip': { 'value_type': 'individual' },
-      'y_formats': [ 'µs' ]
+      'yaxes': [ { 'format': 'µs' }, {} ]
     }
   };
 
@@ -1029,7 +1029,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Process Page Faults for @metric',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -1052,7 +1052,7 @@ var getDashConf = function getDashConf () {
     'panel': {
       'title': 'Process Disk Ops for @metric',
       'grid': { 'max': null, 'min': null, 'leftMin': null },
-      'y_formats': [ 'iops' ]
+      'yaxes': [ { 'format': 'iops' }, {} ]
     }
   };
 
@@ -1075,7 +1075,7 @@ var getDashConf = function getDashConf () {
     'panel': {
       'title': 'Process Disk Octets for @metric',
       'grid': { 'max': null, 'min': null, 'leftMin': null },
-      'y_formats': [ 'bps' ]
+      'yaxes': [ { 'format': 'bps' }, {} ]
     }
   };
 
@@ -1096,7 +1096,7 @@ var getDashConf = function getDashConf () {
       'title': 'Process Code and Data for @metric',
       'stack': true,
       'tooltip': { 'value_type': 'individual' },
-      'y_formats': [ 'bytes' ]
+      'yaxes': [ { 'format': 'bytes' }, {} ]
     }
   };
 
@@ -1109,7 +1109,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Process VM for @metric',
-      'y_formats': [ 'bytes' ]
+      'yaxes': [ { 'format': 'bytes' }, {} ]
     }
   };
 
@@ -1122,7 +1122,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Process Stack Size for @metric',
-      'y_formats': [ 'bytes' ]
+      'yaxes': [ { 'format': 'bytes' }, {} ]
     }
   };
 
@@ -1135,7 +1135,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Process RSS for @metric',
-      'y_formats': [ 'bytes' ]
+      'yaxes': [ { 'format': 'bytes' }, {} ]
     }
   };
 
@@ -1149,7 +1149,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Entropy',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -1236,7 +1236,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Redis Memomy',
-      'y_formats': [ 'bytes' ]
+      'yaxes': [ { 'format': 'bytes' }, {} ]
     }
   };
 
@@ -1266,7 +1266,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Redis Commands',
-      'y_formats': [ 'ops' ]
+      'yaxes': [ { 'format': 'ops' }, {} ]
     }
   };
 
@@ -1295,7 +1295,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Redis Connections',
-      'y_formats': [ 'ops' ]
+      'yaxes': [ { 'format': 'ops' }, {} ]
     }
   };
 
@@ -1308,7 +1308,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Redis Unsaved Changes',
-      'y_formats': [ 'short' ],
+      'yaxes': [ { 'format': 'short' }, {} ],
       'fill': 2
     }
   };
@@ -1341,7 +1341,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Redis DB Keyspace',
-      'y_formats': [ 'percent' ]
+      'yaxes': [ { 'format': 'percent' }, {} ]
     }
   };
 
@@ -1353,7 +1353,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Redis DB Keys',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -1370,7 +1370,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Redis Replication Offset',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -1382,7 +1382,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Redis Replication Lag',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -1403,7 +1403,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Memcached Memomy',
-      'y_formats': [ 'bytes' ],
+      'yaxes': [ { 'format': 'bytes' }, {} ],
       'stack': true,
       'tooltip': { 'value_type': 'individual' }
     }
@@ -1415,7 +1415,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Memcached Connections',
-      'y_formats': [ 'bytes' ]
+      'yaxes': [ { 'format': 'bytes' }, {} ]
     }
   };
 
@@ -1425,7 +1425,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Memcached Items',
-      'y_formats': [ 'bytes' ]
+      'yaxes': [ { 'format': 'bytes' }, {} ]
     }
   };
 
@@ -1438,7 +1438,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Memcached Commands',
-      'y_formats': [ 'ops' ]
+      'yaxes': [ { 'format': 'ops' }, {} ]
     }
   };
 
@@ -1457,7 +1457,7 @@ var getDashConf = function getDashConf () {
     'panel': {
       'title': 'Memcached Traffic',
       'grid': { 'max': null, 'min': null, 'leftMin': null },
-      'y_formats': [ 'bps' ]
+      'yaxes': [ { 'format': 'bps' }, {} ]
     }
   };
 
@@ -1473,7 +1473,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Memcached Operations',
-      'y_formats': [ 'ops' ]
+      'yaxes': [ { 'format': 'ops' }, {} ]
     }
   };
 
@@ -1483,7 +1483,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Memcached Hitratio',
-      'y_formats': [ 'percent' ]
+      'yaxes': [ { 'format': 'percent' }, {} ]
     }
   };
 
@@ -1494,7 +1494,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Memcached Process Stats',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -1537,7 +1537,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'RabbitMQ Channels and Queues',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -1549,7 +1549,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'RabbitMQ Connections',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -1561,7 +1561,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'RabbitMQ Messages',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -1578,7 +1578,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'RabbitMQ File Descriptors',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -1595,7 +1595,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'RabbitMQ Memory',
-      'y_formats': [ 'bytes' ]
+      'yaxes': [ { 'format': 'bytes' }, {} ]
     }
   };
 
@@ -1612,7 +1612,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'RabbitMQ Proc',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -1629,7 +1629,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'RabbitMQ Sockets',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -1643,7 +1643,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'ElasticSearch HTTP Open',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -1662,7 +1662,7 @@ var getDashConf = function getDashConf () {
     'panel': {
       'title': 'ElasticSearch Transport Counters',
       'grid': { 'max': null, 'min': null, 'leftMin': null },
-      'y_formats': [ 'pps' ]
+      'yaxes': [ { 'format': 'pps' }, {} ]
     }
   };
 
@@ -1681,7 +1681,7 @@ var getDashConf = function getDashConf () {
     'panel': {
       'title': 'ElasticSearch Transport Size',
       'grid': { 'max': null, 'min': null, 'leftMin': null },
-      'y_formats': [ 'bps' ]
+      'yaxes': [ { 'format': 'bps' }, {} ]
     }
   };
 
@@ -1691,7 +1691,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'ElasticSearch Indices Times',
-      'y_formats': [ 'ms' ]
+      'yaxes': [ { 'format': 'ms' }, {} ]
     }
   };
 
@@ -1701,7 +1701,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'ElasticSearch Indices Totals',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -1711,7 +1711,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'ElasticSearch Indices Docs',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -1721,7 +1721,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'ElasticSearch Indices Cache Evictions',
-      'y_formats': [ 'ops' ]
+      'yaxes': [ { 'format': 'ops' }, {} ]
     }
   };
 
@@ -1731,7 +1731,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'ElasticSearch JVM Heap Usage',
-      'y_formats': [ 'percent' ]
+      'yaxes': [ { 'format': 'percent' }, {} ]
     }
   };
 
@@ -1748,7 +1748,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'ElasticSearch JVM Heap Memory Usage',
-      'y_formats': [ 'bytes' ]
+      'yaxes': [ { 'format': 'bytes' }, {} ]
     }
   };
 
@@ -1765,7 +1765,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'ElasticSearch JVM Non Heap Memory Usage',
-      'y_formats': [ 'bytes' ]
+      'yaxes': [ { 'format': 'bytes' }, {} ]
     }
   };
 
@@ -1776,7 +1776,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'ElasticSearch JVM Threads',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -1787,7 +1787,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'ElasticSearch JVM GC Count',
-      'y_formats': [ 'ops' ]
+      'yaxes': [ { 'format': 'ops' }, {} ]
     }
   };
 
@@ -1798,7 +1798,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'ElasticSearch JVM GC Time',
-      'y_formats': [ 'ms' ]
+      'yaxes': [ { 'format': 'ms' }, {} ]
     }
   };
 
@@ -1808,7 +1808,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'ElasticSearch Thread Pool Completed',
-      'y_formats': [ 'ops' ]
+      'yaxes': [ { 'format': 'ops' }, {} ]
     }
   };
 
@@ -1818,7 +1818,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'ElasticSearch Thread Pool Rejected',
-      'y_formats': [ 'ops' ]
+      'yaxes': [ { 'format': 'ops' }, {} ]
     }
   };
 
@@ -1828,7 +1828,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'ElasticSearch Thread Pool Active',
-      'y_formats': [ 'ops' ]
+      'yaxes': [ { 'format': 'ops' }, {} ]
     }
   };
 
@@ -1838,7 +1838,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'ElasticSearch Thread Pool Largest',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -1848,7 +1848,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'ElasticSearch Thread Pool Queue',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -1858,7 +1858,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'ElasticSearch Thread Pool Threads',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -1876,7 +1876,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Nginx Requests',
-      'y_formats': [ 'ops' ]
+      'yaxes': [ { 'format': 'ops' }, {} ]
     }
   };
 
@@ -1893,7 +1893,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Nginx Connections',
-      'y_formats': [ 'ops' ]
+      'yaxes': [ { 'format': 'ops' }, {} ]
     }
   };
 
@@ -1906,7 +1906,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Nginx Connections States',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -1926,7 +1926,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Apache Network Traffic',
-      'y_formats': [ 'bps' ]
+      'yaxes': [ { 'format': 'bps' }, {} ]
     }
   };
 
@@ -1941,7 +1941,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Apache Connections',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -1956,7 +1956,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Apache Idle Workers',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -1971,7 +1971,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Apache Requests',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -1991,7 +1991,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Apache Scoreboard',
-      'y_formats': [ 'short' ],
+      'yaxes': [ { 'format': 'short' }, {} ],
       'tooltip': { 'value_type': 'individual' }
     }
   };
@@ -2012,7 +2012,7 @@ var getDashConf = function getDashConf () {
       'title': 'MySQL commands for @metric',
       'stack': true,
       'tooltip': { 'value_type': 'individual' },
-      'y_formats': [ 'ops' ]
+      'yaxes': [ { 'format': 'ops' }, {} ]
     }
   };
 
@@ -2027,7 +2027,7 @@ var getDashConf = function getDashConf () {
       'title': 'MySQL handlers for @metric',
       'stack': true,
       'tooltip': { 'value_type': 'individual' },
-      'y_formats': [ 'ops' ]
+      'yaxes': [ { 'format': 'ops' }, {} ]
     }
   };
 
@@ -2048,7 +2048,7 @@ var getDashConf = function getDashConf () {
       'title': 'MySQL locks for @metric',
       'stack': true,
       'tooltip': { 'value_type': 'individual' },
-      'y_formats': [ 'ops' ],
+      'yaxes': [ { 'format': 'ops' }, {} ],
       'fill': 5
     }
   };
@@ -2085,7 +2085,7 @@ var getDashConf = function getDashConf () {
       'title': 'MySQL select for @metric',
       'stack': true,
       'tooltip': { 'value_type': 'individual' },
-      'y_formats': [ 'ops' ],
+      'yaxes': [ { 'format': 'ops' }, {} ],
       'fill': 5
     }
   };
@@ -2117,7 +2117,7 @@ var getDashConf = function getDashConf () {
       'title': 'MySQL sort for @metric',
       'stack': true,
       'tooltip': { 'value_type': 'individual' },
-      'y_formats': [ 'ops' ],
+      'yaxes': [ { 'format': 'ops' }, {} ],
       'fill': 5
     }
   };
@@ -2146,7 +2146,7 @@ var getDashConf = function getDashConf () {
       'title': 'MySQL threads for @metric',
       'stack': true,
       'tooltip': { 'value_type': 'individual' },
-      'y_formats': [ 'short' ],
+      'yaxes': [ { 'format': 'short' }, {} ],
     }
   };
 
@@ -2177,7 +2177,7 @@ var getDashConf = function getDashConf () {
       'title': 'MySQL Query Cache for @metric',
       'stack': true,
       'tooltip': { 'value_type': 'individual' },
-      'y_formats': [ 'ops' ],
+      'yaxes': [ { 'format': 'ops' }, {} ],
       'fill': 5
     }
   };
@@ -2192,7 +2192,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'MySQL Query Cache Size for @metric',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -2215,7 +2215,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'MySQL Network Traffic on @metric',
-      'y_formats': [ 'bps' ],
+      'yaxes': [ { 'format': 'bps' }, {} ],
       'grid': { 'max': null, 'min': null, 'leftMin': null }
     }
   };
@@ -2231,7 +2231,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'PostgreSQL Connected backends for @metric',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -2241,7 +2241,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'PostgreSQL Transactions for @metric',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -2251,7 +2251,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'PostgreSQL Operations for @metric',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -2261,7 +2261,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'PostgreSQL Rows for @metric',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -2271,7 +2271,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'PostgreSQL Disk and Buffer Index Stats for @metric',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -2281,7 +2281,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'PostgreSQL Disk and Buffer Stats for @metric',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -2291,7 +2291,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'PostgreSQL DB Size for @metric',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -2306,7 +2306,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Zookeeper followers for @metric',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -2316,7 +2316,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Zookeeper connections for @metric',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -2327,7 +2327,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Zookeeper requests and syncs for @metric',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -2337,7 +2337,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Zookeeper watches for @metric',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -2347,7 +2347,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Zookeeper leader for @metric',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -2358,7 +2358,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Zookeeper nodes for @metric',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -2368,7 +2368,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Zookeeper data for @metric',
-      'y_formats': [ 'bytes' ]
+      'yaxes': [ { 'format': 'bytes' }, {} ]
     }
   };
 
@@ -2378,7 +2378,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Zookeeper files for @metric',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -2397,7 +2397,7 @@ var getDashConf = function getDashConf () {
     'panel': {
       'title': 'Zookeeper packets for @metric',
       'grid': { 'max': null, 'min': null, 'leftMin': null },
-      'y_formats': [ 'pps' ]
+      'yaxes': [ { 'format': 'pps' }, {} ]
     }
   };
 
@@ -2407,7 +2407,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Zookeeper latency for @metric',
-      'y_formats': [ 'ms' ]
+      'yaxes': [ { 'format': 'ms' }, {} ]
     }
   };
 
@@ -2422,7 +2422,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Mesos CPUs',
-      'y_formats': [ 'short' ],
+      'yaxes': [ { 'format': 'short' }, {} ],
       'fill': 5
     }
   };
@@ -2433,7 +2433,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Mesos CPUs percent',
-      'y_formats': [ 'percent' ],
+      'yaxes': [ { 'format': 'percent' }, {} ],
       'fill': 5,
       'percentage': true
     }
@@ -2445,7 +2445,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Mesos System Load',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -2456,7 +2456,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Mesos Memory',
-      'y_formats': [ 'mbytes' ],
+      'yaxes': [ { 'format': 'mbytes' }, {} ],
       'fill': 5
     }
   };
@@ -2467,7 +2467,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Mesos Memory percent',
-      'y_formats': [ 'percent' ],
+      'yaxes': [ { 'format': 'percent' }, {} ],
       'fill': 5,
       'percentage': true
     }
@@ -2480,7 +2480,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Mesos System Memory',
-      'y_formats': [ 'bytes' ],
+      'yaxes': [ { 'format': 'bytes' }, {} ],
       'fill': 5
     }
   };
@@ -2492,7 +2492,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Mesos Disk',
-      'y_formats': [ 'mbytes' ],
+      'yaxes': [ { 'format': 'mbytes' }, {} ],
       'fill': 5
     }
   };
@@ -2503,7 +2503,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Mesos Disk percent',
-      'y_formats': [ 'percent' ],
+      'yaxes': [ { 'format': 'percent' }, {} ],
       'fill': 5,
       'percentage': true
     }
@@ -2526,7 +2526,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Mesos Slave registered',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -2536,7 +2536,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Mesos Master elected',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -2546,7 +2546,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Mesos Slave recovery errors/sec',
-      'y_formats': [ 'ops' ]
+      'yaxes': [ { 'format': 'ops' }, {} ]
     }
   };
 
@@ -2558,7 +2558,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Mesos tasks states',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -2568,7 +2568,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Mesos status updates/sec',
-      'y_formats': [ 'ops' ]
+      'yaxes': [ { 'format': 'ops' }, {} ]
     }
   };
 
@@ -2582,7 +2582,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Mesos tasks results/sec',
-      'y_formats': [ 'ops' ]
+      'yaxes': [ { 'format': 'ops' }, {} ]
     }
   };
 
@@ -2595,7 +2595,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Mesos frameworks status',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -2605,7 +2605,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Mesos Slave executors states',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -2615,7 +2615,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Mesos framework messages/sec',
-      'y_formats': [ 'ops' ]
+      'yaxes': [ { 'format': 'ops' }, {} ]
     }
   };
 
@@ -2627,7 +2627,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Mesos framework executor messages/sec',
-      'y_formats': [ 'ops' ]
+      'yaxes': [ { 'format': 'ops' }, {} ]
     }
   };
 
@@ -2640,7 +2640,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Mesos framework messages/sec',
-      'y_formats': [ 'ops' ]
+      'yaxes': [ { 'format': 'ops' }, {} ]
     }
   };
 
@@ -2658,7 +2658,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Mesos operation messages/sec',
-      'y_formats': [ 'ops' ]
+      'yaxes': [ { 'format': 'ops' }, {} ]
     }
   };
 
@@ -2670,7 +2670,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Mesos slave messages/sec',
-      'y_formats': [ 'ops' ]
+      'yaxes': [ { 'format': 'ops' }, {} ]
     }
   };
 
@@ -2682,7 +2682,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Mesos offer messages/sec',
-      'y_formats': [ 'ops' ]
+      'yaxes': [ { 'format': 'ops' }, {} ]
     }
   };
 
@@ -2694,7 +2694,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Mesos task messages/sec',
-      'y_formats': [ 'ops' ]
+      'yaxes': [ { 'format': 'ops' }, {} ]
     }
   };
 
@@ -2705,7 +2705,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Mesos slave operations/sec',
-      'y_formats': [ 'ops' ]
+      'yaxes': [ { 'format': 'ops' }, {} ]
     }
   };
 
@@ -2715,7 +2715,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Mesos Master Slaves status',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -2725,7 +2725,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Mesos Master Frameworks status',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -2735,7 +2735,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Mesos Master Event Queue',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -2745,7 +2745,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Mesos Master Registrar states',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -2755,7 +2755,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Mesos Master Registry size',
-      'y_formats': [ 'bytes' ]
+      'yaxes': [ { 'format': 'bytes' }, {} ]
     }
   };
 
@@ -2765,7 +2765,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Mesos Master Registry queued operations',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -2832,7 +2832,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'JMX Kafka Active Controllers',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -2845,7 +2845,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'JMX Kafka Log Flushes',
-      'y_formats': [ 'ops' ]
+      'yaxes': [ { 'format': 'ops' }, {} ]
     }
   };
 
@@ -2863,7 +2863,7 @@ var getDashConf = function getDashConf () {
     'panel': {
       'title': 'JMX Kafka Log Flushes Time',
       'fill': 3,
-      'y_formats': [ 'ms' ]
+      'yaxes': [ { 'format': 'ms' }, {} ]
     }
   };
 
@@ -2876,7 +2876,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'JMX Kafka Requests',
-      'y_formats': [ 'ops' ]
+      'yaxes': [ { 'format': 'ops' }, {} ]
     }
   };
 
@@ -2891,7 +2891,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'JMX Kafka Operation Times',
-      'y_formats': [ 'ms' ]
+      'yaxes': [ { 'format': 'ms' }, {} ]
     }
   };
 
@@ -2904,7 +2904,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'JMX Kafka Topics Messages',
-      'y_formats': [ 'pps' ]
+      'yaxes': [ { 'format': 'pps' }, {} ]
     }
   };
 
@@ -2925,7 +2925,7 @@ var getDashConf = function getDashConf () {
     'panel': {
       'title': 'JMX Kafka Topics Traffic',
       'grid': { 'max': null, 'min': null, 'leftMin': null },
-      'y_formats': [ 'bytes' ]
+      'yaxes': [ { 'format': 'bytes' }, {} ]
     }
   };
 
@@ -2937,7 +2937,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'JMX Kafka Partitions Underreplicated',
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -2954,7 +2954,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Docker CPU Percent',
-      'y_formats': [ 'percent' ]
+      'yaxes': [ { 'format': 'percent' }, {} ]
     }
   };
 
@@ -2968,7 +2968,7 @@ var getDashConf = function getDashConf () {
     'panel': {
       'title': 'Docker CPU Throttling',
       'stack': true,
-      'y_formats': [ 'short' ]
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
@@ -2982,7 +2982,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Docker I/O Ops',
-      'y_formats': [ 'iops' ]
+      'yaxes': [ { 'format': 'iops' }, {} ]
     }
   };
 
@@ -2996,7 +2996,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Docker I/O Bytes',
-      'y_formats': [ 'bps' ]
+      'yaxes': [ { 'format': 'bps' }, {} ]
     }
   };
 
@@ -3010,7 +3010,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Docker Network Usage',
-      'y_formats': [ 'bps' ]
+      'yaxes': [ { 'format': 'bps' }, {} ]
     }
   };
 
@@ -3023,7 +3023,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Docker Memory Usage',
-      'y_formats': [ 'bytes' ]
+      'yaxes': [ { 'format': 'bytes' }, {} ]
     }
   };
 
@@ -3039,7 +3039,7 @@ var getDashConf = function getDashConf () {
       'title': 'Docker Memory Usage for @metric',
       'stack': true,
       'tooltip': { 'value_type': 'individual' },
-      'y_formats': [ 'bytes' ]
+      'yaxes': [ { 'format': 'bytes' }, {} ]
     }
   };
 
