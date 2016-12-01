@@ -312,13 +312,13 @@ var getDashConf = function getDashConf () {
         'apply': 'derivative',
         'math': '* -1',
         'type': 'if_packets',
-        'alias': 'rx'
+        'alias': '@instance.rx'
       },
       'tx': {
         'color': '#508642',
         'apply': 'derivative',
         'type': 'if_packets',
-        'alias': 'tx'
+        'alias': '@instance.tx'
       }
     },
     'panel': {
@@ -335,13 +335,13 @@ var getDashConf = function getDashConf () {
         'apply': 'derivative',
         'math': '* -1',
         'type': 'if_octets',
-        'alias': 'rx'
+        'alias': '@instance.rx'
       },
       'tx': {
         'color': '#508642',
         'apply': 'derivative',
         'type': 'if_octets',
-        'alias': 'tx'
+        'alias': '@instance.tx'
       }
     },
     'panel': {
@@ -351,47 +351,38 @@ var getDashConf = function getDashConf () {
     }
   };
 
-  plugins.netlink.errors = {
+  plugins.netlink.problems = {
     'graph': {
       'rx': {
-        'color': '#FF6600',
         'apply': 'derivative',
         'math': '* -1',
         'type': 'if_errors',
-        'alias': 'rx'
+        'alias': '@instance.error.rx'
       },
       'tx': {
-        'color': '#FFCC00',
         'apply': 'derivative',
         'type': 'if_errors',
-        'alias': 'tx'
-      }
-    },
-    'panel': {
-      'title': 'Netlink errors for @metric',
-      'yaxes': [ { 'format': 'pps' }, {} ],
-      'grid': { 'max': null, 'min': null, 'leftMin': null }
-    }
-  };
-
-  plugins.netlink.dropped = {
-    'graph': {
-      'rx': {
-        'color': '#FF6600',
+        'alias': '@instance.error.tx'
+      },
+      '_rx': {
         'apply': 'derivative',
         'math': '* -1',
         'type': 'if_dropped',
-        'alias': 'rx'
+        'alias': '@instance.drop.rx'
       },
-      'tx': {
-        'color': '#FFCC00',
+      '_tx': {
         'apply': 'derivative',
         'type': 'if_dropped',
-        'alias': 'tx'
+        'alias': '@instance.drop.tx'
+      },
+      'netlink_value': {
+        'apply': 'derivative',
+        'type': 'if_collisions',
+        'alias': '@instance.collision'
       }
     },
     'panel': {
-      'title': 'Netlink dropped for @metric',
+      'title': 'Netlink problems for @metric',
       'yaxes': [ { 'format': 'pps' }, {} ],
       'grid': { 'max': null, 'min': null, 'leftMin': null }
     }
@@ -403,83 +394,68 @@ var getDashConf = function getDashConf () {
         'apply': 'derivative',
         'math': '* -1',
         'type': 'if_rx_errors',
-        'alias': 'crc-rx'
+        'alias': '@instance.crc-rx'
       },
       'fifo': {
         'apply': 'derivative',
         'math': '* -1',
         'type': 'if_rx_errors',
-        'alias': 'fifo-rx'
+        'alias': '@instance.fifo-rx'
       },
       'frame': {
         'apply': 'derivative',
         'math': '* -1',
         'type': 'if_rx_errors',
-        'alias': 'frame-rx'
+        'alias': '@instance.frame-rx'
       },
       'length': {
         'apply': 'derivative',
         'math': '* -1',
         'type': 'if_rx_errors',
-        'alias': 'length-rx'
+        'alias': '@instance.length-rx'
       },
       'missed': {
         'apply': 'derivative',
         'math': '* -1',
         'type': 'if_rx_errors',
-        'alias': 'missed-rx'
+        'alias': '@instance.missed-rx'
       },
       'over': {
         'apply': 'derivative',
         'math': '* -1',
         'type': 'if_rx_errors',
-        'alias': 'over-rx'
+        'alias': '@instance.over-rx'
       },
       'fifo': {
         'apply': 'derivative',
         'type': 'if_tx_errors',
-        'alias': 'fifo-tx'
+        'alias': '@instance.fifo-tx'
       },
       'aborted': {
         'apply': 'derivative',
         'type': 'if_tx_errors',
-        'alias': 'aborted-tx'
+        'alias': '@instance.aborted-tx'
       },
       'carrier': {
         'apply': 'derivative',
         'type': 'if_tx_errors',
-        'alias': 'carrier-tx'
+        'alias': '@instance.carrier-tx'
       },
       'heartbeat': {
         'apply': 'derivative',
         'type': 'if_tx_errors',
-        'alias': 'heartbeat-tx'
+        'alias': '@instance.heartbeat-tx'
       },
       'window': {
         'apply': 'derivative',
         'type': 'if_tx_errors',
-        'alias': 'window-tx'
+        'alias': '@instance.window-tx'
       }
     },
     'panel': {
-      'title': 'Netlink errors extended for @metric',
+      'title': 'Netlink errors for @metric',
       'yaxes': [ { 'format': 'pps' }, {} ],
       'grid': { 'max': null, 'min': null, 'leftMin': null }
-    }
-  };
-
-  plugins.netlink.collisions = {
-    'graph': {
-      'netlink_value': {
-        'color': '#FF6600',
-        'apply': 'derivative',
-        'type': 'if_collisions',
-        'alias': 'collisions'
-      }
-    },
-    'panel': {
-      'title': 'Netlink collisions for @metric',
-      'yaxes': [ { 'format': 'pps' }, {} ]
     }
   };
 
@@ -489,7 +465,7 @@ var getDashConf = function getDashConf () {
         'color': '#FFCC00',
         'apply': 'derivative',
         'type': 'if_multicast',
-        'alias': 'multicast'
+        'alias': '@instance.multicast'
       }
     },
     'panel': {
