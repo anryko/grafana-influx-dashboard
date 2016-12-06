@@ -5,7 +5,7 @@ Javascript dashboard auto-generation script to mimic comfortable Munin behaviour
 :white_check_mark: Tested for **Grafana 2.6.0** and **InfluxDB v0.8.8**  
 :white_check_mark: Tested for **Grafana 2.6.0** and **InfluxDB v0.11.1**  
 :white_check_mark: Tested for **Grafana 3.1.1** and **InfluxDB v1.0.2**  
-:white_check_mark: Tested for **Grafana 4.0.0** and **InfluxDB v1.0.2**  
+:white_check_mark: Tested for **Grafana 4.0.1** and **InfluxDB v1.1.0**  
 
 ## Demonstration
 ![](https://media.giphy.com/media/3oEdvcYi3a3KVvtuHS/giphy.gif)
@@ -84,6 +84,7 @@ http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=disk&instance=
 * [tcpconns](https://collectd.org/wiki/index.php/Plugin:TCPConns)
 * [kafka](https://collectd.org/wiki/index.php/Plugin:GenericJMX)
 * [docker](https://github.com/lebauce/docker-collectd-plugin)
+* [couchbase](https://github.com/anryko/collectd-couchbase)
 
 #### Supported metric groups
 * system

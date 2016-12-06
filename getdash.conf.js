@@ -83,7 +83,8 @@ var getDashConf = function getDashConf () {
   plugins.groups.database = [
     'elasticsearch',
     'mysql',
-    'postgresql'
+    'postgresql',
+    'couchbase'
   ];
 
 
@@ -3016,6 +3017,322 @@ var getDashConf = function getDashConf () {
       'stack': true,
       'tooltip': { 'value_type': 'individual' },
       'yaxes': [ { 'format': 'bytes' }, {} ]
+    }
+  };
+
+
+  // collectd docker plugin configuration: https://github.com/anryko/collectd-couchbase
+  plugins.couchbase = new Plugin({ 'alias': 'cb' });
+
+  plugins.couchbase.nodeOpsGets = {
+    'graph': {
+      'nodes.ops': {
+        'color': '#FF4C00',
+        'alias': 'ops@'
+      },
+      'nodes.cmd_get': {
+        'color': '#FFCC00',
+        'alias': 'get-cmd@'
+      },
+      'nodes.get_hits': {
+        'color': '#B3FF00',
+        'alias': 'get-hit@'
+      },
+      'nodes.ep_bg_fetched': {
+        'color': '#CC00FF',
+        'alias': 'bg-fetch@'
+      }
+    },
+    'panel': {
+      'fill': 3,
+      'lines': false,
+      'bars': true,
+      'tooltip': { 'sort': 2 },
+      'title': 'Couchbase Node Ops',
+      'yaxes': [ { 'format': 'short', 'min': 0 }, {} ]
+    }
+  };
+
+  plugins.couchbase.nodeItems = {
+    'graph': {
+      '/^nodes.curr_items$/': {
+        'color': '#7EBC44',
+        'alias': 'items@'
+      },
+      'nodes.vb_replica_curr_items': {
+        'color': '#44BABC',
+        'alias': 'replicas@'
+      }
+    },
+    'panel': {
+      'stack': true,
+      'tooltip': { 'sort': 2 },
+      'title': 'Couchbase Node Items',
+      'yaxes': [ { 'format': 'short', 'min': 0 }, {} ]
+    }
+  };
+
+  plugins.couchbase.nodeDataSize = {
+    'graph': {
+      'nodes.couch_docs_actual_disk_size': {
+        'color': '#44BABC',
+        'alias': 'actual-data-size@'
+      },
+      'nodes.couch_docs_data_size': {
+        'color': '#7EBC44',
+        'alias': 'docs-data-size@'
+      }
+    },
+    'panel': {
+      'tooltip': { 'sort': 2 },
+      'title': 'Couchbase Node Data',
+      'yaxes': [ { 'format': 'bytes' }, {} ]
+    }
+  };
+
+  plugins.couchbase.bucketDataSize = {
+    'graph': {
+      'bucket.op.couch_docs_data_size': {
+        'alias': '@instance'
+      }
+    },
+    'panel': {
+      'stack': true,
+      'tooltip': { 'sort': 2 },
+      'title': 'Couchbase Bucket Data per Node',
+      'yaxes': [ { 'format': 'bytes' }, {} ]
+    }
+  };
+
+  plugins.couchbase.bucketTotalDataUsed = {
+    'graph': {
+      'bucket.basic.dataUsed': {
+        'alias': '@instance'
+      }
+    },
+    'panel': {
+      'stack': true,
+      'tooltip': { 'sort': 2 },
+      'title': 'Couchbase Bucket Data per Cluster',
+      'yaxes': [ { 'format': 'bytes', 'min': 0 }, {} ]
+    }
+  };
+
+  plugins.couchbase.bucketTotalDiskUsed = {
+    'graph': {
+      'bucket.basic.diskUsed': {
+        'alias': '@instance'
+      }
+    },
+    'panel': {
+      'stack': true,
+      'tooltip': { 'sort': 2 },
+      'title': 'Couchbase Bucket Disk per Cluster',
+      'yaxes': [ { 'format': 'bytes', 'min': 0 }, {} ]
+    }
+  };
+
+  plugins.couchbase.bucketTotalMemoryUsed = {
+    'graph': {
+      'bucket.basic.memUsed': {
+        'alias': '@instance'
+      }
+    },
+    'panel': {
+      'stack': true,
+      'tooltip': { 'sort': 2 },
+      'title': 'Couchbase Bucket Memory per Cluster',
+      'yaxes': [ { 'format': 'bytes', 'min': 0 }, {} ]
+    }
+  };
+
+  plugins.couchbase.bucketTotalQuotaUsed = {
+    'graph': {
+      'bucket.basic.quotaPercentUsed': {
+        'alias': '@instance'
+      }
+    },
+    'panel': {
+      'tooltip': { 'sort': 2 },
+      'title': 'Couchbase Bucket Quota per Cluster',
+      'yaxes': [ { 'format': 'percent', 'max': 100 }, {} ]
+    }
+  };
+
+  plugins.couchbase.bucketTotalOps = {
+    'graph': {
+      'bucket.basic.opsPerSec': {
+        'alias': '@instance'
+      }
+    },
+    'panel': {
+      'lines': false,
+      'bars': true,
+      'stack': true,
+      'tooltip': { 'sort': 2 },
+      'title': 'Couchbase Bucket Ops per Cluster',
+      'yaxes': [ { 'format': 'short', 'min': 0 }, {} ]
+    }
+  };
+
+  plugins.couchbase.bucketTotalDiskFetch = {
+    'graph': {
+      'bucket.basic.diskFetches': {
+        'alias': '@instance'
+      }
+    },
+    'panel': {
+      'lines': false,
+      'bars': true,
+      'stack': true,
+      'tooltip': { 'sort': 2 },
+      'title': 'Couchbase Bucket Disk Fetches per Cluster',
+      'yaxes': [ { 'format': 'short', 'min': 0 }, {} ]
+    }
+  };
+
+  plugins.couchbase.bucketMemoryUsed = {
+    'graph': {
+      '/^bucket.op.mem_used$/': {
+        'alias': '@instance'
+      }
+    },
+    'panel': {
+      'stack': true,
+      'tooltip': { 'sort': 2 },
+      'title': 'Couchbase Bucket Memomy per Node',
+      'yaxes': [ { 'format': 'bytes' }, {} ]
+    }
+  };
+
+  plugins.couchbase.bucketFrag = {
+    'graph': {
+      'bucket.op.couch_docs_fragmentation': {
+        'alias': '@instance'
+      }
+    },
+    'panel': {
+      'tooltip': { 'sort': 2 },
+      'title': 'Couchbase Bucket Fragmentation',
+      'yaxes': [ { 'format': 'percent', 'max': 100 }, {} ]
+    }
+  };
+
+  plugins.couchbase.bucketConns = {
+    'graph': {
+      'bucket.op.curr_connections': {
+        'color': '#508642',
+        'alias': '@instance'
+      }
+    },
+    'panel': {
+      'tooltip': { 'sort': 2 },
+      'title': 'Couchbase Bucket Conns per Node',
+      'yaxes': [ { 'format': 'short' }, {} ]
+    }
+  };
+
+  plugins.couchbase.bucketAvgBGWaitTime = {
+    'graph': {
+      'bucket.op.avg_bg_wait_time': {
+        'alias': '@instance'
+      }
+    },
+    'panel': {
+      'lines': false,
+      'bars': true,
+      'stack': true,
+      'tooltip': { 'sort': 2 },
+      'title': 'Couchbase Bucket Avg BG Wait',
+      'yaxes': [ { 'format': 'ms', 'min': 0 }, {} ]
+    }
+  };
+
+  plugins.couchbase.bucketAvgDiskCommitTime = {
+    'graph': {
+      'bucket.op.avg_disk_commit_time': {
+        'alias': '@instance'
+      }
+    },
+    'panel': {
+      'lines': false,
+      'bars': true,
+      'stack': true,
+      'tooltip': { 'sort': 2 },
+      'title': 'Couchbase Bucket Avg Disk Commit Wait',
+      'yaxes': [ { 'format': 'ms', 'min': 0 }, {} ]
+    }
+  };
+
+  plugins.couchbase.bucketAvgDiskUpdateTime = {
+    'graph': {
+      'bucket.op.avg_disk_update_time': {
+        'alias': '@instance'
+      }
+    },
+    'panel': {
+      'lines': false,
+      'bars': true,
+      'stack': true,
+      'tooltip': { 'sort': 2 },
+      'title': 'Couchbase Bucket Avg Disk Update Wait',
+      'yaxes': [ { 'format': 'ms', 'min': 0 }, {} ]
+    }
+  };
+
+  plugins.couchbase.bucketGets = {
+    'graph': {
+      'bucket.op.cmd_get': {
+        'alias': '@instance.get'
+      },
+      'bucket.op.cmd_set': {
+        'math': '* -1',
+        'alias': '@instance.set'
+      }
+    },
+    'panel': {
+      'lines': false,
+      'bars': true,
+      'stack': true,
+      'tooltip': { 'sort': 2 },
+      'title': 'Couchbase Bucket Get and Set',
+      'yaxes': [ { 'format': 'short' }, {} ]
+    }
+  };
+
+  plugins.couchbase.bucketHits = {
+    'graph': {
+      'bucket.op.get_hits': {
+        'alias': '@instance.hit'
+      },
+      'bucket.op.get_misses': {
+        'math': '* -1',
+        'alias': '@instance.miss'
+      }
+    },
+    'panel': {
+      'lines': false,
+      'bars': true,
+      'stack': true,
+      'tooltip': { 'sort': 2 },
+      'title': 'Couchbase Bucket Get hit and miss',
+      'yaxes': [ { 'format': 'short' }, {} ]
+    }
+  };
+
+  plugins.couchbase.bucketOps = {
+    'graph': {
+      'bucket.op.ops': {
+        'alias': '@instance'
+      }
+    },
+    'panel': {
+      'lines': false,
+      'bars': true,
+      'stack': true,
+      'tooltip': { 'sort': 2 },
+      'title': 'Couchbase Bucket Ops',
+      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
