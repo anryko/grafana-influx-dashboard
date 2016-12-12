@@ -1147,12 +1147,13 @@ var getDashConf = function getDashConf () {
     'graph': {
       'users': {
         'color': '#CCFF66',
-        'alias': 'count',
+        'alias': 'users@',
         'apply': 'max'
       }
     },
     'panel': {
-      'title': 'Users'
+      'title': 'Users',
+      'yaxes': [ { 'format': 'short', 'min': 0 }, {} ]
     }
   };
 
