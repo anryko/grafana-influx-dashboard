@@ -2279,7 +2279,14 @@ var getDashConf = function getDashConf () {
 
   plugins.zookeeper.followers = {
     'graph': {
-      'followers': { }
+      'zk_followers': {
+        'color': '#FFCC00',
+        'alias': '@instance.followers-total'
+      },
+      'zk_synced_followers': {
+        'color': '#B3FF00',
+        'alias': '@instance.followers-synced'
+      }
     },
     'panel': {
       'title': 'Zookeeper followers for @metric',
@@ -2289,7 +2296,10 @@ var getDashConf = function getDashConf () {
 
   plugins.zookeeper.conn = {
     'graph': {
-      'connections': { }
+      'connections': {
+        'color': '#508642',
+        'alias': '@instance.connections'
+      }
     },
     'panel': {
       'title': 'Zookeeper connections for @metric',
@@ -2299,63 +2309,97 @@ var getDashConf = function getDashConf () {
 
   plugins.zookeeper.req = {
     'graph': {
-      'requests': { 'apply': 'max' },
-      'syncs': { 'apply': 'max' }
+      'outstanding_requests': {
+        'color': '#FFCC00',
+        'apply': 'max',
+        'alias': '@instance.outstanding-requests'
+      },
+      'pending_syncs': {
+        'color': '#CC00FF',
+        'apply': 'max',
+        'alias': '@instance.pending-syncs'
+      }
     },
     'panel': {
       'title': 'Zookeeper requests and syncs for @metric',
-      'yaxes': [ { 'format': 'short' }, {} ]
+      'yaxes': [ { 'format': 'short', 'min': 0 }, {} ]
     }
   };
 
   plugins.zookeeper.watch = {
     'graph': {
-      'watch_count': { 'apply': 'max' }
+      'watch_count': {
+        'color': '#70DBED',
+        'apply': 'max',
+        'alias': '@instance.watches'
+      }
     },
     'panel': {
       'title': 'Zookeeper watches for @metric',
-      'yaxes': [ { 'format': 'short' }, {} ]
+      'yaxes': [ { 'format': 'short', 'min': 0 }, {} ]
     }
   };
 
   plugins.zookeeper.leader = {
     'graph': {
-      'is_leader': { 'apply': 'max' }
+      'is_leader': {
+        'color': '#508642',
+        'apply': 'max',
+        'alias': '@instance.leader'
+      }
     },
     'panel': {
       'title': 'Zookeeper leader for @metric',
-      'yaxes': [ { 'format': 'short' }, {} ]
+      'yaxes': [ { 'format': 'short', 'min': 0 }, {} ]
     }
   };
 
   plugins.zookeeper.nodes = {
     'graph': {
-      'znode_count': { 'apply': 'max' },
-      'ephemerals_count': { 'apply': 'max' }
+      'znode_count': {
+        'color': '#EF843C',
+        'apply': 'max',
+        'alias': '@instance.znodes'
+      },
+      'ephemerals_count': {
+        'color': '#AEA2E0',
+        'apply': 'max',
+        'alias': '@instance.ephemerals'
+      }
     },
     'panel': {
       'title': 'Zookeeper nodes for @metric',
-      'yaxes': [ { 'format': 'short' }, {} ]
+      'yaxes': [ { 'format': 'short', 'min': 0 }, {} ]
     }
   };
 
   plugins.zookeeper.data = {
     'graph': {
-      'data_size': { }
+      'data_size': {
+        'color': '#508642',
+        'alias': '@instance.data'
+      }
     },
     'panel': {
       'title': 'Zookeeper data for @metric',
-      'yaxes': [ { 'format': 'bytes' }, {} ]
+      'yaxes': [ { 'format': 'bytes', 'min': 0 }, {} ]
     }
   };
 
   plugins.zookeeper.files = {
     'graph': {
-      'file_descriptor_count': { }
+      'max_file_descriptor_count': {
+        'color': '#508642',
+        'alias': '@instance.max'
+      },
+      'open_file_descriptor_count': {
+        'color': '#447EBC',
+        'alias': '@instance.open'
+      }
     },
     'panel': {
       'title': 'Zookeeper files for @metric',
-      'yaxes': [ { 'format': 'short' }, {} ]
+      'yaxes': [ { 'format': 'short', 'min': 0 }, {} ]
     }
   };
 
@@ -2364,27 +2408,39 @@ var getDashConf = function getDashConf () {
       'packets_sent': {
         'color': '#447EBC',
         'apply': 'derivative',
-        'math': '* -1'
+        'math': '* -1',
+        'alias': '@instance.sent'
       },
       'packets_received': {
         'color': '#508642',
-        'apply': 'derivative'
+        'apply': 'derivative',
+        'alias': '@instance.received'
       }
     },
     'panel': {
       'title': 'Zookeeper packets for @metric',
-      'grid': { 'max': null, 'min': null, 'leftMin': null },
       'yaxes': [ { 'format': 'pps' }, {} ]
     }
   };
 
   plugins.zookeeper.latency = {
     'graph': {
-      'latency': { }
+      'max_latency': {
+        'color': '#82B5D8',
+        'alias': '@instance.max'
+      },
+      'avg_latency': {
+        'color': '#EAB839',
+        'alias': '@instance.avg'
+      },
+      'min_latency': {
+        'color': '#7EB26D',
+        'alias': '@instance.min'
+      }
     },
     'panel': {
       'title': 'Zookeeper latency for @metric',
-      'yaxes': [ { 'format': 'ms' }, {} ]
+      'yaxes': [ { 'format': 'ms', 'min': 0 }, {} ]
     }
   };
 
