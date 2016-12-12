@@ -779,18 +779,19 @@ var getDashConf = function getDashConf () {
       'read': {
         'color': '#447EBC',
         'apply': 'derivative',
-        'type': 'disk_ops'
+        'type': 'disk_ops',
+        'alias': '@instance.read'
       },
       'write': {
         'color': '#508642',
         'math': '* -1',
         'apply': 'derivative',
-        'type': 'disk_ops'
+        'type': 'disk_ops',
+        'alias': '@instance.write'
       }
     },
     'panel': {
       'title': 'Disk Operations for @metric',
-      'grid': { 'max': null, 'min': null, 'leftMin': null },
       'yaxes': [ { 'format': 'iops' }, {} ]
     }
   };
@@ -800,18 +801,19 @@ var getDashConf = function getDashConf () {
       'read': {
         'color': '#447EBC',
         'apply': 'derivative',
-        'type': 'disk_octets'
+        'type': 'disk_octets',
+        'alias': '@instance.read'
       },
       'write': {
         'color': '#508642',
         'math': '* -1',
         'apply': 'derivative',
-        'type': 'disk_octets'
+        'type': 'disk_octets',
+        'alias': '@instance.write'
       }
     },
     'panel': {
-      'title': 'Disk Traffic for @metric',
-      'grid': { 'max': null, 'min': null, 'leftMin': null },
+      'title': 'Disk Octets for @metric',
       'yaxes': [ { 'format': 'bytes' }, {} ]
     }
   };
@@ -821,18 +823,19 @@ var getDashConf = function getDashConf () {
       'read': {
         'color': '#447EBC',
         'apply': 'derivative',
-        'type': 'disk_time'
+        'type': 'disk_time',
+        'alias': '@instance.read'
       },
       'write': {
         'color': '#508642',
         'math': '* -1',
         'apply': 'derivative',
-        'type': 'disk_time'
+        'type': 'disk_time',
+        'alias': '@instance.write'
       }
     },
     'panel': {
       'title': 'Disk Wait for @metric',
-      'grid': { 'max': null, 'min': null, 'leftMin': null },
       'yaxes': [ { 'format': 'ms' }, {} ]
     }
   };
