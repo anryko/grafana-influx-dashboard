@@ -856,39 +856,39 @@ var getDashConf = function getDashConf () {
 
 
   // collectd processes plugin configuration
-  plugins.processes = new Plugin({ 'alias': 'processes' });
+  plugins.processes = new Plugin({ 'alias': 'ps' });
 
   plugins.processes.state = {
     'graph': {
       'sleeping': {
         'type': 'ps_state',
         'color': '#EAB839',
-        'alias': 'sleeping'
+        'alias': 'sleeping@'
       },
       'running': {
         'type': 'ps_state',
         'color': '#508642',
-        'alias': 'running'
+        'alias': 'running@'
       },
       'stopped': {
         'type': 'ps_state',
         'color': '#E9967A',
-        'alias': 'stopped'
+        'alias': 'stopped@'
       },
       'blocked': {
         'type': 'ps_state',
         'color': '#890F02',
-        'alias': 'blocked'
+        'alias': 'blocked@'
       },
       'zombies': {
         'type': 'ps_state',
         'color': '#E24D42',
-        'alias': 'zombies'
+        'alias': 'zombies@'
       },
       'paging': {
         'type': 'ps_state',
         'color': '#9400D3',
-        'alias': 'paging'
+        'alias': 'paging@'
       }
     },
     'panel': {
@@ -901,7 +901,7 @@ var getDashConf = function getDashConf () {
     'graph': {
       'processes': {
         'color': '#BA43A9',
-        'alias': 'forks',
+        'alias': 'forks@',
         'apply': 'derivative',
         'type': 'fork_rate'
       }
