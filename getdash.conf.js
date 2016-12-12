@@ -705,22 +705,25 @@ var getDashConf = function getDashConf () {
     'graph': {
       'used': {
         'color': '#447EBC',
-        'type': 'df_complex'
+        'type': 'df_complex',
+        'alias': '@instance.used'
       },
       'reserved': {
         'color': '#EAB839',
-        'type': 'df_complex'
+        'type': 'df_complex',
+        'alias': '@instance.reserved'
       },
       'free': {
         'color': '#508642',
-        'type': 'df_complex'
+        'type': 'df_complex',
+        'alias': '@instance.free'
       }
     },
     'panel': {
       'title': 'Disk space for @metric',
       'yaxes': [ { 'format': 'bytes' }, {} ],
       'stack': true,
-      'tooltip': { 'value_type': 'individual' }
+      'tooltip': { 'sort': 2 }
     }
   };
 
@@ -728,22 +731,25 @@ var getDashConf = function getDashConf () {
     'graph': {
       'used': {
         'color': '#447EBC',
-        'type': 'df_inodes'
+        'type': 'df_inodes',
+        'alias': '@instance.used'
       },
       'reserved': {
         'color': '#EAB839',
-        'type': 'df_inodes'
+        'type': 'df_inodes',
+        'alias': '@instance.reserved'
       },
       'free': {
         'color': '#508642',
-        'type': 'df_inodes'
+        'type': 'df_inodes',
+        'alias': '@instance.free'
       }
     },
     'panel': {
       'title': 'Disk inodes for @metric',
       'yaxes': [ { 'format': 'short' }, {} ],
       'stack': true,
-      'tooltip': { 'value_type': 'individual' }
+      'tooltip': { 'sort': 2 }
     }
   };
 
