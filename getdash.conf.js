@@ -1621,34 +1621,90 @@ var getDashConf = function getDashConf () {
   };
 
 
-  // collectd elasticsearch plugin configuration: https://github.com/phobos182/collectd-elasticsearch
+  // collectd elasticsearch plugin configuration: https://github.com/signalfx/collectd-elasticsearch
   plugins.elasticsearch = new Plugin({ 'alias': 'es' });
 
-  plugins.elasticsearch.http = {
+  plugins.elasticsearch.psCpu = {
     'graph': {
-      'http.current_open': { 'alias': 'http-open' }
+      'process.cpu.percent': {
+        'color': '#EA6460',
+        'alias': 'cpu@'
+      }
     },
     'panel': {
-      'title': 'ElasticSearch HTTP Open',
-      'yaxes': [ { 'format': 'short' }, {} ]
+      'title': 'ElasticSearch CPU Usage for @metric',
+      'yaxes': [ { 'format': 'percent', 'max': 100 }, {} ]
+    }
+  };
+
+  plugins.elasticsearch.idxStorage = {
+    'graph': {
+      'indices.store.size': {
+        'color': '#1F78C1',
+        'alias': 'index-data@'
+      }
+    },
+    'panel': {
+      'title': 'ElasticSearch Index Storage for @metric',
+      'yaxes': [ { 'format': 'bytes' }, {} ]
+    }
+  };
+
+  plugins.elasticsearch.openFiles = {
+    'graph': {
+      'process.open_file_descriptors': {
+        'color': '#65C5DB',
+        'alias': 'open-files@'
+      }
+    },
+    'panel': {
+      'title': 'ElasticSearch Open Files for @metric',
+      'yaxes': [ { 'format': 'short', 'min': 0 }, {} ]
+    }
+  };
+
+  plugins.elasticsearch.httpConns = {
+    'graph': {
+      'http.current_open': {
+        'color': '#B3FF00',
+        'alias': 'http-conns@'
+      }
+    },
+    'panel': {
+      'title': 'ElasticSearch HTTP Conns for @metric',
+      'yaxes': [ { 'format': 'short', 'min': 0 }, {} ]
+    }
+  };
+
+  plugins.elasticsearch.serverConns = {
+    'graph': {
+      'transport.server_open': {
+        'color': '#B3FF00',
+        'alias': 'server-conns@'
+      }
+    },
+    'panel': {
+      'title': 'ElasticSearch Server Conns for @metric',
+      'yaxes': [ { 'format': 'short', 'min': 0 }, {} ]
     }
   };
 
   plugins.elasticsearch.transportCount = {
     'graph': {
       'transport.rx.count': {
+        'color': '#447EBC',
         'apply': 'derivative',
-        'alias': 'transport-rx'
+        'alias': 'in@'
       },
       'transport.tx.count': {
+        'color': '#508642',
         'apply': 'derivative',
         'math': '* -1',
-        'alias': 'transport-tx'
+        'alias': 'out@'
       }
     },
     'panel': {
-      'title': 'ElasticSearch Transport Counters',
-      'grid': { 'max': null, 'min': null, 'leftMin': null },
+      'title': 'ElasticSearch Network Packets for @metric',
       'yaxes': [ { 'format': 'pps' }, {} ]
     }
   };
@@ -1656,69 +1712,103 @@ var getDashConf = function getDashConf () {
   plugins.elasticsearch.transportSize = {
     'graph': {
       'transport.rx.size': {
-        'alias': 'transport-rx',
-        'apply': 'derivative'
+        'color': '#447EBC',
+        'apply': 'derivative',
+        'alias': 'in@'
       },
       'transport.tx.size': {
-        'alias': 'transport-tx',
+        'color': '#508642',
         'math': '* -1',
-        'apply': 'derivative'
+        'apply': 'derivative',
+        'alias': 'out@'
       }
     },
     'panel': {
-      'title': 'ElasticSearch Transport Size',
-      'grid': { 'max': null, 'min': null, 'leftMin': null },
+      'title': 'ElasticSearch Network Data for @metric',
       'yaxes': [ { 'format': 'bps' }, {} ]
     }
   };
 
   plugins.elasticsearch.idxTimes = {
     'graph': {
-      '/^indices\\..*time$/': { 'apply': 'derivative' }
+      '/^indices\\..*time$/': {
+        'apply': 'derivative',
+        'alias': '@description'
+      }
     },
     'panel': {
-      'title': 'ElasticSearch Indices Times',
+      'title': 'ElasticSearch Indices Times for @metric',
+      'tooltip': { 'sort': 2 },
       'yaxes': [ { 'format': 'ms' }, {} ]
     }
   };
 
-  plugins.elasticsearch.idxTotals = {
+  plugins.elasticsearch.idxOpsTotals = {
     'graph': {
-      '/^indices\\..*total$/': { 'apply': 'derivative' }
+      '/^indices\\.(get|search|flush|refresh|merges)\\..*total$/': {
+        'apply': 'derivative',
+        'alias': '@description'
+      }
     },
     'panel': {
-      'title': 'ElasticSearch Indices Totals',
+      'title': 'ElasticSearch Indices Actions for @metric',
+      'tooltip': { 'sort': 2 },
+      'yaxes': [ { 'format': 'short' }, {} ]
+    }
+  };
+
+  plugins.elasticsearch.idxIndexerTotals = {
+    'graph': {
+      '/^indices\\.indexing\\..*-total$/': {
+        'apply': 'derivative',
+        'alias': '@description'
+      }
+    },
+    'panel': {
+      'title': 'ElasticSearch Indexing for @metric',
+      'tooltip': { 'sort': 2 },
       'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
   plugins.elasticsearch.idxDocs = {
     'graph': {
-      '/^indices\\.docs\\./': { 'apply': 'derivative' }
+      '/^indices\\.docs\\./': {
+        'apply': 'derivative',
+        'alias': '@description'
+      }
     },
     'panel': {
-      'title': 'ElasticSearch Indices Docs',
+      'title': 'ElasticSearch Indices Docs for @metric',
+      'tooltip': { 'sort': 2 },
       'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
   plugins.elasticsearch.idxCacheEvictions = {
     'graph': {
-      '/^indices\\.cache\\..*\\.eviction(s)?$/': { 'apply': 'derivative' }
+      '/^indices\\.cache\\..*\\.eviction(s)?$/': {
+        'apply': 'derivative',
+        'alias': '@description'
+      }
     },
     'panel': {
-      'title': 'ElasticSearch Indices Cache Evictions',
-      'yaxes': [ { 'format': 'ops' }, {} ]
+      'title': 'ElasticSearch Indices Cache Evictions for @metric',
+      'tooltip': { 'sort': 2 },
+      'yaxes': [ { 'format': 'ops', 'min': 0 }, {} ]
     }
   };
 
   plugins.elasticsearch.jvmHeapPercent = {
     'graph': {
-      'jvm.mem.heap-used-percent': { 'alias': 'jvm-heap-used' }
+      'jvm.mem.heap-used-percent': {
+        'color': '#65C5DB',
+        'alias': 'heap-used@'
+      }
     },
     'panel': {
-      'title': 'ElasticSearch JVM Heap Usage',
-      'yaxes': [ { 'format': 'percent' }, {} ]
+      'title': 'ElasticSearch JVM Heap Usage for @metric',
+      'yaxes': [ { 'format': 'percent', 'max': 100 }, {} ]
     }
   };
 
@@ -1726,15 +1816,15 @@ var getDashConf = function getDashConf () {
     'graph': {
       'jvm.mem.heap-committed': {
         'color': '#508642',
-        'alias': 'jvm-heap-commited'
+        'alias': 'heap-commited@'
       },
-      'jvm.mem.heap-used': {
+      '/jvm.mem.heap-used$/': {
         'color': '#447EBC',
-        'alias': 'jvm-heap-used'
+        'alias': 'heap-used@'
       }
     },
     'panel': {
-      'title': 'ElasticSearch JVM Heap Memory Usage',
+      'title': 'ElasticSearch JVM Heap Memory Usage for @metric',
       'yaxes': [ { 'format': 'bytes' }, {} ]
     }
   };
@@ -1743,109 +1833,73 @@ var getDashConf = function getDashConf () {
     'graph': {
       'jvm.mem.non-heap-committed': {
         'color': '#508642',
-        'alias': 'jvm-non-heap-commited'
+        'alias': 'non-heap-commited@'
       },
       'jvm.mem.non-heap-used': {
         'color': '#447EBC',
-        'alias': 'jvm-non-heap-used'
+        'alias': 'non-heap-used@'
       }
     },
     'panel': {
-      'title': 'ElasticSearch JVM Non Heap Memory Usage',
+      'title': 'ElasticSearch JVM Non Heap Memory Usage for @metric',
       'yaxes': [ { 'format': 'bytes' }, {} ]
     }
   };
 
   plugins.elasticsearch.jvmThreads = {
     'graph': {
-      'jvm.threads.peak': { 'color': '#508642' },
-      'jvm.threads.count': { 'color': '#447EBC' }
+      'jvm.threads.peak': {
+        'color': '#508642',
+        'alias': 'threads-peak@'
+      },
+      'jvm.threads.count': {
+        'color': '#447EBC',
+        'alias': 'threads@'
+      }
     },
     'panel': {
-      'title': 'ElasticSearch JVM Threads',
+      'title': 'ElasticSearch JVM Threads for @metric',
       'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 
   plugins.elasticsearch.jvmGCCount = {
     'graph': {
-      'jvm.gc.old-count': { 'apply': 'derivative' },
-      'jvm.gc.count': { 'apply': 'derivative' }
+      'jvm.gc.old-count': {
+        'color': '#B7DBAB',
+        'apply': 'derivative',
+        'alias': 'gc-old@'
+      },
+      'jvm.gc.count': {
+        'color': '#F2C96D',
+        'apply': 'derivative',
+        'alias': 'gc@'
+      }
     },
     'panel': {
-      'title': 'ElasticSearch JVM GC Count',
+      'title': 'ElasticSearch JVM GC Count for @metric',
+      'tooltip': { 'sort': 2 },
       'yaxes': [ { 'format': 'ops' }, {} ]
     }
   };
 
   plugins.elasticsearch.jvmGCTime = {
     'graph': {
-      'jvm.gc.old-time': { 'apply': 'derivative' },
-      'jvm.gc.time': { 'apply': 'derivative' }
+      'jvm.gc.old-time': {
+        'color': '#B7DBAB',
+        'apply': 'derivative',
+        'alias': 'gc-old@'
+      },
+      'jvm.gc.time': {
+        'color': '#F2C96D',
+        'apply': 'derivative',
+        'alias': 'gc@'
+      }
     },
     'panel': {
-      'title': 'ElasticSearch JVM GC Time',
+      'title': 'ElasticSearch JVM GC Time for @metric',
+      'tooltip': { 'sort': 2 },
       'yaxes': [ { 'format': 'ms' }, {} ]
-    }
-  };
-
-  plugins.elasticsearch.threadPoolCompleted = {
-    'graph': {
-      '/^thread_pool\\..*completed$/': { 'apply': 'derivative' }
-    },
-    'panel': {
-      'title': 'ElasticSearch Thread Pool Completed',
-      'yaxes': [ { 'format': 'ops' }, {} ]
-    }
-  };
-
-  plugins.elasticsearch.threadPoolRejected = {
-    'graph': {
-      '/^thread_pool\\..*rejected$/': { 'apply': 'derivative' }
-    },
-    'panel': {
-      'title': 'ElasticSearch Thread Pool Rejected',
-      'yaxes': [ { 'format': 'ops' }, {} ]
-    }
-  };
-
-  plugins.elasticsearch.threadPoolAcrive = {
-    'graph': {
-      '/^thread_pool\\..*active$/': { 'apply': 'derivative' }
-    },
-    'panel': {
-      'title': 'ElasticSearch Thread Pool Active',
-      'yaxes': [ { 'format': 'ops' }, {} ]
-    }
-  };
-
-  plugins.elasticsearch.threadPoolLargest = {
-    'graph': {
-      '/^thread_pool\\..*largest$/': { }
-    },
-    'panel': {
-      'title': 'ElasticSearch Thread Pool Largest',
-      'yaxes': [ { 'format': 'short' }, {} ]
-    }
-  };
-
-  plugins.elasticsearch.threadPoolQueue = {
-    'graph': {
-      '/^thread_pool\\..*queue$/': { }
-    },
-    'panel': {
-      'title': 'ElasticSearch Thread Pool Queue',
-      'yaxes': [ { 'format': 'short' }, {} ]
-    }
-  };
-
-  plugins.elasticsearch.threadPoolThread = {
-    'graph': {
-      '/^thread_pool\\..*threads$/': { }
-    },
-    'panel': {
-      'title': 'ElasticSearch Thread Pool Threads',
-      'yaxes': [ { 'format': 'short' }, {} ]
     }
   };
 

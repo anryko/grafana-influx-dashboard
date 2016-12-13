@@ -67,7 +67,7 @@ http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=disk&instance=
 * [redis](https://github.com/powdahound/redis-collectd-plugin)
 * [memcache](https://collectd.org/wiki/index.php/Plugin:memcached)
 * [rabbitmq](https://github.com/kozdincer/rabbitmq_collectd_plugin)
-* [elasticsearch](https://github.com/phobos182/collectd-elasticsearch)
+* [elasticsearch](https://github.com/signalfx/collectd-elasticsearch)
 * [nginx](https://collectd.org/wiki/index.php/Plugin:nginx)
 * [connstate](https://github.com/anryko/connstate-collectd-plugin)
 * [ping](https://collectd.org/wiki/index.php/Plugin:Ping)
