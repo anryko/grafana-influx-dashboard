@@ -2924,36 +2924,38 @@ var getDashConf = function getDashConf () {
   plugins.kafka.controller = {
     'graph': {
       'controller.active.gauge': {
-        'alias': 'active'
+        'color': '#FCEACA',
+        'alias': 'master@'
       },
     },
     'panel': {
       'title': 'JMX Kafka Active Controllers',
-      'yaxes': [ { 'format': 'short' }, {} ]
+      'yaxes': [ { 'format': 'short', 'min': 0 }, {} ]
     }
   };
 
   plugins.kafka.logFlush = {
     'graph': {
       'log.flush.count': {
-        'apply': 'derivative(max)',
-        'alias': 'flushes'
+        'color': '#806EB7',
+        'apply': 'derivative',
+        'alias': 'log-flushes@'
       },
     },
     'panel': {
       'title': 'JMX Kafka Log Flushes',
-      'yaxes': [ { 'format': 'ops' }, {} ]
+      'yaxes': [ { 'format': 'ops', 'min': 0 }, {} ]
     }
   };
 
   plugins.kafka.logTime = {
     'graph': {
       'log.flush.time-ms.median': {
-        'alias': 'flush-time-average',
+        'alias': 'flush-time-average@',
         'color': '#CCA300'
       },
       'log.flush.time-ms.99th': {
-        'alias': 'flush-time-most',
+        'alias': 'flush-time-max@',
         'color': '#508642'
       }
     },
@@ -2966,14 +2968,26 @@ var getDashConf = function getDashConf () {
 
   plugins.kafka.requestsCount = {
     'graph': {
-      'requests.count': {
+      'consumer.requests.count': {
+        'color': '#447EBC',
         'apply': 'derivative',
-        'alias': 'requests'
+        'alias': 'consumer@'
+      },
+      'follower.requests.count': {
+        'color': '#C15C17',
+        'apply': 'derivative',
+        'alias': 'follower@'
+      },
+      'produce.requests.count': {
+        'color': '#7EB26D',
+        'apply': 'derivative',
+        'alias': 'produce@'
       }
     },
     'panel': {
       'title': 'JMX Kafka Requests',
-      'yaxes': [ { 'format': 'ops' }, {} ]
+      'tooltip': { 'sort': 2 },
+      'yaxes': [ { 'format': 'ops', 'min': 0 }, {} ]
     }
   };
 
@@ -2988,20 +3002,8 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'JMX Kafka Operation Times',
+      'tooltip': { 'sort': 2 },
       'yaxes': [ { 'format': 'ms' }, {} ]
-    }
-  };
-
-  plugins.kafka.messages = {
-    'graph': {
-      'topics.messages.count': {
-        'apply': 'derivative',
-        'alias': 'messages-count'
-      }
-    },
-    'panel': {
-      'title': 'JMX Kafka Topics Messages',
-      'yaxes': [ { 'format': 'pps' }, {} ]
     }
   };
 
@@ -3010,31 +3012,44 @@ var getDashConf = function getDashConf () {
       'topics.bytes-out.count': {
         'color': '#447EBC',
         'apply': 'derivative',
-        'alias': 'bytes-out'
+        'alias': 'out@'
       },
       'topics.bytes-in.count': {
         'color': '#508642',
         'math': '* -1',
         'apply': 'derivative',
-        'alias': 'bytes-in'
+        'alias': 'in@'
       }
     },
     'panel': {
       'title': 'JMX Kafka Topics Traffic',
-      'grid': { 'max': null, 'min': null, 'leftMin': null },
       'yaxes': [ { 'format': 'bytes' }, {} ]
+    }
+  };
+
+  plugins.kafka.messages = {
+    'graph': {
+      'topics.messages.count': {
+        'color': '#508642',
+        'alias': 'messages@'
+      }
+    },
+    'panel': {
+      'title': 'JMX Kafka Topics Messages',
+      'yaxes': [ { 'format': 'short', 'min': 0 }, {} ]
     }
   };
 
   plugins.kafka.partitionsUnderRepl = {
     'graph': {
       'partitions.underreplicated.gauge': {
-        'alias': 'underreplicated-count'
+        'color': '#BF1B00',
+        'alias': 'underreplicated-partitions@'
       }
     },
     'panel': {
       'title': 'JMX Kafka Partitions Underreplicated',
-      'yaxes': [ { 'format': 'short' }, {} ]
+      'yaxes': [ { 'format': 'short', 'min': 0 }, {} ]
     }
   };
 
