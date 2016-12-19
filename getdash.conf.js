@@ -2968,24 +2968,59 @@ var getDashConf = function getDashConf () {
 
   plugins.kafka.requestsCount = {
     'graph': {
-      'consumer.requests.count': {
-        'color': '#447EBC',
+      'fetch-requests.count': {
+        'color': '#70DBED',
         'apply': 'derivative',
-        'alias': 'consumer@'
+        'alias': 'fetch@'
       },
-      'follower.requests.count': {
-        'color': '#C15C17',
-        'apply': 'derivative',
-        'alias': 'follower@'
-      },
-      'produce.requests.count': {
+      'produce-requests.count': {
         'color': '#7EB26D',
+        'math': '* -1',
         'apply': 'derivative',
         'alias': 'produce@'
       }
     },
     'panel': {
       'title': 'JMX Kafka Requests',
+      'tooltip': { 'sort': 2 },
+      'yaxes': [ { 'format': 'ops', 'min': null }, {} ]
+    }
+  };
+
+  plugins.kafka.requestsQueueSize = {
+    'graph': {
+      'request.queue-size.value': {
+        'color': '#AEA2E0',
+        'alias': 'request-queue@'
+      },
+      'response.queue-size.value': {
+        'color': '#F2C96D',
+        'math': '* -1',
+        'alias': 'response-queue@'
+      }
+    },
+    'panel': {
+      'title': 'JMX Kafka Requests Queue Size',
+      'tooltip': { 'sort': 2 },
+      'yaxes': [ { 'format': 'short', 'min': null }, {} ]
+    }
+  };
+
+  plugins.kafka.fetchRequestsCount = {
+    'graph': {
+      'fetch-consumer.requests.count': {
+        'color': '#447EBC',
+        'apply': 'derivative',
+        'alias': 'fetch-consumer@'
+      },
+      'fetch-follower.requests.count': {
+        'color': '#C15C17',
+        'apply': 'derivative',
+        'alias': 'fetch-follower@'
+      }
+    },
+    'panel': {
+      'title': 'JMX Kafka Fetch Requests',
       'tooltip': { 'sort': 2 },
       'yaxes': [ { 'format': 'ops', 'min': 0 }, {} ]
     }
@@ -3031,17 +3066,23 @@ var getDashConf = function getDashConf () {
     'graph': {
       'topics.messages.count': {
         'color': '#508642',
+        'apply': 'non_negative_derivative',
         'alias': 'messages@'
       }
     },
     'panel': {
+      'fill': 3,
       'title': 'JMX Kafka Topics Messages',
-      'yaxes': [ { 'format': 'short', 'min': 0 }, {} ]
+      'yaxes': [ { 'format': 'pps', 'min': 0 }, {} ]
     }
   };
 
   plugins.kafka.partitionsUnderRepl = {
     'graph': {
+      'kafka.partitions.count.gauge': {
+        'color': '#508642',
+        'alias': 'partitions@'
+      },
       'partitions.underreplicated.gauge': {
         'color': '#BF1B00',
         'alias': 'underreplicated-partitions@'

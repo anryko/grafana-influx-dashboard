@@ -314,7 +314,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
 
   // getSelect :: graphConfObj -> [selectObj]
   var getSelect = function getSelect (graphConf) {
-    // Simple parser function to form targets select array from 'apply' string.
+    // Forms targets select array from 'apply' string.
     // Intended to handle inputs like max, count, derivative, derivative(10s),
     // derivative(last), derivative(max(), 1s), derivative(min(value), 10s).
     var select = [
@@ -328,7 +328,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
 
     if (graphConf.apply) {
       var fn = _.without(_.filter(graphConf.apply.split(/[(), ]/)), graphConf.column, 'value');
-      if (fn[0] === 'derivative') {
+      if (fn[0] === 'derivative' || fn[0] === 'non_negative_derivative') {
         if (isNaN(parseInt(fn[1]))) {
           select.push({
             type: fn[1] || 'mean',
