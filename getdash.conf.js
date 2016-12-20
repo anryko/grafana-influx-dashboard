@@ -773,14 +773,14 @@ var getDashConf = function getDashConf () {
     'graph': {
       'read': {
         'color': '#4180A0',
-        'apply': 'derivative',
+        'apply': 'non_negative_derivative',
         'type': 'disk_ops',
         'alias': '@instance.read'
       },
       'write': {
         'color': '#80A041',
         'math': '* -1',
-        'apply': 'derivative',
+        'apply': 'non_negative_derivative',
         'type': 'disk_ops',
         'alias': '@instance.write'
       }
@@ -795,14 +795,14 @@ var getDashConf = function getDashConf () {
     'graph': {
       'read': {
         'color': '#447EBC',
-        'apply': 'derivative',
+        'apply': 'non_negative_derivative',
         'type': 'disk_octets',
         'alias': '@instance.read'
       },
       'write': {
         'color': '#508642',
         'math': '* -1',
-        'apply': 'derivative',
+        'apply': 'non_negative_derivative',
         'type': 'disk_octets',
         'alias': '@instance.write'
       }
@@ -817,14 +817,14 @@ var getDashConf = function getDashConf () {
     'graph': {
       'read': {
         'color': '#D29C57',
-        'apply': 'derivative',
+        'apply': 'non_negative_derivative',
         'type': 'disk_time',
         'alias': '@instance.read'
       },
       'write': {
         'color': '#D25E57',
         'math': '* -1',
-        'apply': 'derivative',
+        'apply': 'non_negative_derivative',
         'type': 'disk_time',
         'alias': '@instance.write'
       }
