@@ -245,8 +245,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Swap IO',
-      'grid': { 'max': null, 'min': null, 'leftMin': null },
-      'yaxes': [ { 'format': 'bytes' }, {} ]
+      'yaxes': [ { 'format': 'bytes', 'min': null }, {} ]
     }
   };
 
@@ -273,8 +272,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Network Traffic on @metric',
-      'yaxes': [ { 'format': 'Bps' }, {} ],
-      'grid': { 'max': null, 'min': null, 'leftMin': null }
+      'yaxes': [ { 'format': 'Bps', 'min': null }, {} ],
     }
   };
 
@@ -296,8 +294,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Network Packets on @metric',
-      'yaxes': [ { 'format': 'pps' }, {} ],
-      'grid': { 'max': null, 'min': null, 'leftMin': null }
+      'yaxes': [ { 'format': 'pps', 'min': null }, {} ]
     }
   };
 
@@ -309,23 +306,22 @@ var getDashConf = function getDashConf () {
   plugins.netlink.packets = {
     'graph': {
       'rx': {
-        'color': '#447EBC',
-        'apply': 'derivative',
+        'color': '#4180A0',
+        'apply': 'non_negative_derivative',
         'math': '* -1',
         'type': 'if_packets',
         'alias': '@instance.rx'
       },
       'tx': {
-        'color': '#508642',
-        'apply': 'derivative',
+        'color': '#80A041',
+        'apply': 'non_negative_derivative',
         'type': 'if_packets',
         'alias': '@instance.tx'
       }
     },
     'panel': {
       'title': 'Netlink packets for @metric',
-      'yaxes': [ { 'format': 'pps' }, {} ],
-      'grid': { 'max': null, 'min': null, 'leftMin': null }
+      'yaxes': [ { 'format': 'pps', 'min': null }, {} ]
     }
   };
 
@@ -333,130 +329,128 @@ var getDashConf = function getDashConf () {
     'graph': {
       'rx': {
         'color': '#447EBC',
-        'apply': 'derivative',
+        'apply': 'non_negative_derivative',
         'math': '* -1',
         'type': 'if_octets',
         'alias': '@instance.rx'
       },
       'tx': {
         'color': '#508642',
-        'apply': 'derivative',
+        'apply': 'non_negative_derivative',
         'type': 'if_octets',
         'alias': '@instance.tx'
       }
     },
     'panel': {
       'title': 'Netlink octets for @metric',
-      'yaxes': [ { 'format': 'bps' }, {} ],
-      'grid': { 'max': null, 'min': null, 'leftMin': null }
+      'yaxes': [ { 'format': 'bps', 'min': null }, {} ]
     }
   };
 
   plugins.netlink.problems = {
     'graph': {
       'rx': {
-        'apply': 'derivative',
+        'apply': 'non_negative_derivative',
         'math': '* -1',
         'type': 'if_errors',
         'alias': '@instance.error.rx'
       },
       'tx': {
-        'apply': 'derivative',
+        'apply': 'non_negative_derivative',
         'type': 'if_errors',
         'alias': '@instance.error.tx'
       },
       '_rx': {
-        'apply': 'derivative',
+        'apply': 'non_negative_derivative',
         'math': '* -1',
         'type': 'if_dropped',
         'alias': '@instance.drop.rx'
       },
       '_tx': {
-        'apply': 'derivative',
+        'apply': 'non_negative_derivative',
         'type': 'if_dropped',
         'alias': '@instance.drop.tx'
       },
       'netlink_value': {
-        'apply': 'derivative',
+        'apply': 'non_negative_derivative',
         'type': 'if_collisions',
         'alias': '@instance.collision'
       }
     },
     'panel': {
       'title': 'Netlink problems for @metric',
-      'yaxes': [ { 'format': 'pps' }, {} ],
-      'grid': { 'max': null, 'min': null, 'leftMin': null }
+      'yaxes': [ { 'format': 'pps', 'min': null }, {} ],
     }
   };
 
   plugins.netlink.errorsExtended = {
     'graph': {
       'crc': {
-        'apply': 'derivative',
+        'apply': 'non_negative_derivative',
         'math': '* -1',
         'type': 'if_rx_errors',
         'alias': '@instance.crc-rx'
       },
       'fifo': {
-        'apply': 'derivative',
+        'apply': 'non_negative_derivative',
         'math': '* -1',
         'type': 'if_rx_errors',
         'alias': '@instance.fifo-rx'
       },
       'frame': {
-        'apply': 'derivative',
+        'apply': 'non_negative_derivative',
         'math': '* -1',
         'type': 'if_rx_errors',
         'alias': '@instance.frame-rx'
       },
       'length': {
-        'apply': 'derivative',
+        'apply': 'non_negative_derivative',
         'math': '* -1',
         'type': 'if_rx_errors',
         'alias': '@instance.length-rx'
       },
       'missed': {
-        'apply': 'derivative',
+        'apply': 'non_negative_derivative',
         'math': '* -1',
         'type': 'if_rx_errors',
         'alias': '@instance.missed-rx'
       },
       'over': {
-        'apply': 'derivative',
+        'apply': 'non_negative_derivative',
         'math': '* -1',
         'type': 'if_rx_errors',
         'alias': '@instance.over-rx'
       },
       'fifo': {
-        'apply': 'derivative',
+        'apply': 'non_negative_derivative',
         'type': 'if_tx_errors',
         'alias': '@instance.fifo-tx'
       },
       'aborted': {
-        'apply': 'derivative',
+        'apply': 'non_negative_derivative',
         'type': 'if_tx_errors',
         'alias': '@instance.aborted-tx'
       },
       'carrier': {
-        'apply': 'derivative',
+        'apply': 'non_negative_derivative',
         'type': 'if_tx_errors',
         'alias': '@instance.carrier-tx'
       },
       'heartbeat': {
-        'apply': 'derivative',
+        'apply': 'non_negative_derivative',
         'type': 'if_tx_errors',
         'alias': '@instance.heartbeat-tx'
       },
       'window': {
-        'apply': 'derivative',
+        'apply': 'non_negative_derivative',
         'type': 'if_tx_errors',
         'alias': '@instance.window-tx'
       }
     },
     'panel': {
       'title': 'Netlink errors for @metric',
-      'yaxes': [ { 'format': 'pps' }, {} ],
-      'grid': { 'max': null, 'min': null, 'leftMin': null }
+      'tooltip': { 'sort': 2 },
+      'yaxes': [ { 'format': 'pps', 'min': null }, {} ],
     }
   };
 
@@ -464,7 +458,7 @@ var getDashConf = function getDashConf () {
     'graph': {
       'netlink_value': {
         'color': '#FFCC00',
-        'apply': 'derivative',
+        'apply': 'non_negative_derivative',
         'type': 'if_multicast',
         'alias': '@instance.multicast'
       }
@@ -583,7 +577,8 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Network Connections States',
-      'yaxes': [ { 'format': 'short' }, {} ]
+      'tooltip': { 'sort': 2 },
+      'yaxes': [ { 'format': 'short', 'min': 0 }, {} ]
     }
   };
 
@@ -777,13 +772,13 @@ var getDashConf = function getDashConf () {
   plugins.disk.diskOps = {
     'graph': {
       'read': {
-        'color': '#447EBC',
+        'color': '#4180A0',
         'apply': 'derivative',
         'type': 'disk_ops',
         'alias': '@instance.read'
       },
       'write': {
-        'color': '#508642',
+        'color': '#80A041',
         'math': '* -1',
         'apply': 'derivative',
         'type': 'disk_ops',
@@ -821,13 +816,13 @@ var getDashConf = function getDashConf () {
   plugins.disk.diskTime = {
     'graph': {
       'read': {
-        'color': '#447EBC',
+        'color': '#D29C57',
         'apply': 'derivative',
         'type': 'disk_time',
         'alias': '@instance.read'
       },
       'write': {
-        'color': '#508642',
+        'color': '#D25E57',
         'math': '* -1',
         'apply': 'derivative',
         'type': 'disk_time',
@@ -902,13 +897,14 @@ var getDashConf = function getDashConf () {
       'processes': {
         'color': '#BA43A9',
         'alias': 'forks@',
-        'apply': 'derivative',
+        'apply': 'non_negative_derivative',
         'type': 'fork_rate'
       }
     },
     'panel': {
       'title': 'Processes Fork Rate',
-      'yaxes': [ { 'format': 'pps' }, {} ]
+      'fill': 3,
+      'yaxes': [ { 'format': 'pps', 'min': 0 }, {} ]
     }
   };
 
@@ -1037,8 +1033,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Process Disk Ops for @metric',
-      'grid': { 'max': null, 'min': null, 'leftMin': null },
-      'yaxes': [ { 'format': 'iops' }, {} ]
+      'yaxes': [ { 'format': 'iops', 'min': null }, {} ]
     }
   };
 
@@ -1060,8 +1055,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Process Disk Octets for @metric',
-      'grid': { 'max': null, 'min': null, 'leftMin': null },
-      'yaxes': [ { 'format': 'bps' }, {} ]
+      'yaxes': [ { 'format': 'bps', 'min': null }, {} ]
     }
   };
 
@@ -1443,8 +1437,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Memcached Traffic',
-      'grid': { 'max': null, 'min': null, 'leftMin': null },
-      'yaxes': [ { 'format': 'bps' }, {} ]
+      'yaxes': [ { 'format': 'bps', 'min': null }, {} ]
     }
   };
 
@@ -2256,8 +2249,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'MySQL Network Traffic on @metric',
-      'yaxes': [ { 'format': 'bps' }, {} ],
-      'grid': { 'max': null, 'min': null, 'leftMin': null }
+      'yaxes': [ { 'format': 'bps', 'min': null }, {} ]
     }
   };
 
@@ -2970,13 +2962,13 @@ var getDashConf = function getDashConf () {
     'graph': {
       'fetch-requests.count': {
         'color': '#70DBED',
-        'apply': 'derivative',
+        'apply': 'non_negative_derivative',
         'alias': 'fetch@'
       },
       'produce-requests.count': {
         'color': '#7EB26D',
         'math': '* -1',
-        'apply': 'derivative',
+        'apply': 'non_negative_derivative',
         'alias': 'produce@'
       }
     },
@@ -3081,15 +3073,15 @@ var getDashConf = function getDashConf () {
     'graph': {
       'kafka.partitions.count.gauge': {
         'color': '#508642',
-        'alias': 'partitions@'
+        'alias': 'total@'
       },
       'partitions.underreplicated.gauge': {
         'color': '#BF1B00',
-        'alias': 'underreplicated-partitions@'
+        'alias': 'underreplicated@'
       }
     },
     'panel': {
-      'title': 'JMX Kafka Partitions Underreplicated',
+      'title': 'JMX Kafka Underreplicated Partitions',
       'yaxes': [ { 'format': 'short', 'min': 0 }, {} ]
     }
   };
