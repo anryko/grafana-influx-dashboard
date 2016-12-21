@@ -701,17 +701,17 @@ var getDashConf = function getDashConf () {
       'used': {
         'color': '#447EBC',
         'type': 'df_complex',
-        'alias': '@instance.used'
+        'alias': 'used@'
       },
       'reserved': {
         'color': '#EAB839',
         'type': 'df_complex',
-        'alias': '@instance.reserved'
+        'alias': 'reserved@'
       },
       'free': {
         'color': '#508642',
         'type': 'df_complex',
-        'alias': '@instance.free'
+        'alias': 'free@'
       }
     },
     'panel': {
@@ -725,19 +725,19 @@ var getDashConf = function getDashConf () {
   plugins.df.inode = {
     'graph': {
       'used': {
-        'color': '#447EBC',
+        'color': '#4180A0',
         'type': 'df_inodes',
-        'alias': '@instance.used'
+        'alias': 'used@'
       },
       'reserved': {
-        'color': '#EAB839',
+        'color': '#F0CD74',
         'type': 'df_inodes',
-        'alias': '@instance.reserved'
+        'alias': 'reserved@'
       },
       'free': {
-        'color': '#508642',
+        'color': '#80A041',
         'type': 'df_inodes',
-        'alias': '@instance.free'
+        'alias': 'free@'
       }
     },
     'panel': {
