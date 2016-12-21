@@ -134,7 +134,8 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
     targets: [],  // [targetProto]
     aliasColors: {},
     legend: {
-      show: true
+      show: true,
+      hideEmpty: true
     },
     id: 1
   };
@@ -859,7 +860,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
           return result + hostTag + ' = \'' + host + '\' ' + 'OR '
         }, '').slice(0, -4);
 
-    return  hostTag + ' = \'' + hostName + '\'';
+    return hostTag + ' = \'' + hostName + '\'';
   }
 
 
@@ -870,10 +871,10 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
         return {
           datasource: ds.name,
           url: ds.url + '/query?db=' + ds.database +
-                 (ds.username ? '&u=' + ds.username : '') +
-                 (ds.password ? '&p=' + ds.password : '') +
-                 '&q=' + fixedEncodeURIComponent('SHOW SERIES FROM /' +
-                 qConf.regexp + '.*/ WHERE ' + getHostQuery(hostName, qConf.hostTag) + ';')
+              (ds.username ? '&u=' + ds.username : '') +
+              (ds.password ? '&p=' + ds.password : '') +
+              '&q=' + fixedEncodeURIComponent('SHOW SERIES FROM /' + qConf.regexp + '.*/' +
+              (hostName ? ' WHERE ' + getHostQuery(hostName, qConf.hostTag) + ';' : ';'))
         };
       });
     }));
@@ -1022,7 +1023,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
       var queriesForDDash = getQueriesForDDash(datasources, dashConf.defaultQueries, dashConf.defaultHostTags);
 
       getDBData(queriesForDDash).then(function (resp) {
-        var hosts = _.filter(_.uniq(_.flattenDeep(_.compact(parseResp(resp)))), (x) => !_.includes(dashConf.defaultHostTags , x));
+        var hosts = _.filter(_.uniq(_.flattenDeep(_.compact(parseResp(resp)))), (x) => !_.includes(dashConf.defaultHostTags, x));
         return callback(setupDefaultDashboard(hosts, dashboard));
       });
       return;

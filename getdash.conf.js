@@ -3094,12 +3094,14 @@ var getDashConf = function getDashConf () {
     'graph': {
       'docker': {
         'type': 'cpu.percent',
-        'alias': 'usage'
+        'alias': '@instance'
       }
     },
     'panel': {
       'title': 'Docker CPU Percent',
-      'yaxes': [ { 'format': 'percent' }, {} ]
+      'stack': true,
+      'tooltip': { 'sort': 2 },
+      'yaxes': [ { 'format': 'percent', 'max': 100 }, {} ]
     }
   };
 
@@ -3107,13 +3109,14 @@ var getDashConf = function getDashConf () {
     'graph': {
       'docker': {
         'type': 'cpu.throttling_data',
-        'alias': 'data'
+        'alias': '@instance'
       }
     },
     'panel': {
       'title': 'Docker CPU Throttling',
       'stack': true,
-      'yaxes': [ { 'format': 'short' }, {} ]
+      'tooltip': { 'sort': 2 },
+      'yaxes': [ { 'format': 'short', 'min': 0 }, {} ]
     }
   };
 
@@ -3122,12 +3125,14 @@ var getDashConf = function getDashConf () {
       'io_serviced': {
         'type': 'blkio',
         'apply': 'derivative',
-        'alias': 'ops'
+        'alias': '@instance'
       }
     },
     'panel': {
       'title': 'Docker I/O Ops',
-      'yaxes': [ { 'format': 'iops' }, {} ]
+      'stack': true,
+      'tooltip': { 'sort': 2 },
+      'yaxes': [ { 'format': 'iops', 'min': 0 }, {} ]
     }
   };
 
@@ -3136,12 +3141,14 @@ var getDashConf = function getDashConf () {
       'io_service_bytes': {
         'type': 'blkio',
         'apply': 'derivative',
-        'alias': 'bytes'
+        'alias': '@instance'
       }
     },
     'panel': {
       'title': 'Docker I/O Bytes',
-      'yaxes': [ { 'format': 'bps' }, {} ]
+      'stack': true,
+      'tooltip': { 'sort': 2 },
+      'yaxes': [ { 'format': 'bps', 'min': 0 }, {} ]
     }
   };
 
@@ -3150,12 +3157,14 @@ var getDashConf = function getDashConf () {
       'docker': {
         'type': 'network.usage',
         'apply': 'derivative',
-        'alias': 'ops'
+        'alias': '@instance'
       }
     },
     'panel': {
       'title': 'Docker Network Usage',
-      'yaxes': [ { 'format': 'bps' }, {} ]
+      'stack': true,
+      'tooltip': { 'sort': 2 },
+      'yaxes': [ { 'format': 'bps', 'min': 0 }, {} ]
     }
   };
 
@@ -3163,12 +3172,14 @@ var getDashConf = function getDashConf () {
     'graph': {
       'docker': {
         'type': 'memory.usage',
-        'alias': 'bytes'
+        'alias': '@instance'
       }
     },
     'panel': {
       'title': 'Docker Memory Usage',
-      'yaxes': [ { 'format': 'bytes' }, {} ]
+      'stack': true,
+      'tooltip': { 'sort': 2 },
+      'yaxes': [ { 'format': 'bytes', 'min': 0 }, {} ]
     }
   };
 
