@@ -3099,6 +3099,8 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Docker CPU Percent',
+      'lines': false,
+      'bars': true,
       'stack': true,
       'tooltip': { 'sort': 2 },
       'yaxes': [ { 'format': 'percent', 'max': 100 }, {} ]
@@ -3114,6 +3116,8 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Docker CPU Throttling',
+      'lines': false,
+      'bars': true,
       'stack': true,
       'tooltip': { 'sort': 2 },
       'yaxes': [ { 'format': 'short', 'min': 0 }, {} ]
@@ -3130,6 +3134,8 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Docker I/O Ops',
+      'lines': false,
+      'bars': true,
       'stack': true,
       'tooltip': { 'sort': 2 },
       'yaxes': [ { 'format': 'iops', 'min': 0 }, {} ]
@@ -3146,6 +3152,8 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Docker I/O Bytes',
+      'lines': false,
+      'bars': true,
       'stack': true,
       'tooltip': { 'sort': 2 },
       'yaxes': [ { 'format': 'bps', 'min': 0 }, {} ]
@@ -3162,6 +3170,8 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Docker Network Usage',
+      'lines': false,
+      'bars': true,
       'stack': true,
       'tooltip': { 'sort': 2 },
       'yaxes': [ { 'format': 'bps', 'min': 0 }, {} ]
@@ -3178,6 +3188,7 @@ var getDashConf = function getDashConf () {
     'panel': {
       'title': 'Docker Memory Usage',
       'stack': true,
+      'fill': 3,
       'tooltip': { 'sort': 2 },
       'yaxes': [ { 'format': 'bytes', 'min': 0 }, {} ]
     }
