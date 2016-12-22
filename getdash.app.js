@@ -121,12 +121,12 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
     height: '300px',
     type: 'graph',
     span: 12,
-    y_formats: [ 'none' ],
-    grid: {
-      max: null,
-      min: 0,
-      leftMin: 0
-    },
+    yaxes: [
+      {
+        format: 'short',
+        min: null
+      }, {}
+    ],
     lines: true,
     fill: 1,
     linewidth: 1,
@@ -135,7 +135,15 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
     aliasColors: {},
     legend: {
       show: true,
-      hideEmpty: true
+      hideEmpty: true,
+      values: false,
+      min: false,
+      max: false,
+      current: false,
+      total: false,
+      avg: false,
+      alignAsTable: false,
+      rightSide: false
     },
     id: 1
   };
@@ -1010,6 +1018,23 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   };
 
 
+  // setupPanelLegend :: legendStr -> new legendObj
+  var setupPanelLegend = function setupPanelLegend (legend) {
+    if (!legend)
+      return _.merge({}, panelProto.legend);
+
+    if (legend === 'false')
+      return { 'show': false };
+
+    var legendOrig = _.merge({}, panelProto.legend);
+    return _.reduce(legend.split(','), function (result, opt) {
+      return (_.has(panelProto.legend, opt))
+          ? _.set(result, opt, true)
+          : result;
+    }, legendOrig);
+  };
+
+
   // getDashboard :: [datasources], pluginsObj, dashConfObj,
   //                 grafanaCallbackFunc -> grafanaCallbackFunc(dashboardObj)
   var getDashboard = _.curry(function getDashboard (datasources, plugins, dashConf, callback) {
@@ -1041,7 +1066,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
 
       // Object prototypes setup
       panelProto.span = dashConf.span;
-      panelProto.legend.show = dashConf.legend;
+      panelProto.legend = setupPanelLegend(dashConf.legend);
 
       dashboard.rows = getRows(dashPlugins, series);
       return callback(dashboard);

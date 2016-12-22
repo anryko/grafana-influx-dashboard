@@ -48,6 +48,7 @@ http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=disk&instance=
 http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=disk&instance=sda[1-3]
 http://grafanaIP/dashboard/script/getdash.js?host=hostname&refresh=5s
 http://grafanaIP/dashboard/script/getdash.js?host=hostname&metric=disk&instance=sda1&refresh=1m
+http://grafanaIP/dashboard/script/getdash.js?metric=docker&time=30m&legend=alignAsTable,rightSide
 ```
 
 ## Features
