@@ -767,7 +767,7 @@ var getDashConf = function getDashConf () {
   // collectd disk plugin configuration
   plugins.disk = new Plugin();
   plugins.disk.config.multi = true;
-  plugins.disk.config.regexp = /\d$/;
+  plugins.disk.config.regexp = /[^a]$/;
 
   plugins.disk.diskOps = {
     'graph': {
@@ -775,14 +775,14 @@ var getDashConf = function getDashConf () {
         'color': '#4180A0',
         'apply': 'non_negative_derivative',
         'type': 'disk_ops',
-        'alias': '@instance.read'
+        'alias': 'read@'
       },
       'write': {
         'color': '#80A041',
         'math': '* -1',
         'apply': 'non_negative_derivative',
         'type': 'disk_ops',
-        'alias': '@instance.write'
+        'alias': 'write@'
       }
     },
     'panel': {
@@ -797,14 +797,14 @@ var getDashConf = function getDashConf () {
         'color': '#447EBC',
         'apply': 'non_negative_derivative',
         'type': 'disk_octets',
-        'alias': '@instance.read'
+        'alias': 'read@'
       },
       'write': {
         'color': '#508642',
         'math': '* -1',
         'apply': 'non_negative_derivative',
         'type': 'disk_octets',
-        'alias': '@instance.write'
+        'alias': 'write@'
       }
     },
     'panel': {
@@ -819,14 +819,14 @@ var getDashConf = function getDashConf () {
         'color': '#D29C57',
         'apply': 'non_negative_derivative',
         'type': 'disk_time',
-        'alias': '@instance.read'
+        'alias': 'read@'
       },
       'write': {
         'color': '#D25E57',
         'math': '* -1',
         'apply': 'non_negative_derivative',
         'type': 'disk_time',
-        'alias': '@instance.write'
+        'alias': 'write@'
       }
     },
     'panel': {
