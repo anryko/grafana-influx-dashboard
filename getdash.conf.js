@@ -1161,7 +1161,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'System Uptime',
-      'y_formats': [ 's' ]
+      'yaxes': [ { 'format': 's' }, {} ]
     }
   };
 
@@ -1196,7 +1196,7 @@ var getDashConf = function getDashConf () {
       'title': 'Redis CPU Time',
       'stack': true,
       'tooltip': { 'value_type': 'individual' },
-      'y_formats': [ 's' ]
+      'yaxes': [ { 'format': 's' }, {} ]
     }
   };
 
@@ -1229,7 +1229,7 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Redis Uptime',
-      'y_formats': [ 's' ]
+      'yaxes': [ { 'format': 's' }, {} ]
     }
   };
 
@@ -2604,8 +2604,8 @@ var getDashConf = function getDashConf () {
     },
     'panel': {
       'title': 'Mesos Uptime',
-      'y_formats': [ 's' ],
-      'fill': 5
+      'fill': 5,
+      'yaxes': [ { 'format': 's' }, {} ]
     }
   };
 
@@ -3103,7 +3103,7 @@ var getDashConf = function getDashConf () {
       'bars': true,
       'stack': true,
       'tooltip': { 'sort': 2 },
-      'yaxes': [ { 'format': 'percent', 'max': 100 }, {} ]
+      'yaxes': [ { 'format': 'percent', 'min': 0 }, {} ]
     }
   };
 
