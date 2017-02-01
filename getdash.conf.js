@@ -3087,6 +3087,164 @@ var getDashConf = function getDashConf () {
   };
 
 
+  // collectd curl_json plugin configuration for mongooseim
+  plugins.curl_json = new Plugin();
+  plugins.curl_json.config.multi = true;
+  plugins.curl_json.config.regexp = /^mongooseim$/;
+
+  plugins.curl_json.mongooseimSessionsAndErrors = {
+    'graph': {
+      'sessionCount': {
+        'color': '#1F78C1',
+        'alias': '@instance.session_count@'
+      },
+      'xmppErrorTotal-one': {
+        'color': '#EF843C',
+        'alias': '@instance.error_count@'
+      }
+    },
+    'panel': {
+      'title': 'MongooseIM Sessions and Errors',
+      'tooltip': { 'sort': 2 },
+      'yaxes': [ { 'format': 'short' }, {} ]
+    }
+  };
+
+  plugins.curl_json.mongooseimSessions = {
+    'graph': {
+      'sessionAuthAnonymous-count': {
+        'color': '#1F78C1',
+        'alias': '@instance.auth_anonymous_count@'
+      },
+      'sessionAuthFails-count': {
+        'color': '#EF843C',
+        'alias': '@instance.auth_fails_count@'
+      },
+      'sessionLogouts-count': {
+        'color': '#CCA300',
+        'alias': '@instance.logouts_count@'
+      },
+      'sessionSuccessfulLogins-count': {
+        'color': '#629E51',
+        'alias': '@instance.successful_logins_count@'
+      }
+    },
+    'panel': {
+      'title': 'MongooseIM Sessions',
+      'lines': false,
+      'bars': true,
+      'stack': true,
+      'tooltip': { 'sort': 2 },
+      'yaxes': [ { 'format': 'short' }, {} ]
+    }
+  };
+
+  plugins.curl_json.mongooseimErrors = {
+    'graph': {
+      'xmppErrorBadRequest-count': {
+        'color': '#1F78C1',
+        'alias': '@instance.error_bad_equest_count@'
+      },
+      'xmppErrorIq-one': {
+        'color': '#EF843C',
+        'alias': '@instance.error_iq_count@'
+      },
+      'xmppErrorMessage-count': {
+        'color': '#CCA300',
+        'alias': '@instance.error_message_count@'
+      },
+      'xmppErrorPresence-count': {
+        'color': '#629E51',
+        'alias': '@instance.error_presence_count@'
+      }
+    },
+    'panel': {
+      'title': 'MongooseIM Errors',
+      'lines': false,
+      'bars': true,
+      'stack': true,
+      'tooltip': { 'sort': 2 },
+      'yaxes': [ { 'format': 'short' }, {} ]
+    }
+  };
+
+  plugins.curl_json.mongooseimMessages = {
+    'graph': {
+      'xmppMessageReceived-one': {
+        'color': '#508642',
+        'alias': '@instance.message_received@'
+      },
+      'xmppMessageSent-one': {
+        'color': '#447EBC',
+        'math': '* -1',
+        'alias': '@instance.message_sent@'
+      }
+    },
+    'panel': {
+      'title': 'MongooseIM Messages',
+      'tooltip': { 'sort': 2 },
+      'yaxes': [ { 'format': 'short' }, {} ]
+    }
+  };
+
+  plugins.curl_json.mongooseimIq = {
+    'graph': {
+      'xmppIqReceived-one': {
+        'color': '#508642',
+        'alias': '@instance.iq_received@'
+      },
+      'xmppIqSent-one': {
+        'color': '#447EBC',
+        'math': '* -1',
+        'alias': '@instance.iq_sent@'
+      }
+    },
+    'panel': {
+      'title': 'MongooseIM IQ',
+      'tooltip': { 'sort': 2 },
+      'yaxes': [ { 'format': 'short' }, {} ]
+    }
+  };
+
+  plugins.curl_json.mongooseimPresence = {
+    'graph': {
+      'xmppPresenceReceived-one': {
+        'color': '#508642',
+        'alias': '@instance.presence_received@'
+      },
+      'xmppPresenceSent-one': {
+        'color': '#447EBC',
+        'math': '* -1',
+        'alias': '@instance.presence_sent@'
+      }
+    },
+    'panel': {
+      'title': 'MongooseIM Presence',
+      'tooltip': { 'sort': 2 },
+      'yaxes': [ { 'format': 'short' }, {} ]
+    }
+  };
+
+  plugins.curl_json.mongooseimStanzas = {
+    'graph': {
+      'xmppStanzaReceived-one': {
+        'color': '#508642',
+        'alias': '@instance.stanza_received@'
+      },
+      'xmppStanzaSent-one': {
+        'color': '#447EBC',
+        'math': '* -1',
+        'alias': '@instance.stanza_sent@'
+      }
+    },
+    'panel': {
+      'title': 'MongooseIM Stanzas',
+      'tooltip': { 'sort': 2 },
+      'yaxes': [ { 'format': 'short' }, {} ]
+    }
+  };
+
+
   // collectd docker plugin configuration: https://github.com/lebauce/docker-collectd-plugin
   plugins.docker = new Plugin();
 
