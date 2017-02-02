@@ -3088,11 +3088,9 @@ var getDashConf = function getDashConf () {
 
 
   // collectd curl_json plugin configuration for mongooseim
-  plugins.curl_json = new Plugin();
-  plugins.curl_json.config.multi = true;
-  plugins.curl_json.config.regexp = /^mongooseim$/;
+  plugins.mongooseim = new Plugin();
 
-  plugins.curl_json.mongooseimSessionsAndErrors = {
+  plugins.mongooseim.sessionsAndErrors = {
     'graph': {
       'sessionCount': {
         'color': '#1F78C1',
@@ -3110,21 +3108,21 @@ var getDashConf = function getDashConf () {
     }
   };
 
-  plugins.curl_json.mongooseimSessions = {
+  plugins.mongooseim.sessions = {
     'graph': {
-      'sessionAuthAnonymous-count': {
+      'sessionAuthAnonymous-one': {
         'color': '#1F78C1',
         'alias': '@instance.auth_anonymous_count@'
       },
-      'sessionAuthFails-count': {
+      'sessionAuthFails-one': {
         'color': '#EF843C',
         'alias': '@instance.auth_fails_count@'
       },
-      'sessionLogouts-count': {
+      'sessionLogouts-one': {
         'color': '#CCA300',
         'alias': '@instance.logouts_count@'
       },
-      'sessionSuccessfulLogins-count': {
+      'sessionSuccessfulLogins-one': {
         'color': '#629E51',
         'alias': '@instance.successful_logins_count@'
       }
@@ -3139,9 +3137,9 @@ var getDashConf = function getDashConf () {
     }
   };
 
-  plugins.curl_json.mongooseimErrors = {
+  plugins.mongooseim.errors = {
     'graph': {
-      'xmppErrorBadRequest-count': {
+      'xmppErrorBadRequest-one': {
         'color': '#1F78C1',
         'alias': '@instance.error_bad_equest_count@'
       },
@@ -3149,11 +3147,11 @@ var getDashConf = function getDashConf () {
         'color': '#EF843C',
         'alias': '@instance.error_iq_count@'
       },
-      'xmppErrorMessage-count': {
+      'xmppErrorMessage-one': {
         'color': '#CCA300',
         'alias': '@instance.error_message_count@'
       },
-      'xmppErrorPresence-count': {
+      'xmppErrorPresence-one': {
         'color': '#629E51',
         'alias': '@instance.error_presence_count@'
       }
@@ -3168,7 +3166,7 @@ var getDashConf = function getDashConf () {
     }
   };
 
-  plugins.curl_json.mongooseimMessages = {
+  plugins.mongooseim.messages = {
     'graph': {
       'xmppMessageReceived-one': {
         'color': '#508642',
@@ -3187,7 +3185,7 @@ var getDashConf = function getDashConf () {
     }
   };
 
-  plugins.curl_json.mongooseimIq = {
+  plugins.mongooseim.iq = {
     'graph': {
       'xmppIqReceived-one': {
         'color': '#508642',
@@ -3206,7 +3204,7 @@ var getDashConf = function getDashConf () {
     }
   };
 
-  plugins.curl_json.mongooseimPresence = {
+  plugins.mongooseim.presence = {
     'graph': {
       'xmppPresenceReceived-one': {
         'color': '#508642',
@@ -3225,7 +3223,7 @@ var getDashConf = function getDashConf () {
     }
   };
 
-  plugins.curl_json.mongooseimStanzas = {
+  plugins.mongooseim.stanzas = {
     'graph': {
       'xmppStanzaReceived-one': {
         'color': '#508642',
