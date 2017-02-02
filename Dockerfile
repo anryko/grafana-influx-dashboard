@@ -1,4 +1,4 @@
-FROM grafana/grafana:4.0.2
+FROM grafana/grafana:4.1.1
 
 ADD getdash.js /getdash.js
 ADD getdash.app.js /getdash.app.js
