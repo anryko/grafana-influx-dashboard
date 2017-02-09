@@ -84,6 +84,7 @@ http://grafanaIP/dashboard/script/getdash.js?metric=docker&time=30m&legend=align
 * [mysql](https://collectd.org/wiki/index.php/Plugin:MySQL)
 * [tcpconns](https://collectd.org/wiki/index.php/Plugin:TCPConns)
 * [kafka](https://collectd.org/wiki/index.php/Plugin:GenericJMX)
+* [mongooseim](http://mongooseim.readthedocs.io/en/1.6.2/developers-guide/REST-interface-to-metrics/)
 * [docker](https://github.com/signalfx/docker-collectd-plugin)
 * [couchbase](https://github.com/anryko/collectd-couchbase)
 

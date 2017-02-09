@@ -3087,6 +3087,335 @@ var getDashConf = function getDashConf () {
   };
 
 
+  // collectd curl_json plugin configuration for mongooseim
+  plugins.mongooseim = new Plugin();
+
+  plugins.mongooseim.overview = {
+    'graph': {
+      'sessionCount': {
+        'color': '#1F78C1',
+        'alias': '@instance.sessions_count@'
+      },
+      'xmppErrorTotal-one': {
+        'color': '#EF843C',
+        'alias': '@instance.errors_count@'
+      }
+    },
+    'panel': {
+      'title': 'MongooseIM Sessions and Errors',
+      'tooltip': { 'sort': 2 },
+      'yaxes': [ { 'format': 'short' }, {} ]
+    }
+  };
+
+  plugins.mongooseim.errors = {
+    'graph': {
+      'xmppErrorBadRequest-one': {
+        'color': '#1F78C1',
+        'alias': '@instance.error_bad_equest_count@'
+      },
+      'xmppErrorIq-one': {
+        'color': '#EF843C',
+        'alias': '@instance.error_iq_count@'
+      },
+      'xmppErrorMessage-one': {
+        'color': '#CCA300',
+        'alias': '@instance.error_message_count@'
+      },
+      'xmppErrorPresence-one': {
+        'color': '#629E51',
+        'alias': '@instance.error_presence_count@'
+      }
+    },
+    'panel': {
+      'title': 'MongooseIM Errors',
+      'lines': false,
+      'bars': true,
+      'stack': true,
+      'tooltip': { 'sort': 2 },
+      'yaxes': [ { 'format': 'short' }, {} ]
+    }
+  };
+
+  plugins.mongooseim.auth = {
+    'graph': {
+      'sessionAuthAnonymous-one': {
+        'color': '#1F78C1',
+        'alias': '@instance.auth_anonymous_count@'
+      },
+      'sessionAuthFails-one': {
+        'color': '#EF843C',
+        'alias': '@instance.auth_fails_count@'
+      },
+      'sessionLogouts-one': {
+        'color': '#CCA300',
+        'alias': '@instance.logouts_count@'
+      },
+      'sessionSuccessfulLogins-one': {
+        'color': '#629E51',
+        'alias': '@instance.successful_logins_count@'
+      }
+    },
+    'panel': {
+      'title': 'MongooseIM Authentication',
+      'lines': false,
+      'bars': true,
+      'stack': true,
+      'tooltip': { 'sort': 2 },
+      'yaxes': [ { 'format': 'short' }, {} ]
+    }
+  };
+
+  plugins.mongooseim.registrations = {
+    'graph': {
+      'modRegisterCount-one': {
+        'color': '#1F78C1',
+        'alias': '@instance.register_count@'
+      },
+      'modUnregisterCount-one': {
+        'color': '#EF843C',
+        'alias': '@instance.unregister_count@'
+      }
+    },
+    'panel': {
+      'title': 'MongooseIM Registrations',
+      'tooltip': { 'sort': 2 },
+      'yaxes': [ { 'format': 'short' }, {} ]
+    }
+  };
+
+  plugins.mongooseim.messages = {
+    'graph': {
+      'xmppMessageReceived-one': {
+        'color': '#508642',
+        'alias': '@instance.message_received@'
+      },
+      'xmppMessageSent-one': {
+        'color': '#447EBC',
+        'math': '* -1',
+        'alias': '@instance.message_sent@'
+      },
+      'xmppMessageBounced-one': {
+        'color': '#EAB839',
+        'alias': '@instance.message_bounced@'
+      }
+    },
+    'panel': {
+      'title': 'MongooseIM Messages',
+      'tooltip': { 'sort': 2 },
+      'yaxes': [ { 'format': 'short' }, {} ]
+    }
+  };
+
+  plugins.mongooseim.iq = {
+    'graph': {
+      'xmppIqReceived-one': {
+        'color': '#508642',
+        'alias': '@instance.iq_received@'
+      },
+      'xmppIqSent-one': {
+        'color': '#447EBC',
+        'math': '* -1',
+        'alias': '@instance.iq_sent@'
+      },
+      'xmppIqTimeouts-one': {
+        'color': '#EAB839',
+        'alias': '@instance.iq_timeouts@'
+      }
+    },
+    'panel': {
+      'title': 'MongooseIM IQ',
+      'tooltip': { 'sort': 2 },
+      'yaxes': [ { 'format': 'short' }, {} ]
+    }
+  };
+
+  plugins.mongooseim.presence = {
+    'graph': {
+      'xmppPresenceReceived-one': {
+        'color': '#508642',
+        'alias': '@instance.presence_received@'
+      },
+      'xmppPresenceSent-one': {
+        'color': '#447EBC',
+        'math': '* -1',
+        'alias': '@instance.presence_sent@'
+      }
+    },
+    'panel': {
+      'title': 'MongooseIM Presence',
+      'tooltip': { 'sort': 2 },
+      'yaxes': [ { 'format': 'short' }, {} ]
+    }
+  };
+
+  plugins.mongooseim.stanzas = {
+    'graph': {
+      'xmppStanzaReceived-one': {
+        'color': '#508642',
+        'alias': '@instance.stanza_received@'
+      },
+      'xmppStanzaSent-one': {
+        'color': '#447EBC',
+        'math': '* -1',
+        'alias': '@instance.stanza_sent@'
+      },
+      'xmppStanzaDropped-one': {
+        'color': '#EAB839',
+        'alias': '@instance.stanza_dropped@'
+      }
+    },
+    'panel': {
+      'title': 'MongooseIM Stanzas',
+      'tooltip': { 'sort': 2 },
+      'yaxes': [ { 'format': 'short' }, {} ]
+    }
+  };
+
+  plugins.mongooseim.roster = {
+    'graph': {
+      'modRosterGets-one': {
+        'color': '#508642',
+        'alias': '@instance.roster_gets@'
+      },
+      'modRosterSets-one': {
+        'color': '#447EBC',
+        'math': '* -1',
+        'alias': '@instance.roster_sets@'
+      },
+      'modRosterPush-one': {
+        'color': '#EAB839',
+        'alias': '@instance.roster_push@'
+      }
+    },
+    'panel': {
+      'title': 'MongooseIM Roster',
+      'tooltip': { 'sort': 2 },
+      'yaxes': [ { 'format': 'short' }, {} ]
+    }
+  };
+
+  plugins.mongooseim.mucMam = {
+    'graph': {
+      'modMucMamLookups-one': {
+        'color': '#1F78C1',
+        'alias': '@instance.muc_mam_lookups@'
+      },
+      'modMucMamForwarded-one': {
+        'color': '#EF843C',
+        'alias': '@instance.muc_mam_forwarded@'
+      },
+      'modMucMamArchived-one': {
+        'color': '#CCA300',
+        'alias': '@instance.muc_mam_archived@'
+      },
+      'modMucMamArchiveRemoved-one': {
+        'color': '#629E51',
+        'alias': '@instance.muc_mam_archive_removed@'
+      }
+    },
+    'panel': {
+      'title': 'MongooseIM MUC MAM',
+      'tooltip': { 'sort': 2 },
+      'yaxes': [ { 'format': 'short' }, {} ]
+    }
+  };
+
+  plugins.mongooseim.mucMamDetails = {
+    'graph': {
+      'modMucMamPrefsGets-one': {
+        'color': '#1F78C1',
+        'alias': '@instance.muc_mam_prefs_gets@'
+      },
+      'modMucMamPrefsSets-one': {
+        'color': '#EF843C',
+        'alias': '@instance.muc_mam_prefs_sets@'
+      },
+      'modMucMamSinglePurges-one': {
+        'color': '#CCA300',
+        'alias': '@instance.muc_mam_single_purges@'
+      },
+      'modMucMamMultiplePurges-one': {
+        'color': '#629E51',
+        'alias': '@instance.muc_mam_multiple_purges@'
+      }
+    },
+    'panel': {
+      'title': 'MongooseIM MUC MAM Details',
+      'tooltip': { 'sort': 2 },
+      'yaxes': [ { 'format': 'short' }, {} ]
+    }
+  };
+
+  plugins.mongooseim.mam = {
+    'graph': {
+      'modMamLookups-one': {
+        'color': '#EAB839',
+        'alias': '@instance.mam_lookups@'
+      },
+      'modMamForwarded-one': {
+        'color': '#508642',
+        'alias': '@instance.mam_forwarded@'
+      },
+      'modMamArchived-one': {
+        'color': '#303030',
+        'alias': '@instance.mam_archived@'
+      },
+      'modMamArchiveRemoved-one': {
+        'color': '#890F02',
+        'alias': '@instance.mam_archive_removed@'
+      },
+      'modMamFlushed-one': {
+        'color': '#E24D42',
+        'alias': '@instance.mam_flushed@'
+      },
+      'modMamDropped-one': {
+        'color': '#9400D3',
+        'alias': '@instance.mam_dropped@'
+      },
+      'modMamDropped2-one': {
+        'color': '#E9967A',
+        'alias': '@instance.mam_dropped_2@'
+      },
+      'modMamDroppedIQ-one': {
+        'color': '#1E90FF',
+        'alias': '@instance.mam_dropped_iq@'
+      }
+    },
+    'panel': {
+      'title': 'MongooseIM MAM',
+      'tooltip': { 'sort': 2 },
+      'yaxes': [ { 'format': 'short' }, {} ]
+    }
+  };
+
+  plugins.mongooseim.mamDetails = {
+    'graph': {
+      'modMamPrefsGets-one': {
+        'color': '#1F78C1',
+        'alias': '@instance.mam_prefs_gets@'
+      },
+      'modMamPrefsSets-one': {
+        'color': '#EF843C',
+        'alias': '@instance.mam_prefs_sets@'
+      },
+      'modMamSinglePurges-one': {
+        'color': '#CCA300',
+        'alias': '@instance.mam_single_purges@'
+      },
+      'modMamMultiplePurges-one': {
+        'color': '#629E51',
+        'alias': '@instance.mam_multiple_purges@'
+      }
+    },
+    'panel': {
+      'title': 'MongooseIM MAM Details',
+      'tooltip': { 'sort': 2 },
+      'yaxes': [ { 'format': 'short' }, {} ]
+    }
+  };
+
+
   // collectd docker plugin configuration: https://github.com/lebauce/docker-collectd-plugin
   plugins.docker = new Plugin();
 
