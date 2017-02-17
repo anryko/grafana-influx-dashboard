@@ -107,7 +107,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
     select: [],  // [selectProto]
     interval: false,
     query: '',
-    fill: 'none',
+    fill: 'null',
     groupBy: [
       {
         type: 'time',
@@ -404,6 +404,11 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   }
 
 
+  // isDerivative :: [selectObj] -> Bool
+  var isDerivative = function isDerivative (select) {
+    return _.some(select, (x) => _.indexOf(['derivative', 'non_negative_derivative'], x.type) !== -1);
+  }
+
   // setupTarget :: panelConfObj, graphConfObj, seriesObj -> targetObj
   var setupTarget = _.curry(function setupTarget (panelConf, graphConf, series) {
     var select = getSelect(graphConf);
@@ -437,8 +442,12 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
       measurement: series.name,
       select: [ select ],
       tags: tags,
-      interval: graphConf.interval
+      interval: graphConf.interval,
+      fill: (isDerivative(select) ? '0' : 'null')
     };
+
+    if (graphConf.fill)
+      target.fill = graphConf.fill
 
     return _.merge({}, targetProto, target);
   });
