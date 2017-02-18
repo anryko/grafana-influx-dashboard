@@ -145,7 +145,8 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
       alignAsTable: false,
       rightSide: false
     },
-    id: 1
+    id: 1,
+    interval: '>10s'
   };
 
   var rowProto = {
