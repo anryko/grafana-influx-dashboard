@@ -443,8 +443,8 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
       measurement: series.name,
       select: [ select ],
       tags: tags,
-      interval: graphConf.interval,
-      fill: (isDerivative(select) ? '0' : 'null')
+      interval: (isDerivative(select) ? null : graphConf.interval),
+      fill: (isDerivative(select) ? 'none' : 'null')
     };
 
     if (graphConf.fill)
@@ -495,6 +495,9 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
     }
     if (!_.isUndefined(graphConf.type)) {
       grepBy['type'] = graphConf.type;
+    }
+    if (!_.isUndefined(graphConf.description)) {
+      grepBy['description'] = graphConf.description;
     }
 
     var graphSeries = _.filter(graphConf.series, grepBy);

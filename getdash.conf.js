@@ -3421,16 +3421,13 @@ var getDashConf = function getDashConf () {
 
   plugins.docker.cpuPercent = {
     'graph': {
-      'docker': {
+      'value': {
         'type': 'cpu.percent',
         'alias': '@instance'
       }
     },
     'panel': {
       'title': 'Docker CPU Percent',
-      'lines': false,
-      'bars': true,
-      'stack': true,
       'tooltip': { 'sort': 2 },
       'yaxes': [ { 'format': 'percent', 'min': 0 }, {} ]
     }
@@ -3438,16 +3435,13 @@ var getDashConf = function getDashConf () {
 
   plugins.docker.cpuThrottling = {
     'graph': {
-      'docker': {
+      'throttled_time': {
         'type': 'cpu.throttling_data',
         'alias': '@instance'
       }
     },
     'panel': {
       'title': 'Docker CPU Throttling',
-      'lines': false,
-      'bars': true,
-      'stack': true,
       'tooltip': { 'sort': 2 },
       'yaxes': [ { 'format': 'short', 'min': 0 }, {} ]
     }
@@ -3455,87 +3449,99 @@ var getDashConf = function getDashConf () {
 
   plugins.docker.ioOps = {
     'graph': {
-      'io_serviced': {
-        'type': 'blkio',
-        'apply': 'derivative',
-        'alias': '@instance'
+      'write': {
+        'description': 'io_serviced_recursive',
+        'apply': 'non_negative_derivative',
+        'alias': '@instance.write'
+      },
+      'read': {
+        'description': 'io_serviced_recursive',
+        'apply': 'non_negative_derivative',
+        'math': '* -1',
+        'alias': '@instance.read'
       }
     },
     'panel': {
       'title': 'Docker I/O Ops',
-      'lines': false,
-      'bars': true,
-      'stack': true,
       'tooltip': { 'sort': 2 },
-      'yaxes': [ { 'format': 'iops', 'min': 0 }, {} ]
+      'yaxes': [ { 'format': 'iops', 'min': null }, {} ]
     }
   };
 
   plugins.docker.ioBytes = {
     'graph': {
-      'io_service_bytes': {
-        'type': 'blkio',
-        'apply': 'derivative',
-        'alias': '@instance'
+      'write': {
+        'description': 'io_service_bytes_recursive',
+        'apply': 'non_negative_derivative',
+        'alias': '@instance.write'
+      },
+      'read': {
+        'description': 'io_service_bytes_recursive',
+        'apply': 'non_negative_derivative',
+        'math': '* -1',
+        'alias': '@instance.read'
       }
     },
     'panel': {
       'title': 'Docker I/O Bytes',
-      'lines': false,
-      'bars': true,
-      'stack': true,
       'tooltip': { 'sort': 2 },
-      'yaxes': [ { 'format': 'bps', 'min': 0 }, {} ]
+      'yaxes': [ { 'format': 'bps', 'min': null }, {} ]
     }
   };
 
-  plugins.docker.networkUsage = {
+  plugins.docker.networkTraffic = {
     'graph': {
-      'docker': {
+      'rx_bytes': {
         'type': 'network.usage',
-        'apply': 'derivative',
-        'alias': '@instance'
+        'apply': 'non_negative_derivative',
+        'alias': '@instance.rx'
+      },
+      'tx_bytes': {
+        'type': 'network.usage',
+        'apply': 'non_negative_derivative',
+        'math': '* -1',
+        'alias': '@instance.tx'
       }
     },
     'panel': {
-      'title': 'Docker Network Usage',
-      'lines': false,
-      'bars': true,
-      'stack': true,
+      'title': 'Docker Network Traffic',
       'tooltip': { 'sort': 2 },
-      'yaxes': [ { 'format': 'bps', 'min': 0 }, {} ]
+      'yaxes': [ { 'format': 'bps', 'min': null }, {} ]
+    }
+  };
+
+  plugins.docker.networkPackets = {
+    'graph': {
+      'rx_packets': {
+        'type': 'network.usage',
+        'apply': 'non_negative_derivative',
+        'alias': '@instance.rx'
+      },
+      'tx_packets': {
+        'type': 'network.usage',
+        'apply': 'non_negative_derivative',
+        'math': '* -1',
+        'alias': '@instance.tx'
+      }
+    },
+    'panel': {
+      'title': 'Docker Network Packets',
+      'tooltip': { 'sort': 2 },
+      'yaxes': [ { 'format': 'pps', 'min': null }, {} ]
     }
   };
 
   plugins.docker.memoryBytes = {
     'graph': {
-      'docker': {
+      'docker_total': {
         'type': 'memory.usage',
         'alias': '@instance'
       }
     },
     'panel': {
       'title': 'Docker Memory Usage',
-      'stack': true,
-      'fill': 3,
       'tooltip': { 'sort': 2 },
       'yaxes': [ { 'format': 'bytes', 'min': 0 }, {} ]
-    }
-  };
-
-  plugins.docker.memoryDetail = {
-    'graph': {
-      '/^(?!total_|docker_|hierarchical_).+/': {
-        'type': 'memory.stats',
-        'alias': ''
-      }
-    },
-    'panel': {
-      'multi': true,
-      'title': 'Docker Memory Usage for @metric',
-      'stack': true,
-      'tooltip': { 'value_type': 'individual' },
-      'yaxes': [ { 'format': 'bytes' }, {} ]
     }
   };
 
