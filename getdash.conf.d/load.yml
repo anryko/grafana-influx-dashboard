@@ -1,0 +1,29 @@
+- name: load  # plugin name (uniq id)
+  # have to contain: 'graphs'
+  # can contain: 'config'
+  config:  # plugin configuration block (not enumerable)
+    # can contain: 'alias', 'separator', 'merge', 'multi', 'regexp', 'datasources', 'tags'
+    alias: la
+  graphs:  # graph configuration block
+    - title: Load Average  # graph title (uniq id)
+      # have to contain: 'title', 'graph'
+      # can contain: 'config', 'panel'
+      config:
+        # can contain: 'measurement', 'description', 'color', 'alias', 'type', 'apply', 'math'
+        # values defined here will influence all graphs,
+        # however graph value will overwrite this config if present
+        measurement: load
+      graph:  # graph configuration array (each element is a separate metric config)
+        # have to contain: 'measurement' or 'description' or 'type' (depends on graphs.config)
+        # can contain: 'color', 'alias', 'apply', 'math'
+        - description: load_shortterm
+          color: '#508642'
+          alias: 1m@
+        - description: load_midterm
+          color: '#447EBC'
+          alias: 5m@
+        - description: load_longterm
+          color: '#C15C17'
+          alias: 15m@
+      panel:  # panel configuration obj
+        # can contain whatever Grafana's panel object contains
