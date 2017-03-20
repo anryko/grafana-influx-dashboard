@@ -1,3 +1,4 @@
+---
 - name: load  # plugin name (uniq id)
   # have to contain: 'graphs'
   # can contain: 'config'

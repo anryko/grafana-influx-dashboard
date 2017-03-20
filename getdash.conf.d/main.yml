@@ -1,0 +1,24 @@
+---
+plugins:
+  config:
+    alias: undefined         # Used to replace real measurement name in graphs.
+    separator: ','           # Used to define series separator.
+    # merge: [ 'instance' ]  # Used to merge multiple instances, types or descriptions.
+    # multi: False           # Used to split single measurement instances to multiple
+                             # individual graphs.
+    # regexp: '/\d$/'        # Used to filter instances.
+    # datasources:           # Used to limit datasources per plugin.
+    #   - collectd           # If undefined all Grafana's InfluxDB datasources will be used.
+
+    tags:                    # Used to identify data in InfluxDB.
+      host: host             # Defaults are set to work with CollectD metric collector.
+      instance: instance
+      description: type_instance
+      type: type
+
+  enabled:                   # Enabled plugins.
+    - load
+
+groups:                      # Groups of plugins.
+  - system:                  # Any group name can be configured and plugins assigned to it.
+      - load
