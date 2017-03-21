@@ -163,8 +163,8 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
     var description = (_.isUndefined(series.description) || _.isEmpty(series.description))
         ? 'UNDEFINED'
         : series.description;
-    return startsWith(series.name, metricConf.plugin) && (startsOrEndsWith(series.name, metricName) ||
-        testIfRegexp(series.name, metricName) || startsOrEndsWith(description, metricName) ||
+    return startsWith(series.measurement, metricConf.plugin) && (startsOrEndsWith(series.measurement, metricName) ||
+        testIfRegexp(series.measurement, metricName) || startsOrEndsWith(description, metricName) ||
         testIfRegexp(description, metricName)) && (_.isUndefined(metricConf.regexp) ||
         metricConf.regexp.test(series.instance));
   });
@@ -390,7 +390,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   // fmtAlias :: aliasStr, serisObj -> new aliasStr
   var fmtAlias = function fmtAlias (alias, series) {
     var matches = {
-      '@measurement': series.name,
+      '@measurement': series.measurement,
       '@description': series.description,
       '@type': series.type,
       '@instance': series.instance,
@@ -415,7 +415,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
     var select = getSelect(graphConf);
 
     var tagObjs = _.omitBy(series, function (v, n) {
-      return _.indexOf([ 'name', 'source', 'key' ], n) !== -1;
+      return _.indexOf([ 'measurement', 'source', 'key' ], n) !== -1;
     });
 
     // convert series back to external influxdb format
@@ -433,14 +433,14 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
 
     var alias = (graphConf.alias && graphConf.alias.match('@'))
         ? fmtAlias(graphConf.alias, series).replace('@', '')
-        : (panelConf.metric.pluginAlias || series.type || series.name) +
+        : (panelConf.metric.pluginAlias || series.type || series.measurement) +
             (series.instance ? '.' + series.instance : '') + '.' +
-            (graphConf.alias || series.description || series.name || series.type);
+            (graphConf.alias || series.description || series.measurement || series.type);
 
     var target = {
       alias: alias,
       color: graphConf.color || genRandomColor(),
-      measurement: series.name,
+      measurement: series.measurement,
       select: [ select ],
       tags: tags,
       interval: (isDerivative(select) ? null : graphConf.interval),
@@ -947,11 +947,11 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
 
   // splitKey :: keyStr -> [keyPartStr]
   var splitKey = function splitKey (key) {
-    return ('name=' + key).split(',');
+    return ('measurement=' + key).split(',');
   };
   // console.assert(_.isEqual(
   //   splitKey("load_longterm,host=vagrant,type=load"),
-  //   [ "name=load_longterm", "host=vagrant", "type=load" ]
+  //   [ "measurement=load_longterm", "host=vagrant", "type=load" ]
   // ));
 
 
@@ -964,8 +964,8 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
     }, {});
   };
   // console.assert(_.isEqual(
-  //   objectKey([ "name=load_longterm", "host=vagrant", "type=load" ]),
-  //   { host: "vagrant", name: "load_longterm", type: "load"}
+  //   objectKey([ "measurement=load_longterm", "host=vagrant", "type=load" ]),
+  //   { host: "vagrant", measurement: "load_longterm", type: "load"}
   // ));
 
 
@@ -973,7 +973,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   var convertKey = _.flowRight(objectKey, splitKey);
   //  console.assert(_.isEqual(
   //    convertKey("load_longterm,host=vagrant,type=load"),
-  //    { host: "vagrant", name: "load_longterm", type: "load"}
+  //    { host: "vagrant", measurement: "load_longterm", type: "load"}
   //  ));
 
 
