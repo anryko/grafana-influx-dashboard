@@ -1,7 +1,7 @@
 ---
 plugins:
   config:
-    alias: undefined         # Used to replace real measurement name in graphs.
+    alias: null              # Used to replace real measurement name in graphs.
     separator: ','           # Used to define series separator.
     # merge: [ 'instance' ]  # Used to merge multiple instances, types or descriptions.
     # multi: False           # Used to split single measurement instances to multiple
@@ -18,6 +18,7 @@ plugins:
 
   enabled:                   # Enabled plugins.
     - load
+    - load1
 
 groups:                      # Groups of plugins.
   - system:                  # Any group name can be configured and plugins assigned to it.

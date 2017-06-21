@@ -1,7 +1,7 @@
 // Getdash application
 
 // getDashApp :: [datasourceObj], confObj -> dashObj
-var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
+var getDashApp = function getDashApp (datasourcesAll) {
   'use strict';
 
   // Helper Functions
@@ -46,13 +46,13 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
 
   // testIfRegexp :: Str, targetStr -> Bool
   var testIfRegexp = function testIfRegexp (string, target) {
-    return (target[0] === '/' && target[target.length - 1] === '/') &&
+    return (_.isString(string)) && (_.isString(target)) &&
+        (target[0] === '/' && target[target.length - 1] === '/') &&
         (RegExp(target.substr(1, target.length - 2)).test(string));
   };
 
 
   // Variables
-  var plugins = getdashConf.plugins;
   var datasources = _.filter(datasourcesAll, function (ds) {
     return !ds.grafanaDB && startsWith(ds.type, 'influxdb');
   });
@@ -74,7 +74,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
 
   var seriesProto = {
     source: '',
-    name: ''
+    measurement: ''
   };
 
   var metricProto = {
@@ -88,8 +88,6 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   };
 
   var pluginProto = {
-    name: '',
-    config: {},
     metrics: []  // [metricProto]
   };
 
@@ -156,13 +154,136 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   };
 
 
-  // Application Functions
 
+  // Application Functions
+  // matchLineSeries :: lineObj, seriesObj, optionStr -> Bool
+  var matchLineSeries = function matchLineSeries (line, series, option) {
+    return (line[option] === series[option]) ||
+        _.isUndefined(line[option]) ||
+        testIfRegexp(series[option], line[option]);
+  };
+
+  // lineSeriesFilter :: tagsObj, lineObj, seriesObj -> Bool
+  var lineSeriesFilter = _.curry(function lineSeriesFilter (tags, line, series) {
+    //debugger; 
+    return _(tags)
+      .keys()
+      .map(option => matchLineSeries(line, series, option))
+      .every(x => x === true);
+  });
+
+  // setLineSeries :: tagsObj, lineObj, [seriesObj] -> new lineObj
+  var setLineSeries = function setLineSeries (tags, line, series) {
+    //return _.merge({}, line, { series: _.filter(series, lineSeriesFilter(tags, line)) });
+    return _(line)
+      .chain()
+      .cloneDeep()
+      .tap(l => _.set(l, 'series', _.filter(series, lineSeriesFilter(tags, line))))
+      .value();
+  };
+
+  // setGraphSeries :: tagsObj, [lineObj], [seriesObj] -> new [lineObj]
+  var setGraphSeries = function setGraphSeries (tags, graph, series) {
+    //var pluginTags = _.merge({}, tags, _.get(plugin, 'config.tags'));
+    //debugger;
+    return _(graph)
+      .map(line => setLineSeries(tags, line, series))
+      .value();
+  };
+
+  // setGraphsSeries :: tagsObj, [graphObj], [seriesObj] -> new [[lineObj]]
+  var setGraphsSeries = function setGraphsSeries (tags, graphs, series) {
+    return _(graphs)
+      .map(graph => setGraphSeries(tags, graph, series))
+      .value();
+  };
+
+  // setPluginSeries :: tagsObj, pluginObj, [seriesObj] -> new pluginObj 
+  var setPluginSeries = function setPluginSeries (tags, plugin, series) {
+    return _(plugin)
+      .chain()
+      .cloneDeep()
+      .tap(p => _.set(p, 'config.tags', _.merge({}, tags, _.get(plugin, 'config.tags'))))
+      .tap(p => _.set(p, 'graphs', setGraphsSeries(p.config.tags, p.graphs, series)))
+      .value();
+  };
+
+
+  // getGraphSeriesValuesByKey :: seriesKeyStr, graphObj -> [seriesKeyValueStr]
+  var getGraphSeriesValuesByKey = function getGraphSeriesValuesByKey (seriesKey, graph) {
+    return _(graph)
+      .map('series')
+      .without(undefined)
+      .flattenDeep()
+      .unionBy(seriesKey)
+      .map(seriesKey)
+      .value();
+  };
+
+  // stripLineSeriesByValue :: seriesKeyStr, seriesValueStr, lineObj -> new lineObj
+  var stripLineSeriesByValue = _.curry(function stripLineSeriesByValue (seriesKey, seriesValue, line) {
+    //debugger;
+    return _(line)
+      .chain()
+      .cloneDeep()
+      .tap(l => _.set(l, 'series', _.filter(l.series, [seriesKey, seriesValue])))
+      .value();
+  });
+
+  // stripLinesSeriesByValue :: seriesKeyStr, seriesValueStr, [lineObj] -> [lineObj]
+  var stripLinesSeriesByValue = _.curry(function stripLinesSeriesByValue (seriesKey, seriesValue, lines) {
+    return _(lines)
+      .map(stripLineSeriesByValue(seriesKey, seriesValue))
+      .filter(l => !_.isEmpty(l.series))
+      .value();
+  });
+
+  // stripGraphSeriesByValue :: graphObj, seriesKeyStr, seriesValueStr -> new graphObj
+  var stripGraphSeriesByValue = _.curry(function stripGraphSeriesByValue (graph, seriesKey, seriesValue) {
+    //debugger;
+    return _(graph)
+      .chain()
+      .cloneDeep()
+      .tap(g => _.set(g, 'graph', stripLinesSeriesByValue(seriesKey, seriesValue, g.graph)))
+      .value();
+  });
+
+
+  // splitGraphBySeriesKey :: seriesKeyStr, graphObj -> [graphObj]
+  var splitGraphBySeriesKey = _.curry(function splitGraphBySeriesKey (seriesKey, graph) {
+    // NOTE: Overwrite global series key with local one if present
+    seriesKey = _.get(graph, 'config.split_by', seriesKey);
+    if (_.isUndefined(seriesKey))
+      return [graph];
+
+    var seriesValues = getGraphSeriesValuesByKey(seriesKey, graph.graph);
+    return _(seriesValues)
+      .map(stripGraphSeriesByValue(graph, seriesKey))
+      .value();
+  });
+
+  // splitPluginGraphsBySeriesKey :: pluginObj -> new pluginObj
+  var splitPluginGraphsBySeriesKey = function splitPluginGraphsBySeriesKey (plugin) {
+    var seriesKey = _.get(plugin, 'config.split_by', undefined);
+
+    var splitedGraphs = _(plugin.graphs)
+      .map(splitGraphBySeriesKey(seriesKey))
+      .flattenDeep()
+      .value();
+
+    return _(plugin)
+      .chain()
+      .cloneDeep()
+      .tap(p => _.set(p, 'graphs', splitedGraphs))
+      .value();
+  };
+
+/*
   // seriesFilter :: metricConfObj, metricNameObj, seriesObj -> Bool
   var seriesFilter = _.curry(function seriesFilter (metricConf, metricName, series) {
-    var description = (_.isUndefined(series.description) || _.isEmpty(series.description))
+    var description = (_.isUndefined(series.description) || _.isEmpty(series.description)
         ? 'UNDEFINED'
-        : series.description;
+        : series.description);
     return startsWith(series.measurement, metricConf.plugin) && (startsOrEndsWith(series.measurement, metricName) ||
         testIfRegexp(series.measurement, metricName) || startsOrEndsWith(description, metricName) ||
         testIfRegexp(description, metricName)) && (_.isUndefined(metricConf.regexp) ||
@@ -182,9 +303,9 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
     o[k] = v;
     return _.merge({}, obj, o);
   });
+*/
 
-
-  // mergeSeries :: [Str], [seriesObj] -> mod [seriesObj]
+  // mergeSeries :: [seriesObj], [delKey] -> mod [seriesObj]
   var mergeSeries = function (series, delKeys) {
     return _.uniqBy(_.map(series, function (s) {
       _.map(delKeys, function (k) {
@@ -197,58 +318,21 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
       return s;
     }), JSON.stringify);
   };
-  //console.assert(_.isEqual(
-  //   mergeSeries([{
-  //       source: 'ops',
-  //       name: 'cpu_value',
-  //       instance: '0',
-  //       interval: '1m',
-  //       host: 'vagrant-ubuntu-trusty-64',
-  //       type: 'cpu',
-  //       type_instance: 'system'
-  //     }, {
-  //       source: 'ops',
-  //       name: 'cpu_value',
-  //       instance: '1',
-  //       interval: '1m',
-  //       host: 'vagrant-ubuntu-trusty-64',
-  //       type: 'cpu',
-  //       type_instance: 'system'
-  //     }], [ 'instance', 'type' ]),
-  //   [{
-  //     source: 'ops',
-  //     name: 'cpu_value',
-  //     interval: '1m',
-  //     host: 'vagrant-ubuntu-trusty-64',
-  //     type_instance: 'system'
-  //   }]
-  // ), "mergeSeries is broken.");
 
 
   // swapSeriesKeysTags :: tagsObj, seriesObj -> new seriesObj
   var swapSeriesKeysTags = _.curry(function swapSeriesKeysTags (tags, series) {
     var invTags = _.invert(tags);
     return _.reduce(series, function (o, v, k) {
-        (_.includes(_.keys(invTags), k)) ? o[invTags[k]] = v : o[k] = v;
+        if (_.includes(_.keys(invTags), k)) {
+          o[invTags[k]] = v;
+        } else {
+          o[k] = v;
+        }
+
         return o;
       }, {});
   });
-  // console.assert(_.isEqual(
-  //   swapSeriesKeysTags({
-  //       source: 'ops',
-  //       host_name: 'vagrant-ubuntu-trusty-64',
-  //       event_type: 'cpu',
-  //       type_instance: 'system'
-  //     }, {
-  //       host: 'host_name',
-  //       description: 'type_instance',
-  //       type: 'event_type'
-  //   }), {
-  //     source: 'ops',
-  //     host: 'vagrant-ubuntu-trusty-64',
-  //     type: 'cpu',
-  //     description: 'system'
-  //   }), "swapSeriesKeysTags is broken.");
 
 
   // swapSeriesTags :: tagsObj, [seriesObj] -> [new seriesObj]
@@ -256,11 +340,13 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
     return _.map(series, swapSeriesKeysTags(tags));
   });
 
-
-  // addSeriesToMetricGraphs :: seriesObj, tagsObj, metricConfObj -> new metricConfObj
-  var addSeriesToMetricGraphs = _.curry(function addSeriesToMetricGraphs (series, tags, metricConf) {
+/*
+  // addSeriesToMetricGraphs :: [seriesObj], pluginObj -> new pluginObj
+  var addSeriesToMetricGraphs = _.curry(function addSeriesToMetricGraphs (series, plugin) {
     // seriesThisFilter :: graphNameStr -> Bool
     var seriesThisFilter = seriesFilter(metricConf);
+
+    //debugger;
 
     var graphSeries = _.reduce(metricConf.graph, function (newConf, graphConf, graphName) {
       var matchedSeries = _.filter(series, seriesThisFilter(graphName));
@@ -271,16 +357,17 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
       if (_.isEmpty(readySeries))
         return newConf;
 
-      if (_.isArray(graphConf))
+      if (_.isArray(graphConf)) {
         newConf.graph[graphName] = _.map(_.range(graphConf.length), function () {
           return {
             series: readySeries
           };
         });
-      else
+      } else {
         newConf.graph[graphName] = {
           series: readySeries
         };
+      }
 
       return newConf;
     }, { graph: {} });
@@ -299,10 +386,11 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
       return _.map(g.series, key);
     })));
 
-    _.remove(o[asKey], (x) => _.isUndefined(x));
+    _.remove(o[asKey], _.isUndefined);
 
     return _.merge({}, metricConf, o);
   });
+
 
   // getMetric :: [seriesObj], pluginObj -> func
   var getMetric = _.curry(function getMetric (series, plugin) {
@@ -313,33 +401,40 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
                        moveUpToMetric('instance', 'instances'),
                        moveUpToMetric('source', 'sources'),
                        addSeriesToMetricGraphs(internal_series, plugin.config.tags),
-                       addProperty('merge', plugin.config.merge),
-                       addProperty('regexp', plugin.config.regexp),
-                       addProperty('separator', plugin.config.separator),
-                       addProperty('pluginAlias', plugin.config.alias),
-                       addProperty('plugin', plugin.name),
+                       //addProperty('merge', plugin.config.merge),
+                       //addProperty('regexp', plugin.config.regexp),
+                       //addProperty('separator', plugin.config.separator),
+                       //addProperty('pluginAlias', plugin.config.alias),
+                       //addProperty('plugin', plugin.name),
                        initMetric);
   });
+*/
 
+  // isDerivative :: Str -> Bool
+  var isDerivative = x => _.indexOf(['derivative', 'non_negative_derivative'], x) !== -1;
 
-  // getSelect :: graphConfObj -> [selectObj]
-  var getSelect = function getSelect (graphConf) {
+  // getSelect :: graphObj -> [selectObj]
+  var getSelect = function getSelect (graph) {
     // Forms targets select array from 'apply' string.
     // Intended to handle inputs like max, count, derivative, derivative(10s),
     // derivative(last), derivative(max(), 1s), derivative(min(value), 10s).
     var select = [
       {
         type: 'field',
-        params: (graphConf.column)
-            ? graphConf.column.split(',')
+        params: (graph.column)
+            ? graph.column.split(',')
             : [ 'value' ]
       }
     ];
 
-    if (graphConf.apply) {
-      var fn = _.without(_.filter(graphConf.apply.split(/[(), ]/)), graphConf.column, 'value');
-      if (fn[0] === 'derivative' || fn[0] === 'non_negative_derivative') {
-        if (isNaN(parseInt(fn[1]))) {
+    if (graph.apply) {
+      var fn = _(graph.apply.split(/[(), ]/))
+        .filter()
+        .without(graph.column, 'value')
+        .value();
+      //var fn = _.without(_.filter(graph.apply.split(/[(), ]/)), graph.column, 'value');
+      if (isDerivative(fn[0])) {
+        if (isNaN(parseInt(fn[1], 10))) {
           select.push({
             type: fn[1] || 'mean',
             params: []
@@ -377,10 +472,10 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
       });
     }
 
-    if (graphConf.math)
+    if (graph.math)
       select.push({
         type: 'math',
-        params: [ graphConf.math ]
+        params: [ graph.math ]
       });
 
    return select;
@@ -402,14 +497,16 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
             ? result.replace(key, val)
             : result;
       }, alias);
-  }
+  };
 
 
-  // isDerivative :: [selectObj] -> Bool
-  var isDerivative = function isDerivative (select) {
-    return _.some(select, (x) => _.indexOf(['derivative', 'non_negative_derivative'], x.type) !== -1);
-  }
+  // isSelectDerivative :: [selectObj] -> Bool
+  var isSelectDerivative = select => !_(select)
+      .map('type')
+      .filter(isDerivative)
+      .isEmpty();
 
+/*
   // setupTarget :: panelConfObj, graphConfObj, seriesObj -> targetObj
   var setupTarget = _.curry(function setupTarget (panelConf, graphConf, series) {
     var select = getSelect(graphConf);
@@ -419,7 +516,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
     });
 
     // convert series back to external influxdb format
-    var readyTags = swapSeriesKeysTags(_.invert(panelConf.tags), tagObjs)
+    var readyTags = swapSeriesKeysTags(_.invert(panelConf.tags), tagObjs);
 
     var tags = _.map(readyTags, function (v, k) {
       return {
@@ -443,13 +540,60 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
       measurement: series.measurement,
       select: [ select ],
       tags: tags,
-      interval: (isDerivative(select) ? null : graphConf.interval),
-      fill: (isDerivative(select) ? 'none' : 'null')
+      interval: (isSelectDerivative(select) ? null : graphConf.interval),
+      fill: (isSelectDerivative(select) ? 'none' : 'null')
     };
 
     if (graphConf.fill)
-      target.fill = graphConf.fill
+      target.fill = graphConf.fill;
 
+    return _.merge({}, targetProto, target);
+  });
+*/
+
+  // setupLineTarget :: tagsObj, lineObj, seriesObj -> targetObj
+  var setupLineTarget = _.curry(function setupLineTarget (tags, line, series) {
+    var select = getSelect(line);
+
+    var seriesTags = _(series)
+        .omitBy((v, k) => _.indexOf([ 'measurement', 'source', 'key' ], k) !== -1)
+        .value();
+
+    // convert series back to external influxdb format
+    var seriesTagsReady = swapSeriesKeysTags(_.invert(tags), seriesTags);
+
+    var targetTags = _(seriesTagsReady)
+        .map((v, k) => ({
+            condition: 'AND',
+            key: k,
+            value: v,
+            operator: '='
+          }))
+        .value();
+
+    // remove 'AND' from the leading conditional
+    delete targetTags[0].condition;
+
+    var alias = (line.alias && line.alias.match('@'))
+        ? fmtAlias(line.alias, series).replace('@', '')
+        : (series.type || series.measurement) +
+            (series.instance ? '.' + series.instance : '') + '.' +
+            (line.alias || series.description || series.measurement || series.type);
+
+    var target = {
+      alias: alias,
+      color: line.color || genRandomColor(),
+      measurement: series.measurement,
+      select: [ select ],
+      tags: targetTags,
+      interval: (isSelectDerivative(select) ? 'null' : line.interval),
+      fill: (isSelectDerivative(select) ? 'none' : 'null')
+    };
+
+    if (line.fill)
+      target.fill = line.fill;
+
+    //debugger;
     return _.merge({}, targetProto, target);
   });
 
@@ -491,13 +635,13 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
       host: panel.config.host
     };
     if (!_.isUndefined(panel.config.instance)) {
-      grepBy['instance'] = panel.config.instance;
+      grepBy.instance = panel.config.instance;
     }
     if (!_.isUndefined(graphConf.type)) {
-      grepBy['type'] = graphConf.type;
+      grepBy.type = graphConf.type;
     }
     if (!_.isUndefined(graphConf.description)) {
-      grepBy['description'] = graphConf.description;
+      grepBy.description = graphConf.description;
     }
 
     var graphSeries = _.filter(graphConf.series, grepBy);
@@ -570,7 +714,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
 
     // idCounter keeps state of panel ID number
     if (!setupPanel.idCounter)
-      setupPanel.idCounter = 1
+      setupPanel.idCounter = 1;
 
     var p = _.merge({}, panelProto, panel, { id: setupPanel.idCounter++ });
     delete p.config;  // no need in config after panel complected.
@@ -658,13 +802,9 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   });
 
 
-  // setupPlugin :: [seriesObject], pluginConfObj, pluginNameStr -> pluginObj
-  var setupPlugin = _.curry(function setupPlugin (series, pluginConf, pluginName) {
-    var plugin = {
-      name: pluginName,
-      config: pluginConf.config
-    };
-    plugin.metrics = _.map(pluginConf, getMetric(series, plugin));
+  // setupPlugin :: [seriesObj], pluginObj -> new pluginObj
+  var setupPlugin = _.curry(function setupPlugin (series, plugin) {
+    plugin.metrics = getMetric(series, plugin);
     return _.merge({}, pluginProto, plugin);
   });
 
@@ -672,7 +812,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   // getRowsForPlugin :: [seriesObj] -> func
   var getRowsForPlugin = function getRowsForPlugin (series) {
     // curry doesn't work inside compose... probably lodash issue
-    // :: pluginConfObj, pluginNameStr -> rowObj
+    // :: pluginConfObj -> rowObj
     return _.flowRight(setupRow,
                        stripErrorsFromPanels,
                        getPanelsForPlugin,
@@ -688,12 +828,9 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   });
 
 
-  // getDBData :: [datasourcePointsObj] -> Promise([queryResultObj])
-  var getDBData = function getDBData (dsQueries) {
-    var gettingDBData = _.map(dsQueries, function (query) {
-      return $.getJSON(query.url);
-    });
-
+  // fetchDBData :: [datasourcePointsObj] -> Promise([queryResultObj])
+  var fetchDBData = function fetchDBData (dsQueries) {
+    var gettingDBData = _.map(dsQueries, x => $.getJSON(x.url));
     return Promise.all(gettingDBData);
   };
 
@@ -802,30 +939,111 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
     return refresh;
   };
 
+  // getPluginOptFromConf :: optKeyStr, pluginGraphsObj -> [optValueStr]
+  var getPluginOptFromConf = _.curry(function getPluginOptFromConf (opt, pluginGraphs) {
+    return  _(pluginGraphs)
+      .map(x => _.get(x, 'config.' + opt))
+      .flattenDeep()
+      .without(undefined)
+      .value();
+  });
 
-  // getMetricArr :: pluginsObj, displayMetricStr -> [metricStr]
-  var getMetricArr = _.curry(function getMetricArr (plugins, displayMetric) {
+  // getGraphOpt :: optKeyStr, [graph] -> [optValueStr]
+  var getGraphOpt = _.curry(function getGraphOpt (opt, graph) {
+    return _(graph)
+      .map(x => _.get(x, opt))
+      .flattenDeep()
+      .without(undefined)
+      .value();
+  });
+
+  // getPluginOptFromGraphs :: optKeyStr, pluginGraphsObj -> [optValueStr]
+  var getPluginOptFromGraphs = _.curry(function getPluginOptFromGraphs (opt, pluginGraphs) {
+    return _(pluginGraphs)
+      .map(x => getGraphOpt(opt, x.graph))
+      .flattenDeep()
+      .value();
+  });
+
+  // getPluginOpt :: optKeyStr, pluginObj -> [optValueStr]
+  var getPluginOpt = _.curry(function getPluginOpt (opt, plugin) {
+    console.log('IN getPluginOpt: ', plugin);
+    if (!plugin.graphs)
+      return [];
+
+    console.log(getPluginOptFromConf(opt, plugin.graphs));
+    console.log(getPluginOptFromGraphs(opt, plugin.graphs));
+    return _.union(getPluginOptFromConf(opt, plugin.graphs),
+      getPluginOptFromGraphs(opt, plugin.graphs));
+  });
+
+  // getPluginsOpt :: optKeyStr, [pluginObj] -> [optValueStr]
+  var getPluginsOpt = function getPluginsOpt (opt, plugins) {
+    return _(plugins)
+      .map(getPluginOpt(opt))
+      .flattenDeep()
+      .uniq()
+      .value();
+  };
+
+  // getPluginsMeasurements :: [pluginObj] -> [measurementStr]
+  var getPluginsMeasurements = getPluginsOpt('measurement');
+
+  // getPluginsDescriptions :: [pluginObj] -> [descriptionsStr]
+  var getPluginsDescriptions = getPluginsOpt('description');
+
+  // getPluginsNames :: [pluginObj] -> [nameStr]
+  var getPluginsNames = function (plugins) {
+    return _.map(plugins, 'name');
+  };
+
+  // getMeasurements :: pluginsObj, displayMetricStr -> [metricStr]
+  var getMeasurements = _.curry(function getMeasurements (plugins, displayMetric) {
+    var pluginsMeasurements = getPluginsMeasurements(plugins);
+    console.log(pluginsMeasurements);
+
     if (!displayMetric)
-      return _.keys(plugins);
+      return pluginsMeasurements;
 
     var displayMetrics = displayMetric.split(',');
     return _.uniq(_.reduce(displayMetrics, function (arr, metric) {
-      if (metric in plugins) {
+      if (_.indexOf(pluginsMeasurements, metric) !== -1) {
         arr.push(metric);
         return arr;
-      } else if (metric in plugins.groups) {
+        // TODO: adjust or remove groups
+      } /* else if (metric in plugins.groups) {
         return _.union(arr, plugins.groups[metric]);
-      }
+      } */
     }, []));
   });
 
 
-  // getQueryConfigs :: [datasourceObj], pluginsObj -> [queryConfigObj]
+  // getQueryConfigs :: [datasourceObj], [pluginObj] -> [queryConfigObj]
   var getQueryConfigs = _.curry(function getQueryConfigs (datasources, plugins) {
-    var queryConfigsAll = _.map(plugins, function (plugin, name) {
+    var qSeparator = '--';
+    console.log(getPluginOpt('measurement', plugins[0]));
+    console.log('datasources: ', datasources);
+    var queryConfigsGrouped = _(plugins)
+      .map(p => getPluginOpt('measurement', p)
+        .map(m => {
+          return {
+            measurement: m,
+            separator: p.config.separator || ',',
+            hostTag: p.config.tags.host,
+            datasources: p.config.datasources || _.map(datasources, 'name')
+          };
+        })
+      )
+      .flattenDeep()
+      .groupBy(q => q.hostTag + qSeparator + q.separator + qSeparator + q.datasources.join(qSeparator))
+      .value();
+    console.log(queryConfigsGrouped);
+
+/*
+    var queryConfigsAll = _.map(plugins, function (plugin) {
       return {
         name: name,
-        separator: plugin.config.separator,
+        separator: plugin.config.separator || ',',
         hostTag: plugin.config.tags.host,
         datasources: plugin.config.datasources || _.map(datasources, 'name')
       };
@@ -837,7 +1055,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
         qConf.separator + qSeparator +
         qConf.datasources;
     });
-
+*/
     return _.map(queryConfigsGrouped, function (qConf, htagSepaDS) {
       var htagSepaDSArr = htagSepaDS.split(qSeparator);
       var hostTag = htagSepaDSArr[0];
@@ -850,7 +1068,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
         separator: (separator === 'undefined')
             ? undefined
             : separator,
-        regexp: '(' + _.map(qConf, 'name').join('|') + ')',
+        regexp: '(' + _.map(qConf, 'measurement').join('|') + ')',
         datasources: _.flattenDeep(_.map(qDS, function (ds) {
             return _.filter(datasources, { name: ds });
           }))
@@ -878,11 +1096,11 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
 
     if (hostName.indexOf(',') > -1)
       return _.reduce(hostName.split(','), function(result, host) {
-          return result + hostTag + ' = \'' + host + '\' ' + 'OR '
+          return result + hostTag + ' = \'' + host + '\' ' + 'OR ';
         }, '').slice(0, -4);
 
     return hostTag + ' = \'' + hostName + '\'';
-  }
+  };
 
 
   // getDSQueryArr :: hostNameStr, [queryConfigObj] -> [urlDatasourceObj]
@@ -901,10 +1119,11 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
     }));
   });
 
-
+/*
   // stripPlugins :: pluginsObj, [metricsStr] -> new pluginsObj
   var stripPlugins = _.curry(function stripPlugins (plugins, metrics) {
     var newPlugins = _.merge({}, plugins);
+
     // have to use this ugly thing because reduce will strip unenumerable 'config'
     _.each(_.keys(plugins), function (pluginName) {
       if (!_.includes(metrics, pluginName)) {
@@ -913,33 +1132,34 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
     });
     return newPlugins;
   });
+*/
 
-
-  // setPluginsInstance :: pluginsObj, instanceStr -> new pluginsObj
+  // setPluginsInstance :: [pluginObj], instanceStr -> [pluginObj]
   var setPluginsInstance = function setPluginsInstance (plugins, instance) {
     if (!instance)
       return plugins;
 
     var rxPatt = /[^\w\s-,./]/gi;
+    var rxInstance;
     if (rxPatt.test(instance)) {
-      var rxInstance = new RegExp(instance);
+      rxInstance = new RegExp(instance);
     } else if (instance.indexOf(',') > -1) {
-      var rxInstance = new RegExp(_.map(instance.split(','), function (s) {
+      rxInstance = new RegExp(_.map(instance.split(','), function (s) {
         return '^' + s + '$';
       }).join('|'));
     } else {
-      var rxInstance =  new RegExp('^' + instance + '$');
+      rxInstance =  new RegExp('^' + instance + '$');
     }
 
-    return _.mapValues(plugins, function (p) {
+    return _.map(plugins, function (p) {
       if (p.config.multi)
-        p.config.regexp = rxInstance
+        p.config.regexp = rxInstance;
       return p;
     });
   };
 
 
-  // getQueries :: hostNameStr, datasourcesObj, pluginsObj -> [queryStr]
+  // getQueries :: hostNameStr, datasourcesObj, [pluginObj] -> [queryStr]
   var getQueries = function getQueries (hostName, datasources, plugins) {
     return _.flowRight(getDSQueryArr(hostName), getQueryConfigs(datasources))(plugins);
   };
@@ -949,10 +1169,6 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   var splitKey = function splitKey (key) {
     return ('measurement=' + key).split(',');
   };
-  // console.assert(_.isEqual(
-  //   splitKey("load_longterm,host=vagrant,type=load"),
-  //   [ "measurement=load_longterm", "host=vagrant", "type=load" ]
-  // ));
 
 
   // objectKey :: [keyPartStr] -> keyObj
@@ -963,18 +1179,10 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
       return result;
     }, {});
   };
-  // console.assert(_.isEqual(
-  //   objectKey([ "measurement=load_longterm", "host=vagrant", "type=load" ]),
-  //   { host: "vagrant", measurement: "load_longterm", type: "load"}
-  // ));
 
 
   // convertKey :: keyStr -> keyObj
   var convertKey = _.flowRight(objectKey, splitKey);
-  //  console.assert(_.isEqual(
-  //    convertKey("load_longterm,host=vagrant,type=load"),
-  //    { host: "vagrant", measurement: "load_longterm", type: "load"}
-  //  ));
 
 
   // setupSeries :: seriesObj -> new seriesObj
@@ -989,7 +1197,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
 
   // pickPlugins :: pluginObj, metricsStr -> new pluginsObj
   var pickPlugins = function pickPlugins (plugins, metrics) {
-    return _.flowRight(stripPlugins(plugins), getMetricArr(plugins))(metrics);
+    return _.flowRight(stripPlugins(plugins), getMeasurements(plugins))(metrics);
   };
 
 
@@ -1005,7 +1213,7 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
   };
 
 
-  // genSeries :: dashConfObj, seriesRespObj, [datasourceObj] -> dashboardObj
+  // genSeries :: dashConfObj, seriesRespObj, [datasourceObj] -> [seriesObj]
   var genSeries = function genSeries (dashConf, seriesResp, datasources) {
     var keys = _.map(seriesResp, function (val) {
       if (_.isUndefined(val))
@@ -1047,48 +1255,769 @@ var getDashApp = function getDashApp (datasourcesAll, getdashConf) {
     }, legendOrig);
   };
 
+  var pluginConfProto = {};
 
-  // getDashboard :: [datasources], pluginsObj, dashConfObj,
+  function Plugin (name, config, graphs) {
+    this.name = name || 'default';
+    this.config = _.merge({}, pluginConfProto, config || {});
+    this.graphs = _.map(graphs || [], _.cloneDeep);
+  }
+
+  // fetchPluginsConf :: confPathStr => Promise([pluginConfObj])
+  var fetchPluginsConf = function fetchPluginsConf (confPath) {
+    return $.get(confPath + '/main.yml')
+      .then(function (mainConfYaml) {
+        var mainConf = jsyaml.safeLoad(mainConfYaml);
+
+        // setup plugin confiiguration prototype
+        pluginConfProto = _.merge({}, mainConf.plugins.config);
+
+        console.log('fetchPluginsConf: ', mainConf);
+        console.log('fetchPluginsConf: ', pluginConfProto);
+        console.log('fetchPluginsConf: ', datasources);
+        var yamlConfigsToLoad = _.map(mainConf.plugins.enabled, x => confPath + '/' + x + '.yml');
+        var gettingConfigs = _.map(yamlConfigsToLoad, x => $.get(x));
+
+        return Promise.all(gettingConfigs);
+      })
+      .then(pluginsYaml => _.flattenDeep(_.map(pluginsYaml, x => jsyaml.safeLoad(x))))
+      .then(pluginsJson => _.map(pluginsJson, x => new Plugin(x.name, x.config, x.graphs)));
+  };
+
+
+  // getHostsFromDBResp :: resp -> [hostStr]
+  var getHostsFromDBResp = function (resp) {
+    return _(resp)
+      .compact()
+      .flattenDeep()
+      .uniq()
+      .without(dashConf.defaultHostTags)
+      .value();
+  };
+
+
+  // getDashboard :: [datasources], dashConfObj,
   //                 grafanaCallbackFunc -> grafanaCallbackFunc(dashboardObj)
-  var getDashboard = _.curry(function getDashboard (datasources, plugins, dashConf, callback) {
+  var getDashboard = _.curry(function getDashboard (datasources, dashConf, callback) {
     var dashboard = _.merge({}, dashboardProto, {
       title: dashConf.title,
       time: getDashboardTime(dashConf.time),
       refresh: getDashboardRefresh(dashConf.refresh)
     });
 
+    console.log('main ds: ', datasources);
+
     if (!dashConf.host && !dashConf.metric) {
       var queriesForDDash = getQueriesForDDash(datasources, dashConf.defaultQueries, dashConf.defaultHostTags);
 
-      getDBData(queriesForDDash).then(function (resp) {
-        var hosts = _.filter(_.uniq(_.flattenDeep(_.compact(parseResp(resp)))), (x) => !_.includes(dashConf.defaultHostTags, x));
-        return callback(setupDefaultDashboard(hosts, dashboard));
-      });
+      fetchDBData(queriesForDDash)
+        .then(function (resp) {
+          var hosts = getHostsFromDBResp(parseResp(resp));
+          return callback(setupDefaultDashboard(hosts, dashboard));
+        });
       return;
     }
 
-    var dashPlugins = pickPlugins(plugins, dashConf.metric);
-    dashPlugins = setPluginsInstance(dashPlugins, dashConf.instance);
+    fetchPluginsConf('public/app/getdash/getdash.conf.d')
+      .then(function (plugins) {
+        console.log(plugins);
+        //debugger;
+        //var dashPlugins = pickPlugins(plugins, dashConf.metric);
+        var dashPlugins = plugins;
+        console.log(dashPlugins);
+        //dashPlugins = setPluginsInstance(dashPlugins, dashConf.instance);
+        console.log(dashPlugins);
+        console.log('fetchPluginsConf ds: ', datasources);
 
-    var dashQueries = getQueries(dashConf.host, datasources, dashPlugins);
-    var datasources = _.map(dashQueries, 'datasource');
+        var dashQueries = getQueries(dashConf.host, datasources, dashPlugins);
+        console.log(dashQueries);
+        //var datasources = _.map(dashQueries, 'datasource');
 
-    getDBData(dashQueries).then(function (resp) {
-      var seriesResp = parseResp(resp);
-      var series = genSeries(dashConf, seriesResp, datasources);
+        fetchDBData(dashQueries)
+          .then(function (resp) {
+            var seriesResp = parseResp(resp);
+            var series = genSeries(dashConf, seriesResp, datasources);
+            console.log('series: ', series);
 
-      // Object prototypes setup
-      panelProto.span = dashConf.span;
-      panelProto.legend = setupPanelLegend(dashConf.legend);
+            // Object prototypes setup
+            panelProto.span = dashConf.span;
+            panelProto.legend = setupPanelLegend(dashConf.legend);
 
-      dashboard.rows = getRows(dashPlugins, series);
-      return callback(dashboard);
-    });
+            dashboard.rows = getRows(dashPlugins, series);
+            return callback(dashboard);
+          });
+      });
   });
 
 
+  // TESTS
+  // runTests :: -> undefined
+  var runTests = function runTests () {
+    var assertEqual = (i, o, msg) => console.assert(_.isEqual(i, o), msg);
+
+    // TEST :: stripLineSeriesByValue
+    assertEqual(
+      stripLineSeriesByValue(
+        'instance',
+        'sda1',
+        {
+          measurement: 'disk',
+          instance: '/\\d$/',
+          series: [
+            { measurement: 'disk', instance: 'sda1', type: 'io' },
+            { measurement: 'disk', instance: 'sdb1', type: 'io' },
+            { measurement: 'disk', instance: 'sdb2', type: 'io' }
+          ]
+        }
+      ),
+      {
+        measurement: 'disk',
+        instance: '/\\d$/',
+        series: [
+          { measurement: 'disk', instance: 'sda1', type: 'io' }
+        ]
+      },
+      "[1] stripLineSeriesByValue is broken."
+    );
+
+    // TEST :: stripLinesSeriesByValue
+    assertEqual(
+      stripLinesSeriesByValue(
+        'instance',
+        'sdc1',
+        [
+          {
+            measurement: 'disk',
+            instance: '/\\d$/',
+            series: [
+              { measurement: 'disk', instance: 'sda1', type: 'io' },
+              { measurement: 'disk', instance: 'sdb2', type: 'io' }
+            ]
+          },
+          {
+            measurement: 'disk_read',
+            type: 'bytes',
+            series: [
+              { measurement: 'disk_read', instance: 'sda1', type: 'bytes' },
+              { measurement: 'disk_read', instance: 'sdc1', type: 'bytes' }
+            ]
+          }
+        ]
+      ),
+      [
+        {
+          measurement: 'disk_read',
+          type: 'bytes',
+          series: [
+            { measurement: 'disk_read', instance: 'sdc1', type: 'bytes' }
+          ]
+        }
+      ],
+      "[1] stripLinesSeriesByValue is broken."
+    );
+
+    // TEST :: stripGraphSeriesByValue
+    assertEqual(
+      stripGraphSeriesByValue(
+        {
+          title: 'Disk',
+          config: {
+            measurement: 'disk',
+            split_by: 'instance'
+          },
+          panel: {},
+          graph: [
+              {
+                measurement: 'disk',
+                instance: '/\\d$/',
+                series: [
+                  { measurement: 'disk', instance: 'sda1', type: 'io' },
+                  { measurement: 'disk', instance: 'sdb2', type: 'io' }
+                ]
+              },
+              {
+                measurement: 'disk_read',
+                type: 'bytes',
+                series: [
+                  { measurement: 'disk_read', instance: 'sda1', type: 'bytes' },
+                  { measurement: 'disk_read', instance: 'sdc1', type: 'bytes' }
+                ]
+              }
+            ]
+        },
+        'instance',
+        'sdc1'
+      ),
+      {
+        title: 'Disk',
+        config: {
+          measurement: 'disk',
+          split_by: 'instance'
+        },
+        panel: {},
+        graph: [
+          {
+            measurement: 'disk_read',
+            type: 'bytes',
+            series: [
+              { measurement: 'disk_read', instance: 'sdc1', type: 'bytes' }
+            ]
+          }
+        ]
+      },
+      "[1] stripGraphSeriesByValue is broken."
+    );
+
+    // TEST :: splitGraphBySeriesKey
+    assertEqual(
+      splitGraphBySeriesKey(
+        'instance',
+        {
+          title: 'Disk',
+          config: {
+            measurement: 'disk',
+            split_by: 'instance'
+          },
+          panel: {},
+          graph: [
+            {
+              measurement: 'disk',
+              instance: '/\\d$/',
+              series: [
+                { measurement: 'disk', instance: 'sda1', type: 'io' },
+                { measurement: 'disk', instance: 'sdb2', type: 'io' }
+              ]
+            },
+            {
+              measurement: 'disk_read',
+              type: 'bytes',
+              series: [
+                { measurement: 'disk_read', instance: 'sda1', type: 'bytes' },
+                { measurement: 'disk_read', instance: 'sdc1', type: 'bytes' }
+              ]
+            }
+          ]
+        }
+      ),
+      [
+        {
+          title: 'Disk',
+          config: {
+            measurement: 'disk',
+            split_by: 'instance'
+          },
+          panel: {},
+          graph: [
+            {
+              measurement: 'disk',
+              instance: '/\\d$/',
+              series: [{ measurement: 'disk', instance: 'sda1', type: 'io' }]
+            },
+            {
+              measurement: 'disk_read',
+              type: 'bytes',
+              series: [{ measurement: 'disk_read', instance: 'sda1', type: 'bytes' }]
+            }
+          ]
+        },
+        {
+          title: 'Disk',
+          config: {
+            measurement: 'disk',
+            split_by: 'instance'
+          },
+          panel: {},
+          graph: [
+            {
+              measurement: 'disk',
+              instance: '/\\d$/',
+              series: [{ measurement: 'disk', instance: 'sdb2', type: 'io' }]
+            }
+          ]
+        },
+        {
+          title: 'Disk',
+          config: {
+            measurement: 'disk',
+            split_by: 'instance'
+          },
+          panel: {},
+          graph: [
+            {
+              measurement: 'disk_read',
+              type: 'bytes',
+              series: [{ measurement: 'disk_read', instance: 'sdc1', type: 'bytes' }]
+            }
+          ]
+        }
+      ],
+      "[1] splitGraphBySeriesKey is broken."
+    );
+
+ 
+    // TEST :: splitPluginGraphsBySeriesKey
+    assertEqual(
+      splitPluginGraphsBySeriesKey(
+        {
+          name: 'disk',
+          config: { alias: 'd' },
+          graphs: [
+            {
+              title: 'Disk',
+              config: {
+                measurement: 'disk',
+                split_by: 'instance'
+              },
+              panel: {},
+              graph: [
+                {
+                  measurement: 'disk',
+                  instance: '/\\d$/',
+                  series: [
+                    { measurement: 'disk', instance: 'sda1', type: 'io' },
+                    { measurement: 'disk', instance: 'sdb2', type: 'io' }
+                  ]
+                },
+                {
+                  measurement: 'disk_read',
+                  type: 'bytes',
+                  series: [
+                    { measurement: 'disk_read', instance: 'sda1', type: 'bytes' },
+                    { measurement: 'disk_read', instance: 'sdc1', type: 'bytes' }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ),
+      {
+        name: 'disk',
+        config: { alias: 'd' },
+        graphs: [
+          {
+            title: 'Disk',
+            config: {
+              measurement: 'disk',
+              split_by: 'instance'
+            },
+            panel: {},
+            graph: [
+              {
+                measurement: 'disk',
+                instance: '/\\d$/',
+                series: [{ measurement: 'disk', instance: 'sda1', type: 'io' }]
+              },
+              {
+                measurement: 'disk_read',
+                type: 'bytes',
+                series: [{ measurement: 'disk_read', instance: 'sda1', type: 'bytes' }]
+              }
+            ]
+          },
+          {
+            title: 'Disk',
+            config: {
+              measurement: 'disk',
+              split_by: 'instance'
+            },
+            panel: {},
+            graph: [
+              {
+                measurement: 'disk',
+                instance: '/\\d$/',
+                series: [{ measurement: 'disk', instance: 'sdb2', type: 'io' }]
+              }
+            ]
+          },
+          {
+            title: 'Disk',
+            config: {
+              measurement: 'disk',
+              split_by: 'instance'
+            },
+            panel: {},
+            graph: [
+              {
+                measurement: 'disk_read',
+                type: 'bytes',
+                series: [{ measurement: 'disk_read', instance: 'sdc1', type: 'bytes' }]
+              }
+            ]
+          }
+        ]
+      },
+      "[1] splitPluginGraphsBySeriesKey is broken."
+    );
+
+    // TEST :: getGraphSeriesValueByKey
+    assertEqual(
+      getGraphSeriesValuesByKey(
+        'instance',
+        [
+          {
+            measurement: 'disk',
+            instance: '/\\d$/',
+            series: [
+              { measurement: 'disk', instance: 'sda1', type: 'io' },
+              { measurement: 'disk', instance: 'sdb1', type: 'io' },
+              { measurement: 'disk', instance: 'sdb2', type: 'io' }
+            ]
+          },
+          {
+            measurement: 'disk_read',
+            type: 'bytes',
+            series: [
+              { measurement: 'disk_read', instance: 'sda1', type: 'bytes' },
+              { measurement: 'disk_read', instance: 'sdb1', type: 'bytes' },
+              { measurement: 'disk_read', instance: 'sdc1', type: 'bytes' }
+            ]
+          }
+        ]
+      ),
+      ['sda1', 'sdb1', 'sdb2', 'sdc1'],
+      "[1] getGraphSeriesValuesByKey is broken."
+    );
+
+    // TEST :: matchLineSeries
+    assertEqual(
+      matchLineSeries(
+        { measurement: 'disk_read', instance: '/\\d$/', color: '#AAA' },
+        { measurement: 'disk', instance: 'sda1' },
+        'instance'
+      ),
+      true,
+      "[1] matchLineSeries is broken."
+    );
+    assertEqual(
+      matchLineSeries(
+        { measurement: 'disk_read', instance: '/\\d$/', color: '#AAA' },
+        { measurement: 'disk', instance: 'sda1' },
+        'measurement'
+      ),
+      false,
+      "[2] matchLineSeries is broken."
+    );
+    assertEqual(
+      matchLineSeries(
+        { measurement: 'disk_read', instance: '/\\d$/', color: '#AAA' },
+        { measurement: 'disk', instance: 'sda1' },
+        'type'
+      ),
+      true,
+      "[3] matchLineSeries is broken."
+    );
+
+    // TEST :: lineSeriesFilter
+    assertEqual(
+      lineSeriesFilter(
+        { description: 'type_instance', instance: 'instance', type: 'type' },
+        { description: 'read', instance: '/\\d$/', color: '#AAA' },
+        { description: 'read', instance: 'sda1' }
+      ),
+      true,
+      "[1] lineSeriesFilter broken."
+    );
+    assertEqual(
+      lineSeriesFilter(
+        { description: 'type_instance', instance: 'instance', type: 'type' },
+        { description: 'read', instance: '/\d$/', color: '#AAA' },
+        { description: 'write', instance: 'sda1' }
+      ),
+      false,
+      "[2] lineSeriesFilter is broken."
+    );
+
+    // TEST :: setLineSeries
+    assertEqual(
+      setLineSeries(
+        { measurement: 'measurement', instance: 'instance', type: 'type' },
+        { measurement: 'disk', instance: '/\\d$/', color: '#AAA' },
+        [
+          { measurement: 'disk', instance: 'sda1', type: 'io' },
+          { measurement: 'disk_read', instance: 'sda1', type: 'bytes' },
+          { measurement: 'disk', instance: 'sda', type: 'io' }
+        ]
+      ),
+      {
+        measurement: 'disk', instance: '/\\d$/', color: '#AAA',
+        series: [{ measurement: 'disk', instance: 'sda1', type: 'io' }]
+      },
+      "[1] setLineSeries is broken."
+    );
+
+    // TEST :: setGraphSeries
+    assertEqual(
+      setGraphSeries(
+        { measurement: 'measurement', instance: 'instance', type: 'type' },
+        [
+          { measurement: 'disk', instance: '/\\d$/' },
+          { measurement: 'disk_read', type: 'bytes' },
+          { measurement: 'disk', instance: 'sda' }
+        ],
+        [
+          { measurement: 'disk', instance: 'sda1', type: 'io' },
+          { measurement: 'disk_read', instance: 'sda1', type: 'bytes' },
+          { measurement: 'disk', instance: 'sda', type: 'io' }
+        ]
+      ),
+      [
+        { measurement: 'disk', instance: '/\\d$/', series: [{ measurement: 'disk', instance: 'sda1', type: 'io' }] },
+        { measurement: 'disk_read', type: 'bytes', series: [{ measurement: 'disk_read', instance: 'sda1', type: 'bytes' }] },
+        { measurement: 'disk', instance: 'sda', series: [{ measurement: 'disk', instance: 'sda', type: 'io' }] }
+      ],
+      "[1] setGraphSeries is broken."
+    );
+
+    // TEST :: setGraphsSeries
+    assertEqual(
+      setGraphsSeries(
+        { measurement: 'measurement', instance: 'instance', type: 'type' },
+        [
+          [
+            { measurement: 'disk', instance: '/\\d$/' },
+            { measurement: 'disk_read', type: 'bytes' },
+            { measurement: 'disk', instance: 'sda' }
+          ],
+          [
+            { measurement: 'disk', instance: '/\\d$/' },
+            { measurement: 'disk_read', type: 'bytes' },
+            { measurement: 'disk', instance: 'sda' }
+          ],
+        ],
+        [
+          { measurement: 'disk', instance: 'sda1', type: 'io' },
+          { measurement: 'disk_read', instance: 'sda1', type: 'bytes' },
+          { measurement: 'disk', instance: 'sda', type: 'io' }
+        ]
+      ),
+      [
+        [
+          {
+            measurement: 'disk',
+            instance: '/\\d$/',
+            series: [{ measurement: 'disk', instance: 'sda1', type: 'io' }]
+          },
+          {
+            measurement: 'disk_read',
+            type: 'bytes',
+            series: [{ measurement: 'disk_read', instance: 'sda1', type: 'bytes' }]
+          },
+          {
+            measurement: 'disk',
+            instance: 'sda',
+            series: [{ measurement: 'disk', instance: 'sda', type: 'io' }]
+          }
+        ],
+        [
+          {
+            measurement: 'disk',
+            instance: '/\\d$/',
+            series: [{ measurement: 'disk', instance: 'sda1', type: 'io' }]
+          },
+          {
+            measurement: 'disk_read',
+            type: 'bytes',
+            series: [{ measurement: 'disk_read', instance: 'sda1', type: 'bytes' }]
+          },
+          {
+            measurement: 'disk',
+            instance: 'sda',
+            series: [{ measurement: 'disk', instance: 'sda', type: 'io' }]
+          }
+        ],
+      ],
+      "[1] setGraphsSeries is broken."
+    );
+
+    // TEST :: setPluginSeries
+    assertEqual(
+      setPluginSeries(
+        { measurement: 'measurement' },
+        {
+          name: 'disk',
+          config: {
+            tags: {
+              instance: 'instance',
+              type: 'type'
+            }
+          },
+          graphs: [
+            [
+              { measurement: 'disk', instance: '/\\d$/' },
+              { measurement: 'disk_read', type: 'bytes' },
+              { measurement: 'disk', instance: 'sda' }
+            ],
+            [
+              { measurement: 'disk', instance: '/\\d$/' },
+              { measurement: 'disk_read', type: 'bytes' },
+              { measurement: 'disk', instance: 'sda' }
+            ],
+          ]
+        },
+        [
+          { measurement: 'disk', instance: 'sda1', type: 'io' },
+          { measurement: 'disk_read', instance: 'sda1', type: 'bytes' },
+          { measurement: 'disk', instance: 'sda', type: 'io' }
+        ]
+      ),
+      {
+        name: 'disk',
+        config: {
+          tags: {
+            measurement: 'measurement',
+            instance: 'instance',
+            type: 'type'
+          }
+        },
+        graphs: [
+          [
+            {
+              measurement: 'disk',
+              instance: '/\\d$/',
+              series: [{ measurement: 'disk', instance: 'sda1', type: 'io' }]
+            },
+            {
+              measurement: 'disk_read',
+              type: 'bytes',
+              series: [{ measurement: 'disk_read', instance: 'sda1', type: 'bytes' }]
+            },
+            {
+              measurement: 'disk',
+              instance: 'sda',
+              series: [{ measurement: 'disk', instance: 'sda', type: 'io' }]
+            }
+          ],
+          [
+            {
+              measurement: 'disk',
+              instance: '/\\d$/',
+              series: [{ measurement: 'disk', instance: 'sda1', type: 'io' }]
+            },
+            {
+              measurement: 'disk_read',
+              type: 'bytes',
+              series: [{ measurement: 'disk_read', instance: 'sda1', type: 'bytes' }]
+            },
+            {
+              measurement: 'disk',
+              instance: 'sda',
+              series: [{ measurement: 'disk', instance: 'sda', type: 'io' }]
+            }
+          ]
+        ]
+      },
+      "[1] setPluginSeries is broken."
+    );
+
+    // TEST :: mergeSeries
+    assertEqual(
+      mergeSeries([{
+          source: 'ops',
+          name: 'cpu_value',
+          instance: '0',
+          interval: '1m',
+          host: 'vagrant-ubuntu-trusty-64',
+          type: 'cpu',
+          type_instance: 'system'
+        }, {
+          source: 'ops',
+          name: 'cpu_value',
+          instance: '1',
+          interval: '1m',
+          host: 'vagrant-ubuntu-trusty-64',
+          type: 'cpu',
+          type_instance: 'system'
+        }
+      ], [ 'instance', 'type' ]),
+      [
+        {
+          source: 'ops',
+          name: 'cpu_value',
+          interval: '1m',
+          host: 'vagrant-ubuntu-trusty-64',
+          type_instance: 'system'
+        }
+      ],
+      "[1] mergeSeries is broken."
+    );
+
+    // TEST :: swapSeriesKeysTags
+    assertEqual(
+      swapSeriesKeysTags({
+        host: 'host_name',
+        description: 'type_instance',
+        type: 'event_type'
+      }, {
+        source: 'ops',
+        host_name: 'vagrant-ubuntu-trusty-64',
+        event_type: 'cpu',
+        type_instance: 'system'
+      }),
+      {
+        source: 'ops',
+        host: 'vagrant-ubuntu-trusty-64',
+        type: 'cpu',
+        description: 'system'
+      },
+      "[1] swapSeriesKeysTags is broken."
+    );
+
+    // TEST :: splitKey
+    assertEqual(
+      splitKey("load_longterm,host=vagrant,type=load"),
+      [ "measurement=load_longterm", "host=vagrant", "type=load" ],
+      "[1] splitKey is broken."
+    );
+
+    // TEST :: objectKey
+    assertEqual(
+      objectKey([ "measurement=load_longterm", "host=vagrant", "type=load" ]),
+      { host: "vagrant", measurement: "load_longterm", type: "load" },
+      "[1] objectKey is broken."
+    );
+
+    // TEST :: convertKey
+    assertEqual(
+      convertKey("load_longterm,host=vagrant,type=load"),
+      { host: "vagrant", measurement: "load_longterm", type: "load" },
+      "[1] convertKey is broken."
+    );
+
+    // TEST :: setupLineTarget :: tagsObj, lineObj, seriesObj -> targetObj
+    assertEqual(
+      setupLineTarget(
+        { measurement: 'measurement', instance: 'instance', type: 'type' },
+        { measurement: 'disk', instance: '/\\d$/', color: '#AAA', alias: '@instance', apply: 'derivative' },
+        { measurement: 'disk', instance: 'sda1', type: 'io' }
+      ),
+      _.merge({}, targetProto, {
+          alias: 'sda1',
+          color: '#AAA',
+          measurement: 'disk',
+          select: [
+            [
+              { params: [ 'value' ], type: 'field' },
+              { params: [], type: 'mean' },
+              { params: [ '1s' ], type: 'derivative' }
+            ]
+          ],
+          tags: [
+            { key: 'instance', operator: '=', value: 'sda1' },
+            { condition: 'AND', key: 'type', operator: '=', value: 'io' }
+          ],
+          interval: 'null',
+          fill: 'none'
+        }),
+      "[1] setupLineTarget is broken."
+    );
+  };
+
+  if (TEST)
+    runTests();
+
   return {
     // get :: dashConfObj, grafanaCallbackFunc -> grafanaCallbackFunc(dashboardObj)
-    get: getDashboard(datasources, plugins)
+    get: getDashboard(datasources)
   };
-}
+};

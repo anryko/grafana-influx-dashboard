@@ -1,28 +1,26 @@
 ---
-- name: load  # plugin name (uniq id)
+- name: load1  # plugin name (uniq id)
   # have to contain: 'graphs'
   # can contain: 'config'
   config:  # plugin configuration block (not enumerable)
-    # can contain: 'alias', 'separator', 'merge', 'split_by', 'regexp', 'datasources', 'tags'
-    alias: la
+    # can contain: 'alias', 'separator', 'merge', 'multi', 'regexp', 'datasources', 'tags'
+    alias: la1
   graphs:  # graph configuration block
     - title: Load Average  # graph title (uniq id)
       # have to contain: 'title', 'graph'
       # can contain: 'config', 'panel'
       config:
-        # can contain: 'measurement', 'description', 'color', 'alias', 'type', 'apply', 'math', 'split_by'
+        # can contain: 'measurement', 'description', 'color', 'alias', 'type', 'apply', 'math'
         # values defined here will influence all graphs,
         # however graph value will overwrite this config if present
-        measurement: load
+        measurement: load1
       graph:  # graph configuration array (each element is a separate metric config)
         # have to contain: 'measurement' or 'description' or 'type' (depends on graphs.config)
         # can contain: 'color', 'alias', 'apply', 'math'
         - description: load_shortterm
-          measurement: load
           color: '#508642'
           alias: 1m@
         - description: load_midterm
-          measurement: load_aa
           color: '#447EBC'
           alias: 5m@
         - description: load_longterm

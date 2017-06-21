@@ -1,9 +1,36 @@
 // Configuration JS file for getdash.app.js
 
+var pluginConfProto = {};
+function Plugin (config, graphs) {
+  this.config = _.merge({}, pluginConfProto, config || {});
+  this.graphs = _.map(graphs || [], _.cloneDeep);
+}
+// fetchPluginsConf :: confPathStr => Promise([pluginConfObj])
+var fetchPluginsConf = function fetchPluginsConf (confPath) {
+  return $.get(confPath + '/main.yml')
+  .then(function (mainConfYaml) {
+    var mainConf = jsyaml.safeLoad(mainConfYaml);
+
+    // setup plugin confiiguration prototype
+    pluginConfProto = _.merge({}, mainConf.plugins.config);
+
+    console.log(mainConf);
+    console.log(pluginConfProto);
+    var yamlConfigsToLoad = _.map(mainConf.plugins.enabled, x => confPath + '/' + x + '.yml');
+    var gettingConfigs = _.map(yamlConfigsToLoad, x => $.get(x));
+
+    return Promise.all(gettingConfigs);
+  })
+  .then(pluginsYaml => _.flattenDeep(_.map(pluginsYaml, x => jsyaml.safeLoad(x))))
+  .then(pluginsJson => _.map(pluginsJson, x => new Plugin(x.config, x.graphs)));
+};
+
+
+
 // getDashConf :: -> configurationObj
 var getDashConf = function getDashConf () {
   'use strict';
-
+/*
   var pluginConfProto = {
     alias: undefined,                // Used to replace real measurement name in graphs.
 
@@ -28,15 +55,24 @@ var getDashConf = function getDashConf () {
       type: 'type'
     }
   };
-
+*/
   // Plugin constructor
-  function Plugin (config) {
-    Object.defineProperty(this, 'config', {
-      value: _.merge({}, pluginConfProto, config),
-      enumerable: false
-    });
+
+  var pluginConfProto = {};
+  function Plugin (config, graphs) {
+    this.config = _.merge({}, pluginConfProto, config || {});
+    this.graphs = _.map(graphs || [], _.cloneDeep);
   }
 
+/*  
+  function Plugin (pluginConf) {
+    Object.defineProperty(this, 'config', {
+      value: 'aaa',
+      enumerable: false
+    });
+    //this.graphs = _.map(pluginConf.graphs || [], _.cloneDeep);
+  }
+*/
   // collectd plugins configuration
   var plugins = {};
   Object.defineProperty(plugins, 'groups', {
@@ -87,6 +123,50 @@ var getDashConf = function getDashConf () {
     'couchbase'
   ];
 
+  // fetchPluginsConf :: confPathStr => [pluginConfObj]
+  var fetchPluginsConf = function fetchPluginsConf (confPath) {
+    return $.get(confPath + '/main.yml')
+    .then(function (mainConfYaml) {
+      var mainConf = jsyaml.safeLoad(mainConfYaml);
+
+      // setup plugin confiiguration prototype
+      pluginConfProto = _.merge({}, mainConf.plugins.config);
+
+      var yamlConfigsToLoad = _.map(mainConf.plugins, x => confPath + '/' + x + '.yml');
+      var gettingConfigs = _.map(yamlConfigsToLoad, x => $.get(x));
+
+      return Promise.all(gettingConfigs);
+    })
+    .then(pluginsYaml => _.flattenDeep(_.map(pluginsYaml, x => jsyaml.safeLoad(x))))
+    .then(pluginsJson => _.map(pluginsJson, x => new Plugin(x.config, x.graphs)));
+  };
+
+  return {
+    plugins: fetchPluginsConf('public/app/getdash/getdash.conf.d')
+  };
+/*
+  var loadScripts = function loadScripts (scriptSrcs) {
+    var gettingScripts = _.map(scriptSrcs, function (src) {
+      return $.getScript(src);
+    });
+
+    return Promise.all(gettingScripts);
+  };
+
+  $.get('public/app/getdash/getdash.conf.d/main.yml')
+    .then(function (main) {
+      var mainConfObj = jsyaml.safeLoad(main);
+      console.log(mainConfObj.plugins.enabled);
+      var yamlConfigsToLoad = _.map(mainConfObj.plugins.enabled, x => 'public/app/getdash/getdash.conf.d/' + x + '.yml');
+
+      console.log(yamlConfigsToLoad);
+      loadScripts(yamlConfigsToLoad)
+        .then(function (m) {
+          var mjs = _.flattenDeep(_.map(m, x => jsyaml.safeLoad(x)));
+          console.log(mjs);
+        });
+    });
+*/
 
   // collectd cpu plugin configuration: https://github.com/anryko/cpu-collectd-plugin
   // works also with default cpu collectd plugin configured as below
@@ -3865,4 +3945,4 @@ var getDashConf = function getDashConf () {
   return {
     'plugins': plugins
   };
-}
+};

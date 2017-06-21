@@ -9,6 +9,7 @@
 // Accessable variables in this scope
 var window, document, ARGS, $, jQuery, moment, kbn;
 
+TEST = true;
 
 // Helper Functions
 
@@ -30,12 +31,12 @@ return function scriptedDashboard (callback) {
 
   loadScripts([
       'public/app/getdash/getdash.app.js',
-      'public/app/getdash/getdash.conf.js'
+      'public/app/getdash/lib/js-yaml.min.js'
     ]).then(function () {
 
     // sanitize :: Str -> new Str
     var sanitize = function sanitize (str) {
-      return str.replace(/[^\w\s-,.*/]/gi, '');
+      return str.replace(/[^\w\s-,.*\/]/gi, '');
     };
 
     var displayHost = (_.isUndefined(ARGS.host)) ? '' : ARGS.host;
@@ -58,7 +59,7 @@ return function scriptedDashboard (callback) {
     };
 
     var datasources = _.values(window.grafanaBootData.settings.datasources);
-    var dash = getDashApp(datasources, getDashConf());
+    var dash = getDashApp(datasources);
     dash.get(dashConf, callback);
   });
 };
