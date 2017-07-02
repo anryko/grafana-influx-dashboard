@@ -165,7 +165,6 @@ var getDashApp = function getDashApp (datasourcesAll) {
 
   // lineSeriesFilter :: tagsObj, lineObj, seriesObj -> Bool
   var lineSeriesFilter = _.curry(function lineSeriesFilter (tags, line, series) {
-    //debugger; 
     return _(tags)
       .keys()
       .map(option => matchLineSeries(line, series, option))
@@ -185,7 +184,6 @@ var getDashApp = function getDashApp (datasourcesAll) {
   // setGraphSeries :: tagsObj, [lineObj], [seriesObj] -> new [lineObj]
   var setGraphSeries = function setGraphSeries (tags, graph, series) {
     //var pluginTags = _.merge({}, tags, _.get(plugin, 'config.tags'));
-    //debugger;
     return _(graph)
       .map(line => setLineSeries(tags, line, series))
       .value();
@@ -198,7 +196,7 @@ var getDashApp = function getDashApp (datasourcesAll) {
       .value();
   };
 
-  // setPluginSeries :: tagsObj, pluginObj, [seriesObj] -> new pluginObj 
+  // setPluginSeries :: tagsObj, pluginObj, [seriesObj] -> new pluginObj
   var setPluginSeries = function setPluginSeries (tags, plugin, series) {
     return _(plugin)
       .chain()
@@ -222,7 +220,6 @@ var getDashApp = function getDashApp (datasourcesAll) {
 
   // stripLineSeriesByValue :: seriesKeyStr, seriesValueStr, lineObj -> new lineObj
   var stripLineSeriesByValue = _.curry(function stripLineSeriesByValue (seriesKey, seriesValue, line) {
-    //debugger;
     return _(line)
       .chain()
       .cloneDeep()
@@ -240,7 +237,6 @@ var getDashApp = function getDashApp (datasourcesAll) {
 
   // stripGraphSeriesByValue :: graphObj, seriesKeyStr, seriesValueStr -> new graphObj
   var stripGraphSeriesByValue = _.curry(function stripGraphSeriesByValue (graph, seriesKey, seriesValue) {
-    //debugger;
     return _(graph)
       .chain()
       .cloneDeep()
@@ -593,8 +589,24 @@ var getDashApp = function getDashApp (datasourcesAll) {
     if (line.fill)
       target.fill = line.fill;
 
-    //debugger;
     return _.merge({}, targetProto, target);
+  });
+
+
+  // getTargetsFromLine :: tagsObj, lineObj(includes series) -> [targetObj]
+  var getTargetsFromLine = function getTargetsFromLine (tags, line) {
+    return _(line.series)
+      .map(s => setupLineTarget(tags, line, s))
+      .value()
+  };
+
+
+  // getTargetsFromGraph :: tagsObj, [lineObj] -> [targetObj]
+  var getTargetsFromGraph = _.curry(function getTargetsFromGraph (tags, graphs) {
+    return _(graphs)
+      .map(l => getTargetsFromLine(tags, l))
+      .flatten()
+      .value()
   });
 
 
@@ -1554,7 +1566,7 @@ var getDashApp = function getDashApp (datasourcesAll) {
       "[1] splitGraphBySeriesKey is broken."
     );
 
- 
+
     // TEST :: splitPluginGraphsBySeriesKey
     assertEqual(
       splitPluginGraphsBySeriesKey(
@@ -2010,6 +2022,91 @@ var getDashApp = function getDashApp (datasourcesAll) {
           fill: 'none'
         }),
       "[1] setupLineTarget is broken."
+    );
+
+    // TEST :: getTargetsFromLine :: tagsObj, lineObj(includes series) -> [targetObj]
+    assertEqual(
+      getTargetsFromLine(
+        { measurement: 'measurement', instance: 'instance', type: 'type' },
+        {
+          measurement: 'disk',
+          instance: '/\\d$/',
+          color: '#AAA',
+          alias: '@instance',
+          apply: 'derivative',
+          series: [
+            { measurement: 'disk', instance: 'sda1', type: 'io' },
+            { measurement: 'disk', instance: 'sda2', type: 'io' }
+          ]
+        }
+      ),
+      [
+        setupLineTarget(
+          { measurement: 'measurement', instance: 'instance', type: 'type' },
+          { measurement: 'disk', instance: '/\\d$/', color: '#AAA', alias: '@instance', apply: 'derivative' },
+          { measurement: 'disk', instance: 'sda1', type: 'io' }
+        ),
+        setupLineTarget(
+          { measurement: 'measurement', instance: 'instance', type: 'type' },
+          { measurement: 'disk', instance: '/\\d$/', color: '#AAA', alias: '@instance', apply: 'derivative' },
+          { measurement: 'disk', instance: 'sda2', type: 'io' }
+        )
+      ],
+      "[1] getTargetsFromLine is broken."
+    );
+
+    // TEST :: getTargetsFromGraph :: tagsObj, [lineObj] -> [targetObj]
+    assertEqual(
+      getTargetsFromGraph(
+        { measurement: 'measurement', instance: 'instance', type: 'type' },
+        [
+          {
+            measurement: 'disk',
+            instance: '/\\d$/',
+            color: '#AAA',
+            alias: '@instance',
+            apply: 'derivative',
+            series: [
+              { measurement: 'disk', instance: 'sda1', type: 'io' },
+              { measurement: 'disk', instance: 'sda2', type: 'io' }
+            ]
+          },
+          {
+            measurement: 'disk_write',
+            instance: '/\\d$/',
+            color: '#BBB',
+            alias: '@instance',
+            apply: 'derivative',
+            series: [
+              { measurement: 'disk_write', instance: 'sda1', type: 'io' },
+              { measurement: 'disk_write', instance: 'sda2', type: 'io' }
+            ]
+          },
+        ]
+      ),
+      [
+        setupLineTarget(
+          { measurement: 'measurement', instance: 'instance', type: 'type' },
+          { measurement: 'disk', instance: '/\\d$/', color: '#AAA', alias: '@instance', apply: 'derivative' },
+          { measurement: 'disk', instance: 'sda1', type: 'io' }
+        ),
+        setupLineTarget(
+          { measurement: 'measurement', instance: 'instance', type: 'type' },
+          { measurement: 'disk', instance: '/\\d$/', color: '#AAA', alias: '@instance', apply: 'derivative' },
+          { measurement: 'disk', instance: 'sda2', type: 'io' }
+        ),
+        setupLineTarget(
+          { measurement: 'measurement', instance: 'instance', type: 'type' },
+          { measurement: 'disk_write', instance: '/\\d$/', color: '#BBB', alias: '@instance', apply: 'derivative' },
+          { measurement: 'disk_write', instance: 'sda1', type: 'io' }
+        ),
+        setupLineTarget(
+          { measurement: 'measurement', instance: 'instance', type: 'type' },
+          { measurement: 'disk_write', instance: '/\\d$/', color: '#BBB', alias: '@instance', apply: 'derivative' },
+          { measurement: 'disk_write', instance: 'sda2', type: 'io' }
+        )
+      ],
+      "[1] getTargetsFromGraph is broken."
     );
   };
 
